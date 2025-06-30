@@ -1,0 +1,24 @@
+<div class="sidebar" [class.expanded]="isExpanded">
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <span class="toggle-icon">{{isExpanded ? '<' : '>'}}</span>
+  </button>
+  <div class="sidebar-header">
+    <div class="logo">SP</div>
+    <div class="title">
+      <h2>Sponsor Dashboard</h2>
+      <span>Web sponsor</span>
+    </div>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a [routerLink]="['/dashboard/sponsor/sponsored']"><span class="icon">🤝</span> <span class="menu-text">Sponsored</span></a></li>
+    <li><a [routerLink]="['/dashboard/sponsor/organisation-list']"><span class="icon">🏢</span> <span class="menu-text">Organisation List</span></a></li>
+    <li><a [routerLink]="['/dashboard/sponsor/profile']"><span class="icon">👤</span> <span class="menu-text">Profile</span></a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <a href="#" class="logout"><span class="icon">🚪</span> <span class="menu-text">Logout</span></a>
+    <div class="toggle-mode">
+      <button class="theme-toggle-btn" (click)="toggleDarkMode()" [class.dark]="isDarkMode" aria-label="Toggle dark mode"></button>
+      <span class="toggle-mode-label">Dark Mode</span>
+    </div>
+  </div>
+</div>

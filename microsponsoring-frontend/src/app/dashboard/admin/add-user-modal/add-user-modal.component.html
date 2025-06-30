@@ -1,0 +1,80 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <span class="close" (click)="close.emit()">&times;</span>
+    <h3>{{ user ? 'Edit User' : 'Add User' }}</h3>
+    <form (ngSubmit)="submitAddUser()" #addUserForm="ngForm">
+      <div>
+        <label>Username</label>
+        <input name="username" [(ngModel)]="newUser.username" required />
+      </div>
+      <div>
+        <label>Email</label>
+        <input name="email" [(ngModel)]="newUser.email" required type="email" />
+      </div>
+      <div>
+        <label>Password</label>
+        <input name="password" [(ngModel)]="newUser.password" [required]="!user" type="password" />
+      </div>
+      <div>
+        <label>Full Name</label>
+        <input name="fullName" [(ngModel)]="newUser.fullName" />
+      </div>
+      <div>
+        <label>User Type</label>
+        <select name="userType" [(ngModel)]="newUser.userType" required>
+          <option value="ADMIN">Admin</option>
+          <option value="SPONSOR">Sponsor</option>
+          <option value="ORGANISATION_NONPROFIT">Organisation/Nonprofit</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select name="status" [(ngModel)]="newUser.status">
+          <option value="ACTIVE">Active</option>
+          <option value="PENDING">Pending</option>
+          <option value="SUSPENDED">Suspended</option>
+        </select>
+      </div>
+      <div>
+        <label>Accepted Conditions</label>
+        <label class="switch">
+          <input type="checkbox" name="acceptedConditions" [(ngModel)]="newUser.acceptedConditions" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div>
+        <label>Profile Picture</label>
+        <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+        <div *ngIf="uploadingImage">Uploading...</div>
+        <img *ngIf="newUser.profilePicture" [src]="profilePictureUrl" alt="Profile Preview" style="max-width: 100px; margin-top: 8px;">
+      </div>
+      <div>
+        <label>Bio</label>
+        <textarea name="bio" [(ngModel)]="newUser.bio"></textarea>
+      </div>
+      <div>
+        <label>Location</label>
+        <input name="location" [(ngModel)]="newUser.location" />
+      </div>
+      <div>
+        <label>Website URL</label>
+        <input name="websiteUrl" [(ngModel)]="newUser.websiteUrl" />
+      </div>
+      <div>
+        <label>Is Verified</label>
+        <label class="switch">
+          <input type="checkbox" name="isVerified" [(ngModel)]="newUser.isVerified" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div>
+        <label>Active</label>
+        <label class="switch">
+          <input type="checkbox" name="active" [(ngModel)]="newUser.active" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button type="submit" [disabled]="addUserForm.invalid">{{ user ? 'Update' : 'Add' }}</button>
+    </form>
+  </div>
+</div> 

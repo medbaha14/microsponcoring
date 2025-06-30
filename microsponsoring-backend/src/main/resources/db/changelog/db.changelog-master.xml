@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Add your changeSets here -->
+
+    <changeSet id="add-currency-type-to-recognition-benefits" author="assistant">
+        <validCheckSum>ANY</validCheckSum>
+        <addColumn tableName="recognition_benefits">
+            <column name="currency_type" type="VARCHAR(32)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create-bank-accounts-table" author="assistant">
+        <validCheckSum>9:f4fa44692556bfa83f858f54fece16d4</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bank_accounts"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="bank_accounts">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_holder_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="iban" type="VARCHAR(34)"/>
+            <column name="bic" type="VARCHAR(11)"/>
+            <column name="bank_name" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)"/>
+            <column name="is_default" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="bank_accounts" 
+            baseColumnNames="user_id" 
+            referencedTableName="users" 
+            referencedColumnNames="user_id" 
+            constraintName="fk_bank_accounts_user"/>
+    </changeSet>
+
+    <changeSet id="add-amount-tracking-columns" author="assistant">
+        <validCheckSum>ANY</validCheckSum>
+        <addColumn tableName="sponsors">
+            <column name="total_amount_spent" type="DECIMAL(10,2)" defaultValueNumeric="0.00"/>
+        </addColumn>
+        
+        <addColumn tableName="companies_non_profits">
+            <column name="total_amount_received" type="DECIMAL(10,2)" defaultValueNumeric="0.00"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog> 

@@ -1,0 +1,73 @@
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  padding: 48px 40px;
+  border-radius: 16px;
+  width: 50vw;
+  height: 75vh;
+  min-width: 340px;
+  max-width: none;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1001;
+  overflow-y: auto;
+}
+.close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+form > div {
+  margin-bottom: 16px;
+}
+/* Removed input, select, textarea, button, and label styles to allow global styles to apply */
+/* Stylish switch (toggle bar) for checkboxes */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin-bottom: 0;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc;
+  border-radius: 24px;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--color-cream);
+  border-radius: 50%;
+  transition: .4s;
+}
+input:checked + .slider {
+  background: var(--color-medium-teal);
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+} 

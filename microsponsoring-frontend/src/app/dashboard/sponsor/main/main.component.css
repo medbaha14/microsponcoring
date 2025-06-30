@@ -1,0 +1,144 @@
+.sponsoring-list-container {
+  background: var(--color-cream);
+  border-radius: 18px;
+  box-shadow: 0 2px 16px var(--color-dark-overlay);
+  padding: 2rem 1.5rem;
+  margin: 2rem auto;
+  max-width: 900px;
+}
+.sponsoring-list-header {
+  background: linear-gradient(90deg, var(--color-medium-teal) 0%, var(--color-light-teal) 100%);
+  border-radius: 12px 12px 0 0;
+  padding: 1.2rem 1rem 1rem 1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+:host-context(.dark-mode) .sponsoring-list-header {
+  background: linear-gradient(90deg, var(--color-dark-teal) 0%, var(--color-medium-teal) 100%);
+  color: var(--color-cream);
+}
+.sponsoring-list-header h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-cream);
+}
+.sponsoring-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+}
+.sponsoring-table th, .sponsoring-table td {
+  padding: 1rem 0.7rem;
+  text-align: left;
+}
+.sponsoring-table th {
+  background: var(--color-light-teal);
+  color: var(--color-dark-teal);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-medium-teal);
+}
+:host-context(.dark-mode) .sponsoring-table th {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  border-bottom: 2px solid var(--color-light-teal);
+}
+.sponsoring-table tr {
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+.sponsoring-table tr:hover {
+  background: var(--color-light-teal);
+}
+:host-context(.dark-mode) .sponsoring-table tr:hover {
+  background: var(--color-medium-teal);
+}
+.sponsoring-table td {
+  font-size: 1rem;
+  color: var(--color-dark-teal);
+}
+:host-context(.dark-mode) .sponsoring-table td {
+  color: var(--color-cream);
+}
+.download-btn {
+  background: linear-gradient(90deg, var(--color-medium-teal) 0%, var(--color-light-teal) 100%);
+  color: var(--color-cream);
+  border: none;
+  border-radius: 24px;
+  padding: 0.4rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--color-dark-overlay);
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+.download-btn:hover {
+  background: linear-gradient(90deg, var(--color-dark-teal) 0%, var(--color-medium-teal) 100%);
+  color: var(--color-cream);
+  transform: translateY(-2px) scale(1.03);
+}
+:host-context(.dark-mode) .download-btn {
+  background: linear-gradient(90deg, var(--color-light-teal) 0%, var(--color-medium-teal) 100%);
+  color: var(--color-dark-teal);
+}
+:host-context(.dark-mode) .download-btn:hover {
+  background: linear-gradient(90deg, var(--color-cream) 0%, var(--color-light-teal) 100%);
+  color: var(--color-dark-teal);
+}
+.sponsoring-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  min-width: 350px;
+  min-height: 220px;
+}
+.sponsoring-chart-flex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 0.2rem;
+}
+.y-axis-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  margin-right: 10px;
+  color: var(--color-dark-teal);
+  font-size: 1.1rem;
+  font-weight: 600;
+  position: static;
+  left: unset;
+  top: unset;
+}
+:host-context(.dark-mode) .y-axis-label {
+  color: var(--color-cream);
+}
+.chart-axis-labels {
+  display: flex;
+  justify-content: center;
+  margin-top: -0.5rem;
+  font-size: 1.1rem;
+  color: var(--color-dark-teal);
+  font-weight: 600;
+  width: 100%;
+}
+.x-axis-label {
+  color: var(--color-dark-teal);
+}
+:host-context(.dark-mode) .x-axis-label {
+  color: var(--color-cream);
+}
+@media (max-width: 700px) {
+  .chart-axis-labels, .sponsoring-chart-container {
+    width: 100% !important;
+    min-width: 0;
+  }
+  .chart-axis-labels {
+    font-size: 0.95rem;
+    width: 100% !important;
+  }
+}

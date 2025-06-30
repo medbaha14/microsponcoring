@@ -1,0 +1,34 @@
+<div class="register-form-card">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h2>Register</h2>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <div>
+      <label for="email">Email</label>
+      <input id="email" formControlName="email" type="email" />
+    </div>
+    <div>
+      <label for="username">Username</label>
+      <input id="username" formControlName="username" type="text" />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" formControlName="password" type="password" />
+    </div>
+    <div>
+      <label for="fullName">Full Name</label>
+      <input id="fullName" formControlName="fullName" type="text" />
+    </div>
+    <div>
+      <label for="userType">User Type</label>
+      <select id="userType" formControlName="userType">
+        <option value="SPONSOR">Sponsor</option>
+        <option value="ORGANISATION_NONPROFIT">Organisation/NonProfit</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="registerForm.invalid">Register</button>
+    <div class="register-links">
+      <a routerLink="/login">&lt; Back to Login</a>
+    </div>
+  </form>
+</div> 

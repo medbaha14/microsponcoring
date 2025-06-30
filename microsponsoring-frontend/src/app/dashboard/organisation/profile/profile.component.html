@@ -1,0 +1,83 @@
+<div class="profile-container" [style.font-family]="profile?.fontStyle">
+  <!-- Header Section -->
+  <div class="profile-header" [style]="backgroundStyle">
+    <img class="profile-picture" [src]="resolveImageUrl(profile?.profilePicture)" alt="Profile Picture">
+    <img class="profile-logo" [src]="resolveImageUrl(profile?.logoUrl)" alt="Logo">
+    
+    <div class="profile-info-grid" [style.color]="profile?.primaryColor">
+      <div class="user-details">
+        <p><strong>Username:</strong> {{ profile?.username }}</p>
+        <p><strong>Email:</strong> {{ profile?.email }}</p>
+        <p><strong>Full Name:</strong> {{ profile?.fullName }}</p>
+        <p><strong>Website:</strong> <a [href]="profile?.websiteUrl" [style.color]="profile?.secondaryColor" target="_blank">{{ profile?.websiteUrl }}</a></p>
+      </div>
+      <div class="company-details">
+        <p><strong>Activity:</strong> {{ profile?.activityType }}</p>
+        <p><strong>Sponsorships:</strong> {{ profile?.totalSponsorships }}</p>
+        <p><strong>Details:</strong> {{ profile?.details }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Section -->
+  <div class="stats-section" *ngIf="stats && isOwner">
+    <h3>Organisation Statistics</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.totalSponsorships }}</div>
+        <div class="stat-label">Total Sponsorships</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${{ stats.totalAmountReceived | number:'1.2-2' }}</div>
+        <div class="stat-label">Total Amount Received</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.totalInvoices }}</div>
+        <div class="stat-label">Total Invoices</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${{ stats.totalReceivedFromInvoices | number:'1.2-2' }}</div>
+        <div class="stat-label">Total from Invoices</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show plus button only for owner organisation -->
+  <div class="recognition-benefits-section " *ngIf="profile">
+    <div class="section-header">
+      <button *ngIf="isOwner && userType === 'ORGANISATION_NONPROFIT'" class="add-benefit-btn" (click)="openEditBenefitsOverlay()" title="add Recognition Benefits">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <!-- Show pay button only for sponsors who are not the owner -->
+    </div>
+    <!-- Existing benefits will be displayed here -->
+  </div>
+
+  <div class="overlay" *ngIf="isEditBenefitsOverlayVisible">
+    <div class="overlay-content">
+      <app-edit-recognition-benefits 
+        [company]="company"
+        (benefitSaved)="closeEditBenefitsOverlay(); loadProfile()">
+      </app-edit-recognition-benefits>
+      <button class="close-btn" (click)="closeEditBenefitsOverlay()">&times;</button>
+    </div>
+  </div>
+  <!-- Benefits Section -->
+  <div class="benefits-grid">
+    <app-recognition-benefits
+      *ngFor="let benefit of benefits"
+      [recognitionBenefits]="benefit"
+      [secondaryColor]="profile?.secondaryColor || 'var(--color-dark-gray)'"
+      [bannerImageUrl]="resolveImageUrl(profile?.bannerImageUrl)"
+      [fontStyle]="profile?.fontStyle"
+      [isSponsor]="isSponsor"
+      [isOwner]="isOwner"
+      (payClicked)="pay()"
+      (editBenefit)="openEditBenefitsOverlay()">
+    </app-recognition-benefits>
+  </div>
+</div>
+

@@ -1,0 +1,61 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h2>Sponsor Profile</h2>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Loading profile data...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && sponsor" class="profile-content">
+    <!-- Statistics Section -->
+    <div class="stats-section" *ngIf="stats">
+      <h3>Your Sponsorship Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">{{ stats.totalSponsorships }}</div>
+          <div class="stat-label">Total Sponsorships</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${{ stats.totalAmountSpent | number:'1.2-2' }}</div>
+          <div class="stat-label">Total Amount Spent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ stats.totalInvoices }}</div>
+          <div class="stat-label">Total Invoices</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${{ stats.totalSpentFromInvoices | number:'1.2-2' }}</div>
+          <div class="stat-label">Total from Invoices</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="profile-info">
+      <h3>Profile Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Sponsor Category:</label>
+          <span>{{ sponsor.sponcerCat || 'Not specified' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Payment Method:</label>
+          <span>{{ sponsor.paymentMethod || 'Not specified' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Member Since:</label>
+          <span>{{ sponsor.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Last Updated:</label>
+          <span>{{ sponsor.updatedAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

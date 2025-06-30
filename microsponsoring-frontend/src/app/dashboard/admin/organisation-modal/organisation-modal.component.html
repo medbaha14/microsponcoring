@@ -1,0 +1,30 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <span class="close" (click)="close.emit()">&times;</span>
+    <h3 *ngIf="mode === 'view'">Organisation Details</h3>
+    <h3 *ngIf="mode === 'edit'">Edit Organisation</h3>
+    <h3 *ngIf="mode === 'add'">Add Organisation</h3>
+
+    <form *ngIf="mode === 'edit' || mode === 'add'" (ngSubmit)="save()">
+      <div>
+        <label>Activity Type</label>
+        <input [(ngModel)]="formOrganisation.activityType" name="activityType" required />
+      </div>
+      
+      <div>
+        <label>Details</label>
+        <textarea [(ngModel)]="formOrganisation.details" name="details"></textarea>
+      </div>
+      <button type="submit">{{ mode === 'add' ? 'Add' : 'Update' }}</button>
+      <button type="button" (click)="close.emit()">Cancel</button>
+    </form>
+
+    <div *ngIf="mode === 'view'">
+      <p><strong>Activity Type:</strong> {{ formOrganisation.activityType }}</p>
+      <p><strong>Total Sponsorships:</strong> {{ formOrganisation.totalSponsorships }}</p>
+      <p><strong>Details:</strong> {{ formOrganisation.details }}</p>
+      <button type="submit" (click)="mode = 'edit'">Edit</button>
+      <button  type="submit" (click)="close.emit()">Close</button>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,43 @@
+
+<form [formGroup]="benefitForm" (ngSubmit)="saveBenefit()" class="recognition-benefits-form">
+  <button class="close-btn" (click)="close.emit()">&times;</button>
+  <label>
+    Reward Type:
+    <input type="text" formControlName="rewardType" />
+  </label>
+  <label>
+    Currency:
+    <input type="number" formControlName="currency" />
+  </label>
+  <label>
+    Currency Type:
+    <input type="text" formControlName="currencyType" />
+  </label>
+  <label>
+    Sponsorship Type:
+    <input type="text" formControlName="sponsorshipType" />
+  </label>
+  <label class="switch-label">
+    Show Name:
+    <label class="switch">
+      <input type="checkbox" formControlName="showName" />
+      <span class="slider"></span>
+    </label>
+  </label>
+  <label class="switch-label">
+    Show Logo:
+    <label class="switch">
+      <input type="checkbox" formControlName="showLogo" />
+      <span class="slider"></span>
+    </label>
+  </label>
+  <label>
+    Logo Size:
+    <input type="text" formControlName="logoSize" />
+  </label>
+  <label>
+    Placement:
+    <input type="text" formControlName="placement" />
+  </label>
+  <button type="submit">Save</button>
+</form>

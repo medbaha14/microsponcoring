@@ -1,0 +1,77 @@
+<div class="bank-accounts-container">
+  <div class="header-row">
+    <h2>Payment Accounts</h2>
+    <button class="add-btn" (click)="addAccount()">+ Add Payment Account</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading...</div>
+
+  <div *ngIf="!loading && bankAccounts.length === 0 && !showForm" class="empty-msg">
+    No payment accounts found. Click "Add Payment Account" to create one.
+  </div>
+
+  <div *ngIf="!showForm && bankAccounts.length > 0" class="accounts-list">
+    <div class="account-card" *ngFor="let account of bankAccounts">
+      <div class="account-header">
+        <div class="account-type-icon">
+          <span *ngIf="account.accountType === 'BANK_ACCOUNT'">🏦</span>
+          <span *ngIf="account.accountType === 'PAYPAL'">💳</span>
+          <span *ngIf="account.accountType === 'STRIPE'">💳</span>
+          <span *ngIf="account.accountType === 'CREDIT_CARD'">💳</span>
+        </div>
+        <div class="account-type-badge" [class]="account.accountType.toLowerCase()">
+          {{ account.accountType.replace('_', ' ') }}
+        </div>
+        <div class="account-status">
+          <span *ngIf="account.isDefault" class="default-badge">Default</span>
+          <span *ngIf="!account.isActive" class="inactive-badge">Inactive</span>
+        </div>
+      </div>
+      
+      <div class="account-info">
+        <div><strong>Account Holder:</strong> {{ account.accountHolderName }}</div>
+        <div><strong>Country:</strong> {{ account.country }}</div>
+        <div><strong>Currency:</strong> {{ account.currency }}</div>
+        
+        <!-- Bank Account specific info -->
+        <div *ngIf="account.accountType === 'BANK_ACCOUNT'">
+          <div><strong>IBAN:</strong> {{ account.iban }}</div>
+          <div><strong>BIC:</strong> {{ account.bic }}</div>
+          <div><strong>Bank Name:</strong> {{ account.bankName }}</div>
+        </div>
+        
+        <!-- PayPal specific info -->
+        <div *ngIf="account.accountType === 'PAYPAL'">
+          <div><strong>PayPal Email:</strong> {{ account.email }}</div>
+          <div *ngIf="account.accountName"><strong>Account Name:</strong> {{ account.accountName }}</div>
+        </div>
+        
+        <!-- Stripe specific info -->
+        <div *ngIf="account.accountType === 'STRIPE'">
+          <div><strong>Account Name:</strong> {{ account.accountName }}</div>
+          <div *ngIf="account.email"><strong>Email:</strong> {{ account.email }}</div>
+        </div>
+        
+        <!-- Credit Card specific info -->
+        <div *ngIf="account.accountType === 'CREDIT_CARD'">
+          <div><strong>Card Type:</strong> {{ account.accountName }}</div>
+          <div><strong>Last 4 Digits:</strong> ****{{ account.iban }}</div>
+        </div>
+      </div>
+      
+      <button class="edit-btn" (click)="editAccount(account)">Edit</button>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="form-modal-overlay">
+    <div class="form-modal-content">
+      <app-bank-account-form
+        [bankAccount]="selectedAccount"
+        [isEdit]="isEdit"
+        (save)="saveAccount($event)"
+        (delete)="deleteAccount()"
+        (cancel)="cancelForm()">
+      </app-bank-account-form>
+    </div>
+  </div>
+</div> 

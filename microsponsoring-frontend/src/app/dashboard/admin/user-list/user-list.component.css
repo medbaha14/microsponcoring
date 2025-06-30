@@ -1,0 +1,149 @@
+.user-list-container {
+  margin-left: 32px;
+  padding-top: 32px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background:var(--color-medium-teal);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.user-table th, .user-table td {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--color-cream);
+}
+
+.user-table th {
+  background: var(--color-medium-teal);
+  font-weight: bold;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.user-table tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-table tr:last-child {
+  border-bottom: none;
+}
+
+.user-table td:last-child {
+  white-space: nowrap;
+}
+
+/* Hide the ID column */
+.user-table th:first-child,
+.user-table td:first-child {
+  display: none;
+}
+
+.add-btn {
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.add-btn:hover {
+  background: var(--color-medium-teal);
+}
+
+.user-table button {
+  margin-right: 8px;
+  padding: 4px 12px;
+  border: var(--color-medium-teal);
+  background:  var(--color-medium-teal);
+  color: var(--color-cream);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.user-table button:hover {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+}
+
+.svg-icon svg {
+  color: var(--color-cream);
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Responsive Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th, td {
+  padding: 12px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Stack table on small screens */
+@media (max-width: 700px) {
+  .table-responsive, table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+  thead tr {
+    display: none;
+  }
+  tr {
+    margin-bottom: 24px;
+    border-bottom: 2px solid #948979;
+    background: #222831;
+    color: #DFD0B8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(34,40,49,0.08);
+  }
+  td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    border: none;
+    border-bottom: 1px solid #eee;
+    min-height: 48px;
+    font-size: 1.1em;
+    background: #222831;
+    color: #DFD0B8;
+    padding: 8px 8px 8px 8px;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  td:before {
+    position: static;
+    margin-bottom: 4px;
+    width: auto;
+    white-space: pre-line;
+    font-weight: bold;
+    font-size: 1em;
+    color: #948979;
+    content: attr(data-label);
+    display: block;
+    text-align: left;
+  }
+}

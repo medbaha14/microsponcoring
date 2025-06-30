@@ -1,0 +1,50 @@
+<div class="payment-success-container">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22,4 12,14.01 9,11.01"></polyline>
+      </svg>
+    </div>
+    
+    <h1>Payment Successful!</h1>
+    <p class="success-message">
+      Thank you for your sponsorship. Your payment has been processed successfully.
+    </p>
+
+    <div class="payment-details" *ngIf="paymentId || amount || companyName">
+      <h3>Payment Details</h3>
+      <div class="detail-item" *ngIf="paymentId">
+        <span class="label">Payment ID:</span>
+        <span class="value">{{ paymentId }}</span>
+      </div>
+      <div class="detail-item" *ngIf="amount">
+        <span class="label">Amount:</span>
+        <span class="value">£{{ amount }}</span>
+      </div>
+      <div class="detail-item" *ngIf="companyName">
+        <span class="label">Organisation:</span>
+        <span class="value">{{ companyName }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-primary" (click)="goToDashboard()">
+        Go to Dashboard
+      </button>
+      <button class="btn-secondary" (click)="goToOrganisations()">
+        Browse More Organisations
+      </button>
+    </div>
+
+    <div class="next-steps">
+      <h3>What happens next?</h3>
+      <ul>
+        <li>You'll receive a confirmation email with your payment details</li>
+        <li>The organisation will be notified of your sponsorship</li>
+        <li>Your sponsorship benefits will be activated</li>
+        <li>You can track your sponsorship in your dashboard</li>
+      </ul>
+    </div>
+  </div>
+</div> 

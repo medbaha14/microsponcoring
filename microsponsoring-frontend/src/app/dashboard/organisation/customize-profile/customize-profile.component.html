@@ -1,0 +1,79 @@
+<div class="customize-profile-container" *ngIf="profile">
+  <!-- Form Section -->
+  <form class="customize-profile-form" #form="ngForm" (ngSubmit)="saveChanges()">
+    
+    <!-- User and Company Details -->
+    <div class="form-section">
+      <h3>User & Company Details</h3>
+      <label>Full Name: <input type="text" name="fullName" [(ngModel)]="profile.fullName" (ngModelChange)="onProfileChange()"></label>
+      <label>Website URL: <input type="url" name="websiteUrl" [(ngModel)]="profile.websiteUrl" (ngModelChange)="onProfileChange()"></label>
+      <label>Activity Type: <input type="text" name="activityType" [(ngModel)]="profile.activityType" (ngModelChange)="onProfileChange()"></label>
+      <label>Details: <textarea name="details" [(ngModel)]="profile.details" (ngModelChange)="onProfileChange()"></textarea></label>
+    </div>
+
+    <!-- Page Customization -->
+    <div class="form-section">
+      <h3>Page Appearance</h3>
+      <label>Background Color: <input type="color" name="backgroundColor" [(ngModel)]="profile.backgroundColor" (ngModelChange)="onProfileChange()"></label>
+      <label>Primary Color: <input type="color" name="primaryColor" [(ngModel)]="profile.primaryColor" (ngModelChange)="onProfileChange()"></label>
+      <label>Secondary Color: <input type="color" name="secondaryColor" [(ngModel)]="profile.secondaryColor" (ngModelChange)="onProfileChange()"></label>
+      <label>Font Style:
+        <select name="fontStyle" [(ngModel)]="profile.fontStyle" (ngModelChange)="onProfileChange()">
+          <option *ngFor="let font of fontOptions" [value]="font">{{ font }}</option>
+        </select>
+      </label>
+    </div>
+    
+    <!-- Image Uploads -->
+    <div class="form-section">
+      <h3>Images</h3>
+      
+      <div class="image-upload-group">
+        <label>Profile Image: 
+          <input type="file" accept="image/*" (change)="onImageChange($event, 'profilePicture')">
+          <span *ngIf="isUploading('profilePicture')" class="upload-status">Uploading...</span>
+        </label>
+      </div>
+
+      <div class="image-upload-group">
+        <label>Logo Image: 
+          <input type="file" accept="image/*" (change)="onImageChange($event, 'logoUrl')">
+          <span *ngIf="isUploading('logoUrl')" class="upload-status">Uploading...</span>
+        </label>
+      </div>
+
+      <div class="image-upload-group">
+        <label>Background Image: 
+          <input type="file" accept="image/*" (change)="onImageChange($event, 'backgroundImageUrl')">
+          <span *ngIf="isUploading('backgroundImageUrl')" class="upload-status">Uploading...</span>
+        </label>
+      </div>
+
+      <div class="image-upload-group">
+        <label>Banner Image: 
+          <input type="file" accept="image/*" (change)="onImageChange($event, 'bannerImageUrl')">
+          <span *ngIf="isUploading('bannerImageUrl')" class="upload-status">Uploading...</span>
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="save-btn">Save Changes</button>
+    <button type="button" class="edit-benefits-btn" (click)="openEditBenefitsOverlay()">Edit Recognition Benefits</button>
+  </form>
+
+  <!-- Preview Section -->
+  <div class="mini-profile-preview">
+    <app-organisation-profile [profile]="profile"></app-organisation-profile>
+  </div>
+</div>
+
+<div class="overlay" *ngIf="isEditBenefitsOverlayVisible">
+    <div class="overlay-content">
+        <app-edit-recognition-benefits 
+            [company]="company"
+            (benefitSaved)="closeEditBenefitsOverlay(); loadProfile()"
+            (close)="closeEditBenefitsOverlay()">
+        </app-edit-recognition-benefits>
+    </div>
+</div>
+

@@ -1,0 +1,269 @@
+.bank-accounts-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background: var(--color-cream);
+  border-radius: 18px;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  box-shadow: 0 2px 16px rgba(9, 107, 104, 0.07);
+}
+
+:host-context(.dark-mode) .bank-accounts-container {
+  background: var(--color-bg-dark);
+  color: var(--color-cream);
+  box-shadow: 0 2px 16px rgba(148, 137, 121, 0.10);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-row h2 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-dark-teal);
+  letter-spacing: 1px;
+}
+:host-context(.dark-mode) .header-row h2 {
+  color: var(--color-cream);
+}
+
+.add-btn {
+  background: linear-gradient(90deg, var(--color-medium-teal) 60%, var(--color-light-teal) 100%);
+  color: var(--color-cream);
+  border: none;
+  border-radius: 24px;
+  padding: 0.6rem 1.6rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--color-dark-overlay);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.add-btn:hover {
+  background: linear-gradient(90deg, var(--color-dark-teal) 60%, var(--color-medium-teal) 100%);
+  box-shadow: 0 4px 16px var(--color-dark-overlay);
+  transform: translateY(-2px) scale(1.03);
+}
+
+:host-context(.dark-mode) .add-btn {
+  background: linear-gradient(90deg, var(--color-light-teal) 60%, var(--color-medium-teal) 100%);
+  color: var(--color-dark-teal);
+}
+:host-context(.dark-mode) .add-btn:hover {
+  background: linear-gradient(90deg, var(--color-cream) 60%, var(--color-light-teal) 100%);
+  color: var(--color-dark-teal);
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--color-light-teal);
+}
+
+.empty-msg {
+  text-align: center;
+  color: var(--color-light-teal);
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+.accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.account-card {
+  background: #fff;
+  background: var(--color-cream);
+  border-radius: 16px;
+  border: 1.5px solid var(--color-light-teal);
+  box-shadow: 0 4px 24px var(--color-dark-overlay);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  transition: box-shadow 0.2s, border 0.2s;
+}
+.account-card:hover {
+  box-shadow: 0 8px 32px var(--color-dark-overlay);
+  border: 1.5px solid var(--color-medium-teal);
+}
+:host-context(.dark-mode) .account-card {
+  background: var(--color-bg-dark);
+  border: 1.5px solid var(--color-light-teal);
+  color: var(--color-cream);
+  box-shadow: 0 4px 24px rgba(148, 137, 121, 0.10);
+}
+:host-context(.dark-mode) .account-card:hover {
+  border: 1.5px solid var(--color-cream);
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-light-teal);
+}
+
+.account-type-icon {
+  font-size: 2rem;
+}
+
+.account-type-badge {
+  padding: 0.4rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--color-light-teal);
+  color: var(--color-medium-teal);
+  border: 2px solid var(--color-medium-teal);
+  box-shadow: 0 1px 4px var(--color-dark-overlay);
+  display: inline-block;
+}
+:host-context(.dark-mode) .account-type-badge {
+  background: var(--color-bg-dark);
+  color: var(--color-cream);
+  border: 2px solid var(--color-light-teal);
+}
+.account-type-badge.bank_account {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.account-type-badge.paypal {
+  background: #fff3e0;
+  color: #f57c00;
+}
+.account-type-badge.stripe {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+.account-type-badge.credit_card {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.account-status {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.default-badge {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  padding: 0.3rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px var(--color-dark-overlay);
+  border: 2px solid var(--color-light-teal);
+  display: inline-block;
+}
+:host-context(.dark-mode) .default-badge {
+  background: var(--color-light-teal);
+  color: var(--color-dark-teal);
+  border: 2px solid var(--color-medium-teal);
+}
+
+.inactive-badge {
+  background: #f44336;
+  color: white;
+  padding: 0.25rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(244, 67, 54, 0.10);
+}
+
+.account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 1.08rem;
+  color: var(--color-dark-teal);
+}
+:host-context(.dark-mode) .account-info {
+  color: var(--color-cream);
+}
+
+.edit-btn {
+  background: linear-gradient(90deg, var(--color-cream) 60%, var(--color-light-teal) 100%);
+  color: var(--color-dark-teal);
+  border: 1.5px solid var(--color-medium-teal);
+  border-radius: 24px;
+  padding: 0.45rem 1.3rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+  box-shadow: 0 1px 4px var(--color-dark-overlay);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.edit-btn:hover {
+  background: linear-gradient(90deg, var(--color-medium-teal) 60%, var(--color-dark-teal) 100%);
+  color: var(--color-cream);
+  box-shadow: 0 4px 16px var(--color-dark-overlay);
+  transform: translateY(-2px) scale(1.03);
+}
+:host-context(.dark-mode) .edit-btn {
+  background: linear-gradient(90deg, var(--color-bg-dark) 60%, var(--color-medium-teal) 100%);
+  color: var(--color-cream);
+  border: 1.5px solid var(--color-light-teal);
+}
+:host-context(.dark-mode) .edit-btn:hover {
+  background: linear-gradient(90deg, var(--color-light-teal) 60%, var(--color-cream) 100%);
+  color: var(--color-dark-teal);
+}
+
+.form-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--color-dark-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.form-modal-content {
+  background: var(--color-cream);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px var(--color-dark-overlay);
+  padding: 2rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+:host-context(.dark-mode) .form-modal-content {
+  background: var(--color-bg-dark);
+  color: var(--color-cream);
+}
+
+@media (max-width: 600px) {
+  .bank-accounts-container {
+    padding: 1rem 0.2rem;
+  }
+  .form-modal-content {
+    padding: 1rem 0.5rem;
+    min-width: 0;
+  }
+  .account-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .account-status {
+    margin-left: 0;
+  }
+} 

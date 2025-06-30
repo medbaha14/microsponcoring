@@ -1,0 +1,25 @@
+<div class="sidebar" [class.expanded]="isExpanded">
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <span class="toggle-icon">{{isExpanded ? '<' : '>'}}</span>
+  </button>
+  <div class="sidebar-header">
+    <div class="logo">AD</div>
+    <div class="title">
+      <h2>Admin Dashboard</h2>
+      <span>Web admin</span>
+    </div>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li><a [routerLink]="['/dashboard/admin/user-list']"><span class="icon">📊</span> <span class="menu-text">User List</span></a></li>
+    <li><a [routerLink]="['/dashboard/admin/stats-page']"><span class="icon">📈</span> <span class="menu-text">Stats</span></a></li>
+    <li><a [routerLink]="['/dashboard/admin/invoices']"><span class="icon">🧾</span> <span class="menu-text">Invoices</span></a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <a href="#" class="logout" [class.dark-mode]="isDarkMode"><span class="icon">🚪</span> <span class="menu-text">Logout</span></a>
+    <div class="toggle-mode">
+      <button class="theme-toggle-btn" (click)="toggleDarkMode()" [class.dark]="isDarkMode" aria-label="Toggle dark mode"></button>
+      <span class="toggle-mode-label">Dark Mode</span>
+    </div>
+  </div>
+</div>

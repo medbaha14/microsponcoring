@@ -1,0 +1,106 @@
+<form class="bank-account-form" (ngSubmit)="onSave()" #form="ngForm">
+  <h3>{{ isEdit ? 'Edit Payment Account' : 'Add Payment Account' }}</h3>
+  
+  <label>
+    Account Type:
+    <select [(ngModel)]="bankAccount.accountType" name="accountType" (change)="onAccountTypeChange()" required>
+      <option *ngFor="let type of accountTypes" [value]="type">
+        {{ type.replace('_', ' ') }}
+      </option>
+    </select>
+  </label>
+
+  <label>
+    Account Holder Name:
+    <input type="text" [(ngModel)]="bankAccount.accountHolderName" name="accountHolderName" required />
+  </label>
+
+  <label>
+    Country:
+    <input type="text" [(ngModel)]="bankAccount.country" name="country" required />
+  </label>
+
+  <label>
+    Currency:
+    <select [(ngModel)]="bankAccount.currency" name="currency" required>
+      <option value="USD">USD - US Dollar</option>
+      <option value="EUR">EUR - Euro</option>
+      <option value="GBP">GBP - British Pound</option>
+      <option value="CAD">CAD - Canadian Dollar</option>
+      <option value="AUD">AUD - Australian Dollar</option>
+    </select>
+  </label>
+
+  <!-- PayPal specific fields -->
+  <div *ngIf="isPayPal">
+    <label>
+      PayPal Email:
+      <input type="email" [(ngModel)]="bankAccount.email" name="email" required />
+    </label>
+    <label>
+      Account Name (Optional):
+      <input type="text" [(ngModel)]="bankAccount.accountName" name="accountName" />
+    </label>
+  </div>
+
+  <!-- Stripe specific fields -->
+  <div *ngIf="isStripe">
+    <label>
+      Stripe Account Name:
+      <input type="text" [(ngModel)]="bankAccount.accountName" name="accountName" required />
+    </label>
+    <label>
+      Stripe Email (Optional):
+      <input type="email" [(ngModel)]="bankAccount.email" name="email" />
+    </label>
+  </div>
+
+  <!-- Bank Account specific fields -->
+  <div *ngIf="isBankAccount">
+    <label>
+      IBAN:
+      <input type="text" [(ngModel)]="bankAccount.iban" name="iban" required />
+    </label>
+    <label>
+      BIC/SWIFT:
+      <input type="text" [(ngModel)]="bankAccount.bic" name="bic" required />
+    </label>
+    <label>
+      Bank Name:
+      <input type="text" [(ngModel)]="bankAccount.bankName" name="bankName" required />
+    </label>
+  </div>
+
+  <!-- Credit Card specific fields -->
+  <div *ngIf="isCreditCard">
+    <label>
+      Card Type:
+      <select [(ngModel)]="bankAccount.accountName" name="accountName" required>
+        <option value="Visa">Visa</option>
+        <option value="Mastercard">Mastercard</option>
+        <option value="American Express">American Express</option>
+        <option value="Discover">Discover</option>
+      </select>
+    </label>
+    <label>
+      Last 4 Digits:
+      <input type="text" [(ngModel)]="bankAccount.iban" name="iban" maxlength="4" placeholder="1234" required />
+    </label>
+  </div>
+
+  <label>
+    <input type="checkbox" [(ngModel)]="bankAccount.isDefault" name="isDefault" />
+    Set as default payment method
+  </label>
+
+  <label>
+    <input type="checkbox" [(ngModel)]="bankAccount.isActive" name="isActive" />
+    Active account
+  </label>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="form.invalid">{{ isEdit ? 'Save Changes' : 'Add Account' }}</button>
+    <button type="button" (click)="onCancel()">Cancel</button>
+    <button *ngIf="isEdit" type="button" class="delete-btn" (click)="onDelete()">Delete</button>
+  </div>
+</form> 

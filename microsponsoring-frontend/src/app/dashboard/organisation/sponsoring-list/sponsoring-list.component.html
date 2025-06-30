@@ -1,0 +1,36 @@
+<div class="sponsoring-list-container">
+  <div class="sponsoring-list-header">
+    <h2>Sponsorships</h2>
+  </div>
+  <div class="sponsoring-chart-flex">
+    <canvas
+      baseChart
+      [data]="{ labels: chartLabels, datasets: chartData }"
+      [options]="chartOptions"
+      [type]="chartType"
+      height="200"
+      width="600">
+    </canvas>
+  </div>
+
+  <table class="sponsoring-table">
+    <thead>
+      <tr>
+        <th>Sponsor Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of sponsorships">
+        <td>{{ getSponsorName(s) }}</td>
+        <td>{{ s.amount | currency }}</td>
+        <td>{{ s.invoiceDate | date:'mediumDate' }}</td>
+        <td>
+          <button class="download-btn" (click)="downloadPdf(s)">Download PDF</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

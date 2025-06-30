@@ -1,0 +1,423 @@
+.customize-profile-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 20px 0 20px 0;
+  background: var(--color-cream);
+  min-height: calc(100vh - 40px);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0;
+}
+
+.customize-profile-form {
+  flex: 1;
+  min-width: 400px;
+  max-width: 600px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--color-cream);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 16px rgba(9, 107, 104, 0.1);
+  border: 2px solid var(--color-medium-teal);
+}
+
+.customize-profile-form h2,
+.customize-profile-form h3,
+.customize-profile-form label,
+.customize-profile-form span {
+  color: var(--color-dark-teal);
+}
+
+.customize-profile-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: var(--color-dark-teal);
+  gap: 8px;
+  font-weight: 500;
+}
+
+.customize-profile-form input[type="text"],
+.customize-profile-form input[type="email"],
+.customize-profile-form input[type="url"] {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-light-teal);
+  padding: 8px 0;
+  color: var(--color-dark-teal);
+  font-size: 1rem;
+}
+
+.customize-profile-form input[type="text"]:focus,
+.customize-profile-form input[type="email"]:focus,
+.customize-profile-form input[type="url"]:focus,
+.customize-profile-form select:focus {
+  outline: none;
+  border-color: var(--color-medium-teal);
+}
+
+.customize-profile-form input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  border: 2px dashed var(--color-light-teal);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-dark-teal);
+  font-size: 0.9rem;
+}
+
+.customize-profile-form input[type="file"]::-webkit-file-upload-button {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 12px;
+  font-size: 0.9rem;
+}
+
+.customize-profile-form input[type="file"]::-webkit-file-upload-button:hover {
+  background: var(--color-dark-teal);
+}
+
+.customize-profile-form input[type="color"] {
+  width: 60px;
+  height: 40px;
+  padding: 2px;
+  border: 2px solid var(--color-medium-teal);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--color-cream);
+}
+
+.customize-profile-form input[type="color"]:hover,
+.customize-profile-form input[type="color"]:focus {
+  border-color: var(--color-dark-teal);
+  box-shadow: 0 2px 8px rgba(9, 107, 104, 0.2);
+}
+
+.customize-profile-form select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--color-light-teal);
+  border-radius: 6px;
+  background: var(--color-cream);
+  color: var(--color-dark-teal);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.customize-profile-form select:hover,
+.customize-profile-form select:focus {
+  border-color: var(--color-medium-teal);
+}
+
+/* Dark mode styles */
+body.dark-mode .customize-profile-container {
+  background: var(--color-dark-teal);
+  color: var(--color-cream);
+}
+
+body.dark-mode .customize-profile-form {
+  background: var(--color-dark-teal);
+  border-color: var(--color-light-teal);
+  box-shadow: 0 2px 16px rgba(144, 209, 202, 0.1);
+}
+
+body.dark-mode .customize-profile-form h2,
+body.dark-mode .customize-profile-form h3,
+body.dark-mode .customize-profile-form label,
+body.dark-mode .customize-profile-form span {
+  color: var(--color-cream);
+}
+
+body.dark-mode .customize-profile-form input[type="text"],
+body.dark-mode .customize-profile-form input[type="email"],
+body.dark-mode .customize-profile-form input[type="url"] {
+  color: var(--color-cream);
+  border-bottom-color: var(--color-light-teal);
+  background: transparent;
+}
+
+body.dark-mode .customize-profile-form input[type="file"] {
+  color: var(--color-cream);
+  border-color: var(--color-light-teal);
+  background: transparent;
+}
+
+body.dark-mode .customize-profile-form input[type="file"]::-webkit-file-upload-button {
+  background: var(--color-light-teal);
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .customize-profile-form input[type="file"]::-webkit-file-upload-button:hover {
+  background: var(--color-cream);
+}
+
+body.dark-mode .customize-profile-form input[type="color"] {
+  background: var(--color-dark-teal);
+  border-color: var(--color-light-teal);
+}
+
+body.dark-mode .customize-profile-form input[type="color"]:hover,
+body.dark-mode .customize-profile-form input[type="color"]:focus {
+  border-color: var(--color-cream);
+  box-shadow: 0 2px 8px rgba(144, 209, 202, 0.3);
+}
+
+body.dark-mode .customize-profile-form select {
+  background: var(--color-dark-teal);
+  color: var(--color-cream);
+  border-color: var(--color-light-teal);
+}
+
+body.dark-mode .customize-profile-form select:focus,
+body.dark-mode .customize-profile-form select:hover {
+  border-color: var(--color-cream);
+}
+
+body.dark-mode .mini-profile-preview {
+  border-color: var(--color-light-teal);
+  box-shadow: 0 2px 16px rgba(144, 209, 202, 0.1);
+}
+
+h3 {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 1.3rem;
+  color: var(--color-medium-teal);
+}
+
+.mini-profile-preview {
+  flex: 1;
+  max-width: 450px;
+  min-width: 320px;
+  height: 500px;
+  position: sticky;
+  top: 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(9, 107, 104, 0.1);
+  border: 2px solid var(--color-medium-teal);
+  background: var(--color-cream);
+  overflow: hidden;
+}
+
+.mini-profile-preview app-organisation-profile {
+  transform: scale(0.6);
+  transform-origin: top left;
+  width: 166.67%;
+  height: 166.67%;
+  display: block;
+  overflow: auto;
+}
+
+/* Form states in dark mode */
+body.dark-mode .customize-profile-form.ng-untouched,
+body.dark-mode .customize-profile-form.ng-pristine,
+body.dark-mode .customize-profile-form.ng-valid {
+  background: var(--color-dark-teal);
+  border-color: var(--color-light-teal);
+  box-shadow: 0 2px 16px rgba(144, 209, 202, 0.1);
+}
+
+body.dark-mode .customize-profile-form.ng-untouched input[type="text"],
+body.dark-mode .customize-profile-form.ng-pristine input[type="text"],
+body.dark-mode .customize-profile-form.ng-valid input[type="text"],
+body.dark-mode .customize-profile-form.ng-untouched input[type="email"],
+body.dark-mode .customize-profile-form.ng-pristine input[type="email"],
+body.dark-mode .customize-profile-form.ng-valid input[type="email"],
+body.dark-mode .customize-profile-form.ng-untouched input[type="url"],
+body.dark-mode .customize-profile-form.ng-pristine input[type="url"],
+body.dark-mode .customize-profile-form.ng-valid input[type="url"] {
+  color: var(--color-cream);
+  border-bottom-color: var(--color-light-teal);
+  background: transparent;
+}
+
+body.dark-mode .customize-profile-form.ng-untouched input[type="file"],
+body.dark-mode .customize-profile-form.ng-pristine input[type="file"],
+body.dark-mode .customize-profile-form.ng-valid input[type="file"] {
+  color: var(--color-cream);
+  border-color: var(--color-light-teal);
+  background: transparent;
+}
+
+body.dark-mode .customize-profile-form.ng-untouched select,
+body.dark-mode .customize-profile-form.ng-pristine select,
+body.dark-mode .customize-profile-form.ng-valid select {
+  background: var(--color-dark-teal);
+  color: var(--color-cream);
+  border-color: var(--color-light-teal);
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+  .customize-profile-container {
+    flex-direction: column;
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .customize-profile-form {
+    min-width: unset;
+    width: 100%;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .mini-profile-preview {
+    position: relative;
+    top: 0;
+    min-height: 200px;
+  }
+
+  .customize-profile-form input[type="file"] {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .customize-profile-form input[type="file"]::-webkit-file-upload-button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .customize-profile-form select {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 6px;
+  }
+
+  .customize-profile-form input[type="color"] {
+    width: 50px;
+    height: 35px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .customize-profile-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .customize-profile-form {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .customize-profile-form label {
+    font-size: 0.9rem;
+    gap: 6px;
+  }
+
+  .mini-profile-preview {
+    min-height: 180px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .customize-profile-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .customize-profile-form,
+  .mini-profile-preview {
+    width: fit-content;
+    max-width: none;
+  }
+
+  .mini-profile-preview {
+    position: static;
+    margin-top: 20px;
+    height: auto;
+  }
+
+  .mini-profile-preview app-organisation-profile {
+    transform: scale(1);
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.image-upload-group {
+  margin-bottom: 16px;
+}
+
+.image-upload-group label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-status {
+  font-size: 0.8rem;
+  color: var(--color-medium-teal);
+  font-style: italic;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+body.dark-mode .upload-status {
+  color: var(--color-light-teal);
+}
+
+.edit-benefits-btn {
+  margin-top: 15px;
+  background-color: var(--color-light-teal);
+  color: var(--color-dark-teal);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.edit-benefits-btn:hover {
+  background-color: var(--color-medium-teal);
+  color: var(--color-cream);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay-content {
+    background-color: var(--color-cream);
+    padding: 0px;
+    border-radius: 40px;
+    position: relative;
+    width: 95%;
+    max-width: 500px;
+    max-height: 95vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-dark-gray);
+    z-index: 10;
+}

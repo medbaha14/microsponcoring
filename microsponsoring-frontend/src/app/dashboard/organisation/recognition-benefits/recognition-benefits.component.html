@@ -1,0 +1,37 @@
+<div class="recognition-benefits-display"
+     [style.color]="secondaryColor"
+     [style.font-family]="fontStyle"
+     [style.background-image]="bannerImageUrl ? 'url(' + bannerImageUrl + ')' : 'none'">
+  <!-- Icon button: pay for sponsors, plus for owner -->
+  <button *ngIf="isSponsor && !isOwner" class="pay-icon-btn" (click)="pay(); $event.stopPropagation()" title="Pay">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2" ry="2"/>
+      <line x1="2" y1="10" x2="22" y2="10"/>
+      <circle cx="7" cy="16" r="1.5"/>
+      <circle cx="11" cy="16" r="1.5"/>
+    </svg>
+  </button>
+  <div><strong>Reward Type:</strong> {{ recognitionBenefits?.rewardType }}</div>
+  <div><strong>Currency:</strong> {{ recognitionBenefits?.currency }}</div>
+  <div><strong>Currency Type:</strong> {{ recognitionBenefits?.currencyType }}</div>
+  <div><strong>Sponsorship Type:</strong> {{ recognitionBenefits?.sponsorshipType }}</div>
+  <div><strong>Show Name:</strong> {{ recognitionBenefits?.showName ? 'Yes' : 'No' }}</div>
+  <div><strong>Show Logo:</strong> {{ recognitionBenefits?.showLogo ? 'Yes' : 'No' }}</div>
+  <div><strong>Logo Size:</strong> {{ recognitionBenefits?.logoSize }}</div>
+  <div><strong>Placement:</strong> {{ recognitionBenefits?.placement }}</div>
+</div>
+
+<!-- Checkout.com Payment Modal -->
+<div *ngIf="showPaymentForm" class="payment-modal-overlay">
+  <div class="payment-modal-content">
+    <button class="close-payment-btn" (click)="closePaymentForm()">&times;</button>
+    <app-checkout-payment
+      [benefits]="benefits"
+      [companyId]="companyId"
+      [companyName]="companyName"
+      (paymentSuccess)="onPaymentSuccess($event)"
+      (paymentError)="onPaymentError($event)">
+    </app-checkout-payment>
+  </div>
+</div>
+

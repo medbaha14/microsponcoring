@@ -1,0 +1,11 @@
+<div class="org-card">
+  <div class="org-card-img-wrapper">
+    <img *ngIf="user.profilePicture" [src]="'http://localhost:8080' + user.profilePicture" alt="Organisation Image" class="org-card-img" />
+    <div *ngIf="!user.profilePicture" class="org-card-img-placeholder">No Image</div>
+  </div>
+  <div class="org-card-name">{{ user.fullName || user.username }}</div>
+  <a *ngIf="user.websiteUrl" class="org-card-website" [href]="user.websiteUrl" target="_blank" rel="noopener noreferrer">
+    {{ user.websiteUrl }}
+  </a>
+  <div class="org-card-activity">{{ user.bio }}</div>
+</div> 

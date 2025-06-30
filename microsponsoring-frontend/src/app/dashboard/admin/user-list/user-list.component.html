@@ -1,0 +1,132 @@
+<div class="user-list-container">
+  <div class="user-list-header">
+    <button class="add-btn" (click)="addUser()">Add User</button>
+  </div>
+  <div class="table-responsive">
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Full Name</th>
+        <th>User Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+          <td data-label="ID">{{ user.userId}}</td>
+          <td data-label="Username">{{ user.username }}</td>
+          <td data-label="Email">{{ user.email }}</td>
+          <td data-label="Full Name">{{ user.fullName }}</td>
+          <td data-label="User Type">{{ user.userType }}</td>
+          <td data-label="Status">{{ user.status }}</td>
+        <td>
+          <button *ngIf="user.active" (click)="confirmBlock(user)" aria-label="Block User" title="Block User">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="11" width="14" height="8" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+          </button>
+          <button *ngIf="!user.active" (click)="confirmDeblock(user)" aria-label="Deblock User" title="Deblock User">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="11" width="14" height="8" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 7v8" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+          </button>
+          <button (click)="editUser(user)" aria-label="Edit User" title="Edit User">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.862 3.487a2.06 2.06 0 0 1 2.916 2.915l-11.1 11.1-4.025 1.11 1.11-4.025 11.1-11.1Z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+          </button>
+            <button *ngIf="user.userType === 'SPONSOR' && !user.sponsor"
+                    (click)="openSponsorModal('add', null, user)"
+                    aria-label="Add Sponsor" title="Add Sponsor">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </button>
+            <button *ngIf="user.userType === 'SPONSOR' && user.sponsor"
+                    (click)="openSponsorModal('edit', user.sponsor, user)"
+                    aria-label="Edit Sponsor" title="Edit Sponsor">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M15.5 8.5l-7 7M8.5 8.5l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </button>
+            <button *ngIf="user.userType === 'ORGANISATION_NONPROFIT' && !user.companyNonProfits"
+                    (click)="openOrganisationModal('add', null, user)"
+                    aria-label="Add Organisation" title="Add Organisation">
+            <span class="icon svg-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </button>
+            <button *ngIf="user.userType === 'ORGANISATION_NONPROFIT' && user.companyNonProfits"
+                    (click)="openOrganisationModal('edit', user.companyNonProfits, user)"
+                    aria-label="Edit Organisation" title="Edit Organisation">
+              <span class="icon svg-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M15.5 8.5l-7 7M8.5 8.5l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- User Details Modal -->
+  <div class="modal" *ngIf="showDetailsModal && selectedUser">
+    <div class="modal-content">
+      <span class="close" (click)="closeDetails()">&times;</span>
+      <h3>User Details</h3>
+      <div *ngIf="selectedUser.userType === 'SPONSOR' && selectedUser.sponsor">
+        <p><strong>Sponsor Category:</strong> {{ selectedUser.sponsor.sponcerCat }}</p>
+        <p><strong>Total Sponsorships:</strong> {{ selectedUser.sponsor.totalSponsorships }}</p>
+        <p><strong>Payment Method:</strong> {{ selectedUser.sponsor.paymentMethod }}</p>
+        <p><strong>Created At:</strong> {{ selectedUser.sponsor.createdAt }}</p>
+      </div>
+      <div *ngIf="selectedUser.userType === 'ORGANISATION_NONPROFIT' && selectedUser.companyNonProfits">
+        <p><strong>Activity Type:</strong> {{ selectedUser.companyNonProfits.activityType }}</p>
+        <p><strong>Total Sponsorships:</strong> {{ selectedUser.companyNonProfits.totalSponsorships }}</p>
+        <p><strong>Created At:</strong> {{ selectedUser.companyNonProfits.createdAt }}</p>
+      </div>
+      <div *ngIf="selectedUser.userType !== 'SPONSOR' && selectedUser.userType !== 'ORGANISATION_NONPROFIT'">
+        <p>No additional details available.</p>
+      </div>
+      <button (click)="editUser(selectedUser)">Edit</button>
+      <button (click)="addUser()">Add User</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showAddUserModal">
+    <app-add-user-modal [user]="selectedEditUser" (close)="closeAddUserModal()" (userAdded)="onUserAdded()"></app-add-user-modal>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showSponsorModal">
+    <app-sponsor-modal [mode]="detailsModeSponsor" [selectedEditUser]="selectedEditUser" [sponsor]="selectedSponsor" (close)="closeSponsorModal()" (operationSuccess)="loadUsers()"></app-sponsor-modal>
+  </div>
+</div>
+
+<!-- Organisation Modal Overlay at root level -->
+<div class="modal-overlay" *ngIf="showOrganisationModal">
+  <app-organisation-modal [mode]="detailsModeOrganisation" [organisation]="selectedOrganisation" (close)="closeOrganisationModal()" [selectedEditUser]="selectedEditUser" (operationSuccess)="loadUsers()"></app-organisation-modal>
+</div>

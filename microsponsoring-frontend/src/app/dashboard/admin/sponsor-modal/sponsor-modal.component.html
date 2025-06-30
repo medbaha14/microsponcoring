@@ -1,0 +1,29 @@
+<div class="modal-overlay">
+<div class="modal-content">
+  <span class="close" (click)="close.emit()">&times;</span>
+  <h3 *ngIf="mode === 'view'">Sponsor Details</h3>
+  <h3 *ngIf="mode === 'edit'">Edit Sponsor</h3>
+  <h3 *ngIf="mode === 'add'">Add Sponsor</h3>
+
+  <form *ngIf="mode === 'edit' || mode === 'add'" (ngSubmit)="save()">
+    <div>
+      <label>Category</label>
+      <input [(ngModel)]="formSponsor.sponcerCat" name="sponcerCat" required />
+    </div>   
+    <div>
+      <label>Payment Method</label>
+      <input [(ngModel)]="formSponsor.paymentMethod" name="paymentMethod" required />
+    </div>
+    <button type="submit">{{ mode === 'add' ? 'Add' : 'Update' }}</button>
+    <button type="button" (click)="close.emit()">Cancel</button>
+  </form>
+
+  <div *ngIf="mode === 'view'">
+    <p><strong>Category:</strong> {{ formSponsor.sponcerCat }}</p>
+    <p><strong>Total Sponsorships:</strong> {{ formSponsor.totalSponsorships }}</p>
+    <p><strong>Payment Method:</strong> {{ formSponsor.paymentMethod }}</p>
+    <button (click)="mode = 'edit'">Edit</button>
+    <button (click)="close.emit()">Close</button>
+  </div>
+</div> 
+</div>
