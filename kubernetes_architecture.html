@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .title-banner {
+            background: linear-gradient(135deg, #8DBCC7 0%, #A4CCD9 100%);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(141, 188, 199, 0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .architecture-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 30px;
+        }
+
+        .master-node {
+            flex: 1;
+            background: linear-gradient(145deg, #ffffff 0%, #EBFFD8 100%);
+            border-radius: 10px;
+            color: black;
+            margin-right: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid #A4CCD9;
+            transition: transform 0.3s ease;
+        }
+
+        .master-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .worker-nodes {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .node-header {
+            background: linear-gradient(135deg, #8DBCC7 0%, #A4CCD9 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .node-content {
+            padding: 15px;
+        }
+
+        .role-label {
+            color: #475569;
+            font-size: 0.8em;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 500;
+            background: #EBFFD8;
+            padding: 6px;
+            border-radius: 6px;
+            border-left: 3px solid #8DBCC7;
+        }
+
+        .component {
+            background: linear-gradient(135deg, #A4CCD9 0%, #8DBCC7 100%);
+            color: white;
+            padding: 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.8em;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(164, 204, 217, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .container-section {
+            margin-bottom: 12px;
+        }
+
+        .container-label {
+            color: #374151;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .container-box {
+            background: linear-gradient(135deg, #C4E1E6 0%, #A4CCD9 100%);
+            color: #333;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(196, 225, 230, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .container-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+        }
+
+        .empty-container {
+            background: linear-gradient(135deg, #EBFFD8 0%, #C4E1E6 100%);
+            border: 2px dashed #8DBCC7;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            min-height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8DBCC7;
+            font-style: italic;
+            font-size: 0.7em;
+        }
+
+        .network-box {
+            background: linear-gradient(135deg, #8DBCC7 0%, #A4CCD9 100%);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.75em;
+            margin-top: 12px;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(141, 188, 199, 0.3);
+        }
+
+        .arrow {
+            color: #8DBCC7;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .connection-arrows {
+            position: relative;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .connection-arrow {
+            color: #A4CCD9;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @media (max-width: 768px) {
+            .architecture-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .master-node {
+                margin-right: 0;
+            }
+            
+            .title-banner {
+                font-size: 1.5em;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="title-banner">
+        KUBERNETES ARCHITECTURE
+    </div>
+
+    <div class="architecture-container">
+        <!-- Kubernetes Master Node -->
+        <div class="master-node">
+            <div class="node-header">
+                Kubernetes Master Node
+            </div>
+            <div class="node-content">
+                <div class="role-label">Role: Orchestreur</div>
+                
+                <div class="component">API Server</div>
+                <div class="component">Scheduler</div>
+                <div class="component">Controller Manager</div>
+                <div class="component">etcd</div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="network-box">Réseau</div>
+            </div>
+        </div>
+
+        <!-- Connection Arrows -->
+        <div class="connection-arrows">
+            <div class="connection-arrow">→</div>
+            <div class="connection-arrow">→</div>
+        </div>
+
+        <!-- Worker Nodes -->
+        <div class="worker-nodes">
+            <!-- Worker Node 1 -->
+            <div class="master-node">
+                <div class="node-header">
+                    Worker Node 1
+                </div>
+                <div class="node-content">
+                    <div class="container-section">
+                        <div class="container-label">Conteneurs:</div>
+                        <div class="container-box">Angular (Frontend)</div>
+                    </div>
+                    
+                    <div class="container-section">
+                        <div class="container-label">Pod</div>
+                        <div class="empty-container">Empty Container</div>
+                    </div>
+                    
+                    <div class="network-box">Network</div>
+                </div>
+            </div>
+
+            <!-- Worker Node 3 -->
+            <div class="master-node">
+                <div class="node-header">
+                    Worker Node 3
+                </div>
+                <div class="node-content">
+                    <div class="container-section">
+                        <div class="container-label">Conteneurs:</div>
+                        <div class="container-box">Spring Boot (Backend)</div>
+                    </div>
+                    
+                    <div class="container-section">
+                        <div class="container-label">Pod</div>
+                        <div class="container-box">MySQL (Base de données)</div>
+                    </div>
+                    
+                    <div class="network-box">Network</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

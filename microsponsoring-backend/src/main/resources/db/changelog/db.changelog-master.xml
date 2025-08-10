@@ -9,6 +9,14 @@
 
     <changeSet id="add-currency-type-to-recognition-benefits" author="assistant">
         <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="recognition_benefits"/>
+                <not>
+                    <columnExists tableName="recognition_benefits" columnName="currency_type"/>
+                </not>
+            </and>
+        </preConditions>
         <addColumn tableName="recognition_benefits">
             <column name="currency_type" type="VARCHAR(32)"/>
         </addColumn>
@@ -17,9 +25,12 @@
     <changeSet id="create-bank-accounts-table" author="assistant">
         <validCheckSum>9:f4fa44692556bfa83f858f54fece16d4</validCheckSum>
         <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="bank_accounts"/>
-            </not>
+            <and>
+                <not>
+                    <tableExists tableName="bank_accounts"/>
+                </not>
+                <tableExists tableName="users"/>
+            </and>
         </preConditions>
         
         <createTable tableName="bank_accounts">
@@ -64,6 +75,18 @@
 
     <changeSet id="add-amount-tracking-columns" author="assistant">
         <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="sponsors"/>
+                <tableExists tableName="companies_non_profits"/>
+                <not>
+                    <columnExists tableName="sponsors" columnName="total_amount_spent"/>
+                </not>
+                <not>
+                    <columnExists tableName="companies_non_profits" columnName="total_amount_received"/>
+                </not>
+            </and>
+        </preConditions>
         <addColumn tableName="sponsors">
             <column name="total_amount_spent" type="DECIMAL(10,2)" defaultValueNumeric="0.00"/>
         </addColumn>
@@ -73,4 +96,176 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="fix-uuid-column-sizes" author="assistant">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="companies_non_profits"/>
+                <tableExists tableName="sponsors"/>
+                <tableExists tableName="recognition_benefits"/>
+            </and>
+        </preConditions>
+        
+        <!-- Drop foreign key constraints if they exist -->
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'page_customizations' 
+                 AND CONSTRAINT_NAME = 'FK7xw5wgy3yjhxcm0u70tyo4aqa') > 0,
+                'ALTER TABLE page_customizations DROP FOREIGN KEY FK7xw5wgy3yjhxcm0u70tyo4aqa',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'invoices' 
+                 AND CONSTRAINT_NAME = 'FKeplp82wao2q7rgd3wlcw8u7a3') > 0,
+                'ALTER TABLE invoices DROP FOREIGN KEY FKeplp82wao2q7rgd3wlcw8u7a3',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'recognition_benefits' 
+                 AND CONSTRAINT_NAME = 'FKfyp750mt2k2nha8sw6h48tdao') > 0,
+                'ALTER TABLE recognition_benefits DROP FOREIGN KEY FKfyp750mt2k2nha8sw6h48tdao',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <!-- Drop user_id foreign key constraints -->
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'companies_non_profits' 
+                 AND CONSTRAINT_NAME = 'FK_companies_users') > 0,
+                'ALTER TABLE companies_non_profits DROP FOREIGN KEY FK_companies_users',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'sponsors' 
+                 AND CONSTRAINT_NAME = 'FK_sponsors_users') > 0,
+                'ALTER TABLE sponsors DROP FOREIGN KEY FK_sponsors_users',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'password_reset_tokens' 
+                 AND CONSTRAINT_NAME = 'FK_tokens_users') > 0,
+                'ALTER TABLE password_reset_tokens DROP FOREIGN KEY FK_tokens_users',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <sql>
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                 WHERE TABLE_SCHEMA = 'microsponsoring' 
+                 AND TABLE_NAME = 'invoices' 
+                 AND CONSTRAINT_NAME = 'FKhr1j1hgihsma305wyfyjy9g4x') > 0,
+                'ALTER TABLE invoices DROP FOREIGN KEY FKhr1j1hgihsma305wyfyjy9g4x',
+                'SELECT 1'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        </sql>
+        
+        <!-- Modify column data types -->
+        <modifyDataType tableName="users" columnName="user_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="companies_non_profits" columnName="company_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="companies_non_profits" columnName="user_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="sponsors" columnName="sponsor_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="sponsors" columnName="user_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="recognition_benefits" columnName="id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="recognition_benefits" columnName="organization_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="password_reset_tokens" columnName="token_id" newDataType="VARCHAR(36)"/>
+        <modifyDataType tableName="password_reset_tokens" columnName="user_id" newDataType="VARCHAR(36)"/>
+        
+        <!-- Re-add foreign key constraints -->
+        <addForeignKeyConstraint 
+            baseTableName="page_customizations" 
+            baseColumnNames="company_id" 
+            referencedTableName="companies_non_profits" 
+            referencedColumnNames="company_id" 
+            constraintName="FK7xw5wgy3yjhxcm0u70tyo4aqa"/>
+        <addForeignKeyConstraint 
+            baseTableName="invoices" 
+            baseColumnNames="company_id" 
+            referencedTableName="companies_non_profits" 
+            referencedColumnNames="company_id" 
+            constraintName="FKeplp82wao2q7rgd3wlcw8u7a3"/>
+        <addForeignKeyConstraint 
+            baseTableName="recognition_benefits" 
+            baseColumnNames="company_id" 
+            referencedTableName="companies_non_profits" 
+            referencedColumnNames="company_id" 
+            constraintName="FKfyp750mt2k2nha8sw6h48tdao"/>
+        <addForeignKeyConstraint 
+            baseTableName="invoices" 
+            baseColumnNames="sponsor_id" 
+            referencedTableName="sponsors" 
+            referencedColumnNames="sponsor_id" 
+            constraintName="FKhr1j1hgihsma305wyfyjy9g4x"/>
+        <addForeignKeyConstraint 
+            baseTableName="companies_non_profits" 
+            baseColumnNames="user_id" 
+            referencedTableName="users" 
+            referencedColumnNames="user_id" 
+            constraintName="FK_companies_users"/>
+        <addForeignKeyConstraint 
+            baseTableName="sponsors" 
+            baseColumnNames="user_id" 
+            referencedTableName="users" 
+            referencedColumnNames="user_id" 
+            constraintName="FK_sponsors_users"/>
+        <addForeignKeyConstraint 
+            baseTableName="password_reset_tokens" 
+            baseColumnNames="user_id" 
+            referencedTableName="users" 
+            referencedColumnNames="user_id" 
+            constraintName="FK_tokens_users"/>
+    </changeSet>
+
+   
+    <include file="db.changelog-1.1.xml" relativeToChangelogFile="true"/>
+    <include file="db.changelog-1.2.xml" relativeToChangelogFile="true"/>
+    
+
+   
 </databaseChangeLog> 

@@ -1,6 +1,9 @@
 .user-list-container {
   margin-left: 32px;
   padding-top: 32px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .user-table {
@@ -86,6 +89,7 @@
 .table-responsive {
   width: 100%;
   overflow-x: auto;
+  flex: 1;
 }
 
 /* Responsive Table */
@@ -146,4 +150,39 @@ th, td {
     display: block;
     text-align: left;
   }
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--color-dark-teal);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  color: var(--color-cream);
+  font-weight: 500;
 }

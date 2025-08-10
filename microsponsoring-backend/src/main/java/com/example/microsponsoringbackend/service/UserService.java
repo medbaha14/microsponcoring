@@ -43,6 +43,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public OrganisationProfileDTO getOrganisationProfile(UUID userId) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty() || userOpt.get().getUserType() != UserType.ORGANISATION_NONPROFIT) {

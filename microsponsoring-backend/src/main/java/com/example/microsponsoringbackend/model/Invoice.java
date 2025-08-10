@@ -20,7 +20,8 @@ import java.util.UUID;
 public class Invoice {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID invoiceId;
 
     @Column
@@ -58,8 +59,8 @@ public class Invoice {
     @ManyToMany
     @JoinTable(
         name = "InvoiceBenefits",
-        joinColumns = @JoinColumn(name = "invoiceId", columnDefinition = "BINARY(16)"),
-        inverseJoinColumns = @JoinColumn(name = "benefitId", columnDefinition = "BINARY(16)")
+        joinColumns = @JoinColumn(name = "invoiceId", columnDefinition = "VARCHAR(36)"),
+        inverseJoinColumns = @JoinColumn(name = "benefitId", columnDefinition = "VARCHAR(36)")
     )
     @JsonBackReference
     private List<RecognitionBenefits> benefits;

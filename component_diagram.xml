@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="Microsponsoring Component Diagram" id="component-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Frontend Package -->
+        <mxCell id="frontend-package" value="Frontend (Angular)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="200" height="300" as="geometry" />
+        </mxCell>
+        
+        <!-- Frontend Components -->
+        <mxCell id="login-comp" value="Login Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="80" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dashboard-comp" value="Dashboard Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsor-comp" value="Sponsor Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="180" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="org-comp" value="Organisation Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="230" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="invoice-comp" value="Invoice Component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="280" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Backend Package -->
+        <mxCell id="backend-package" value="Backend (Spring Boot)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="50" width="300" height="400" as="geometry" />
+        </mxCell>
+        
+        <!-- Controllers Package -->
+        <mxCell id="controllers-package" value="Controllers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="80" width="260" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="auth-controller" value="AuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="100" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsor-controller" value="SponsorController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="140" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="org-controller" value="OrganisationController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="170" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="invoice-controller" value="InvoiceController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="100" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Services Package -->
+        <mxCell id="services-package" value="Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="220" width="260" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user-service" value="UserService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="240" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsor-service" value="SponsorService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="280" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="org-service" value="OrganisationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="320" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="invoice-service" value="InvoiceService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="240" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-service" value="PaymentService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="280" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Repositories Package -->
+        <mxCell id="repos-package" value="Repositories" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="380" width="260" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user-repo" value="UserRepository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="400" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsor-repo" value="SponsorRepository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="400" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="MySQL Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff3e0;strokeColor=#e65100;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="50" width="150" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="users-table" value="Users Table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="770" y="80" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsors-table" value="Sponsors Table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="770" y="120" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="orgs-table" value="Organisations Table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="770" y="160" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="invoices-table" value="Invoices Table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="770" y="200" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- External Services -->
+        <mxCell id="external-package" value="External Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="500" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="email-service" value="Email Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="530" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-gateway" value="Payment Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Interfaces -->
+        <mxCell id="auth-interface" value="Auth API" style="shape=umlInterface;whiteSpace=wrap;html=1;container=1;recursiveResize=0;collapsible=0;recursiveResizeBounds=0;rounded=1;arcSize=12!;strokeColor=#7b1fa2;fillColor=#f3e5f5;verticalAlign=top;verticalLabelPosition=bottom;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="680" y="100" width="60" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sponsor-interface" value="Sponsor API" style="shape=umlInterface;whiteSpace=wrap;html=1;container=1;recursiveResize=0;collapsible=0;recursiveResizeBounds=0;rounded=1;arcSize=12!;strokeColor=#7b1fa2;fillColor=#f3e5f5;verticalAlign=top;verticalLabelPosition=bottom;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="680" y="140" width="60" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="org-interface" value="Organisation API" style="shape=umlInterface;whiteSpace=wrap;html=1;container=1;recursiveResize=0;collapsible=0;recursiveResizeBounds=0;rounded=1;arcSize=12!;strokeColor=#7b1fa2;fillColor=#f3e5f5;verticalAlign=top;verticalLabelPosition=bottom;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="680" y="170" width="60" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="invoice-interface" value="Invoice API" style="shape=umlInterface;whiteSpace=wrap;html=1;container=1;recursiveResize=0;collapsible=0;recursiveResizeBounds=0;rounded=1;arcSize=12!;strokeColor=#7b1fa2;fillColor=#f3e5f5;verticalAlign=top;verticalLabelPosition=bottom;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="680" y="240" width="60" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Connections -->
+        <mxCell id="conn1" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="login-comp" target="auth-interface">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn2" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="dashboard-comp" target="sponsor-interface">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn3" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="dashboard-comp" target="org-interface">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn4" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-comp" target="invoice-interface">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn5" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="auth-controller" target="user-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn6" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sponsor-controller" target="sponsor-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn7" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="org-controller" target="org-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn8" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-controller" target="invoice-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn9" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-service" target="user-repo">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn10" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sponsor-service" target="sponsor-repo">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn11" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-repo" target="users-table">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn12" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sponsor-repo" target="sponsors-table">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn13" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="payment-service" target="payment-gateway">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn14" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-service" target="email-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn15" value="" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-service" target="email-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile> 

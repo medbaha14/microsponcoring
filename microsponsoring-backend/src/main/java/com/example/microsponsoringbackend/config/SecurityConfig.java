@@ -65,6 +65,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/payments/company/{companyId}/stats").authenticated()
                 // Allow public access to invoice PDFs
                 .requestMatchers(HttpMethod.GET, "/api/invoices/*/pdf").permitAll()
+                // Allow authenticated users to access invoices
+                .requestMatchers(HttpMethod.GET, "/api/invoices/**").authenticated()
                 // Auth endpoints and public endpoints
                 .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/role/{role}").permitAll()

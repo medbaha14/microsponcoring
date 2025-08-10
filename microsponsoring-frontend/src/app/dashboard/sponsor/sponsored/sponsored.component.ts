@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { NgChartsModule, BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartType } from 'chart.js';
 import { PaymentService } from '../../../services/payment.service';
-import { companyNonProfitsService } from '../../../services/companies-non-profits.service';
+import { UserService } from '../../../services/user.service';
+import { SponsorService } from '../../../services/sponsor.service';
 import { TokenHandler } from '../../../services/token-handler';
 
 @Component({
@@ -16,7 +17,7 @@ import { TokenHandler } from '../../../services/token-handler';
 export class SponsoredComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   sponsorships: any[] = [];
-  organisationNames: { [companyId: string]: string } = {};
+  sponsorNames: { [sponsorId: string]: string } = {};
   chartType: ChartType = 'bar';
   chartData: any[] = [];
   chartLabels: string[] = [];
@@ -72,66 +73,72 @@ export class SponsoredComponent implements OnInit {
 
   constructor(
     private paymentService: PaymentService,
-    private companyService: companyNonProfitsService,
+    private userService: UserService,
+    private sponsorService: SponsorService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     const user = TokenHandler.getUser();
-    if (user && user.sponsorId) {
-      this.paymentService.getInvoicesBySponsor(user.sponsorId).subscribe((invoices: any[]) => {
-        console.log('Fetched invoices:', invoices);
-        this.sponsorships = invoices;
+    if (user && user.userId) {
+      // Get sponsor data for the current user
+      this.sponsorService.getByUserId(user.userId).subscribe((sponsor: any) => {
+        if (sponsor && sponsor.sponsorId) {
+          // Get invoices for this sponsor
+          this.paymentService.getInvoicesBySponsor(sponsor.sponsorId).subscribe((invoices: any[]) => {
+            console.log('Fetched sponsor invoices:', invoices);
+            this.sponsorships = invoices;
 
-        // Find the latest sponsorship date
-        const latest = invoices.reduce((max, s) => {
-          const d = new Date(s.createdAt);
-          return d > max ? d : max;
-        }, new Date(invoices[0]?.createdAt || Date.now()));
+            // Find the latest sponsorship date
+            const latest = invoices.reduce((max, s) => {
+              const d = new Date(s.createdAt);
+              return d > max ? d : max;
+            }, new Date(invoices[0]?.createdAt || Date.now()));
 
-        // Get Monday of that week
-        const monday = new Date(latest);
-        monday.setDate(latest.getDate() - ((latest.getDay() + 6) % 7));
+            // Get Monday of that week
+            const monday = new Date(latest);
+            monday.setDate(latest.getDate() - ((latest.getDay() + 6) % 7));
 
-        // Build 7 days (Mon-Sun)
-        const weekDates: string[] = [];
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(monday);
-          d.setDate(monday.getDate() + i);
-          weekDates.push(d.toLocaleDateString());
-        }
+            // Build 7 days (Mon-Sun)
+            const weekDates: string[] = [];
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(monday);
+              d.setDate(monday.getDate() + i);
+              weekDates.push(d.toLocaleDateString());
+            }
 
-        // Group by date and sum amounts
-        const grouped: { [date: string]: number } = {};
-        invoices.forEach(s => {
-          const date = new Date(s.createdAt).toLocaleDateString();
-          if (!grouped[date]) grouped[date] = 0;
-          grouped[date] += s.amount;
-        });
-
-        this.chartLabels = weekDates;
-        this.chartData = [{
-          data: weekDates.map(date => grouped[date] || 0),
-          label: 'Sponsorship Amount',
-          fill: true,
-          tension: 0.4,
-          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-medium-teal').trim() || '#393E46',
-          backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-light-teal').trim() || '#948979',
-          pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-dark-teal').trim() || '#222831',
-          pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-dark-teal').trim() || '#222831',
-        }];
-
-        // Fetch organisation names by companyId
-        const companyIds = Array.from(new Set(invoices.map(inv => inv.company?.companyId).filter(id => !!id)));
-        companyIds.forEach(companyId => {
-          if (!this.organisationNames[companyId]) {
-            this.companyService.getById(companyId).subscribe(org => {
-              this.organisationNames[companyId] = org.details || org.activityType || 'N/A';
-              this.cdr.detectChanges();
+            // Group by date and sum amounts
+            const grouped: { [date: string]: number } = {};
+            invoices.forEach(s => {
+              const date = new Date(s.createdAt).toLocaleDateString();
+              if (!grouped[date]) grouped[date] = 0;
+              grouped[date] += s.amount;
             });
-          }
-        });
-        this.updateChartColors();
+
+            this.chartLabels = weekDates;
+            this.chartData = [{
+              data: weekDates.map(date => grouped[date] || 0),
+              label: 'Investment Amount',
+              fill: true,
+              tension: 0.4,
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-medium-teal').trim() || '#393E46',
+              backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-light-teal').trim() || '#948979',
+              pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-dark-teal').trim() || '#222831',
+              pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-dark-teal').trim() || '#222831',
+            }];
+
+            // Get organization names from the invoice data
+            invoices.forEach(invoice => {
+              if (invoice.company && invoice.company.companyId) {
+                // Use the company's activity type or user's full name if available
+                const companyName = invoice.company.activityType || 
+                                  (invoice.company.user ? invoice.company.user.fullName : 'Organization');
+                this.sponsorNames[invoice.company.companyId] = companyName;
+              }
+            });
+            this.updateChartColors();
+          });
+        }
       });
     }
     // Observe theme changes on both <html> and <body>
@@ -204,9 +211,9 @@ export class SponsoredComponent implements OnInit {
     window.open(backendUrl, '_blank');
   }
 
-  getOrganisationName(s: any): string {
+  getOrganizationName(s: any): string {
     if (s.company && s.company.companyId) {
-      return this.organisationNames[s.company.companyId] || 'Loading...';
+      return this.sponsorNames[s.company.companyId] || s.company.activityType || 'Organization';
     }
     return 'N/A';
   }

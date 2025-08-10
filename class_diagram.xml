@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="class-diagram" version="22.1.16" type="device">
+  <diagram name="Complete Class Diagram" id="class-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- User Class -->
+        <mxCell id="user-class" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="user-attributes" value="- userId: UUID&#xa;- email: String&#xa;- username: String&#xa;- password: String&#xa;- fullName: String&#xa;- active: Boolean&#xa;- userType: UserType&#xa;- status: Status&#xa;- acceptedConditions: Boolean&#xa;- lastLogin: Date&#xa;- profilePicture: String&#xa;- bio: String&#xa;- location: String&#xa;- websiteUrl: String&#xa;- isVerified: Boolean&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="user-class">
+          <mxGeometry y="26" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="user-methods" value="+ register()&#xa;+ login()&#xa;+ updateProfile()&#xa;+ resetPassword()&#xa;+ verifyEmail()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="user-class">
+          <mxGeometry y="346" width="200" height="54" as="geometry" />
+        </mxCell>
+        
+        <!-- CompanyNonProfits Class -->
+        <mxCell id="company-class" value="CompanyNonProfits" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="company-attributes" value="- companyId: UUID&#xa;- activityType: String&#xa;- details: String&#xa;- totalSponsorships: Integer&#xa;- totalAmountReceived: Double&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="company-class">
+          <mxGeometry y="26" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="company-methods" value="+ createProfile()&#xa;+ updateProfile()&#xa;+ manageSponsorships()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="company-class">
+          <mxGeometry y="166" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- Sponsor Class -->
+        <mxCell id="sponsor-class" value="Sponsor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="sponsor-attributes" value="- sponsorId: UUID&#xa;- sponcerCat: String&#xa;- paymentMethod: String&#xa;- totalSponsorships: Integer&#xa;- totalAmountSpent: Double&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="sponsor-class">
+          <mxGeometry y="26" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="sponsor-methods" value="+ browseOrganizations()&#xa;+ makeDonation()&#xa;+ viewHistory()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="sponsor-class">
+          <mxGeometry y="166" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- RecognitionBenefits Class -->
+        <mxCell id="benefits-class" value="RecognitionBenefits" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="760" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="benefits-attributes" value="- benefitId: UUID&#xa;- rewardType: String&#xa;- currency: Long&#xa;- currencyType: String&#xa;- sponsorshipType: String&#xa;- showName: String&#xa;- showLogo: String&#xa;- logoSize: String&#xa;- placement: String&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="benefits-class">
+          <mxGeometry y="26" width="200" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="benefits-methods" value="+ createBenefit()&#xa;+ updateBenefit()&#xa;+ assignToCompany()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="benefits-class">
+          <mxGeometry y="246" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- Invoice Class -->
+        <mxCell id="invoice-class" value="Invoice" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="invoice-attributes" value="- invoiceId: UUID&#xa;- amount: Double&#xa;- status: String&#xa;- createdAt: Date&#xa;- updatedAt: Date&#xa;- invoiceDate: Date&#xa;- paymentStatus: PaymentStatus&#xa;- acceptedTerms: Boolean&#xa;- generatedPdfUrl: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="invoice-class">
+          <mxGeometry y="26" width="200" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="invoice-methods" value="+ generateInvoice()&#xa;+ processPayment()&#xa;+ updateStatus()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="invoice-class">
+          <mxGeometry y="246" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- BankAccount Class -->
+        <mxCell id="bankaccount-class" value="BankAccount" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="280" y="480" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="bankaccount-attributes" value="- id: UUID&#xa;- userId: UUID&#xa;- accountType: PaymentAccountType&#xa;- accountHolderName: String&#xa;- accountName: String&#xa;- email: String&#xa;- iban: String&#xa;- bic: String&#xa;- bankName: String&#xa;- country: String&#xa;- currency: String&#xa;- isDefault: Boolean&#xa;- isActive: Boolean&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="bankaccount-class">
+          <mxGeometry y="26" width="200" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="bankaccount-methods" value="+ addAccount()&#xa;+ updateAccount()&#xa;+ validateIBAN()&#xa;+ onCreate()&#xa;+ onUpdate()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="bankaccount-class">
+          <mxGeometry y="286" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- PageCustomizations Class -->
+        <mxCell id="custom-class" value="PageCustomizations" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="480" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="custom-attributes" value="- id: UUID&#xa;- backgroundColor: String&#xa;- primaryColor: String&#xa;- secondaryColor: String&#xa;- fontStyle: String&#xa;- logoUrl: String&#xa;- bannerImageUrl: String&#xa;- backgroundImageUrl: String&#xa;- createdAt: Date&#xa;- updatedAt: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="custom-class">
+          <mxGeometry y="26" width="200" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="custom-methods" value="+ customizePage()&#xa;+ updateTheme()&#xa;+ saveCustomizations()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="custom-class">
+          <mxGeometry y="246" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- PasswordResetToken Class -->
+        <mxCell id="token-class" value="PasswordResetToken" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="760" y="480" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="token-attributes" value="- tokenId: String&#xa;- token: String&#xa;- userId: String&#xa;- expiryDate: LocalDateTime&#xa;- used: boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="token-class">
+          <mxGeometry y="26" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="token-methods" value="+ isExpired(): boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="token-class">
+          <mxGeometry y="166" width="200" height="34" as="geometry" />
+        </mxCell>
+        
+        <!-- UserType Enum -->
+        <mxCell id="usertype-enum" value="UserType" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="usertype-values" value="SPONSOR&#xa;ORGANISATION_NONPROFIT&#xa;ADMIN" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="usertype-enum">
+          <mxGeometry y="26" width="150" height="94" as="geometry" />
+        </mxCell>
+        
+        <!-- Status Enum -->
+        <mxCell id="status-enum" value="Status" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="200" width="120" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="status-values" value="ACTIVE&#xa;PENDING&#xa;SUSPENDED" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="status-enum">
+          <mxGeometry y="26" width="120" height="94" as="geometry" />
+        </mxCell>
+        
+        <!-- PaymentStatus Enum -->
+        <mxCell id="paymentstatus-enum" value="PaymentStatus" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="360" width="120" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="paymentstatus-values" value="PENDING&#xa;PAID&#xa;FAILED" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="paymentstatus-enum">
+          <mxGeometry y="26" width="120" height="94" as="geometry" />
+        </mxCell>
+        
+        <!-- PaymentAccountType Enum -->
+        <mxCell id="accounttype-enum" value="PaymentAccountType" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="520" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="accounttype-values" value="BANK_ACCOUNT&#xa;PAYPAL&#xa;STRIPE&#xa;CREDIT_CARD" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="accounttype-enum">
+          <mxGeometry y="26" width="150" height="94" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        <!-- User to CompanyNonProfits (One-to-One) -->
+        <mxCell id="user-company-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-class" target="company-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="240" y="240" as="sourcePoint" />
+            <mxPoint x="280" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="company-user-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="company-class" target="user-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="280" y="140" as="sourcePoint" />
+            <mxPoint x="240" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User to Sponsor (One-to-One) -->
+        <mxCell id="user-sponsor-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-class" target="sponsor-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="240" y="240" as="sourcePoint" />
+            <mxPoint x="520" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sponsor-user-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sponsor-class" target="user-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="520" y="140" as="sourcePoint" />
+            <mxPoint x="240" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- CompanyNonProfits to PageCustomizations (One-to-One) -->
+        <mxCell id="company-custom-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="company-class" target="custom-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="380" y="240" as="sourcePoint" />
+            <mxPoint x="620" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="custom-company-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="custom-class" target="company-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="620" y="480" as="sourcePoint" />
+            <mxPoint x="380" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- CompanyNonProfits to RecognitionBenefits (One-to-Many) -->
+        <mxCell id="company-benefits-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="company-class" target="benefits-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="480" y="140" as="sourcePoint" />
+            <mxPoint x="760" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="benefits-company-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="benefits-class" target="company-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="760" y="180" as="sourcePoint" />
+            <mxPoint x="480" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- CompanyNonProfits to Invoice (One-to-Many) -->
+        <mxCell id="company-invoice-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="company-class" target="invoice-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="380" y="240" as="sourcePoint" />
+            <mxPoint x="140" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="invoice-company-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-class" target="company-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="140" y="480" as="sourcePoint" />
+            <mxPoint x="380" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Sponsor to Invoice (One-to-Many) -->
+        <mxCell id="sponsor-invoice-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sponsor-class" target="invoice-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="620" y="240" as="sourcePoint" />
+            <mxPoint x="240" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="invoice-sponsor-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-class" target="sponsor-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="240" y="620" as="sourcePoint" />
+            <mxPoint x="620" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Invoice to RecognitionBenefits (Many-to-Many) -->
+        <mxCell id="invoice-benefits-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="invoice-class" target="benefits-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="240" y="620" as="sourcePoint" />
+            <mxPoint x="760" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="benefits-invoice-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="benefits-class" target="invoice-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="760" y="320" as="sourcePoint" />
+            <mxPoint x="240" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User to BankAccount (One-to-Many) -->
+        <mxCell id="user-bankaccount-rel" value="1" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-class" target="bankaccount-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="140" y="440" as="sourcePoint" />
+            <mxPoint x="380" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="bankaccount-user-rel" value="*" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="bankaccount-class" target="user-class">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="380" y="480" as="sourcePoint" />
+            <mxPoint x="140" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile> 

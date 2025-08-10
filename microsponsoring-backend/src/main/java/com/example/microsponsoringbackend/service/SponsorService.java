@@ -33,4 +33,8 @@ public class SponsorService {
     public boolean existsById(UUID id) {
         return repository.existsById(id);
     }
+
+    public Optional<Sponsor> findByUserId(UUID userId) {
+        return repository.findByUser_UserId(userId);
+    }
 } 

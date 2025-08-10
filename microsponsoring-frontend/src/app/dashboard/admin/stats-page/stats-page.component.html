@@ -1,1 +1,202 @@
-<p>stats-page works!</p>
+<div class="stats-container" [class.light-mode]="!isDarkMode">
+  <!-- Loading State -->
+  <div *ngIf="!isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading statistics...</p>
+  </div>
+
+  <!-- Main Stats Dashboard -->
+  <div *ngIf="isLoading" class="stats-dashboard">
+    <!-- Header -->
+    <div class="stats-header">
+      <h1>Dashboard Statistics</h1>
+      <p>Comprehensive overview of platform activity and user analytics</p>
+    
+      <!-- Controls -->
+      <div class="stats-controls">
+        <!-- Date Range Filter -->
+        <div class="control-group">
+          <label for="dateRange">Date Range:</label>
+          <select id="dateRange" [(ngModel)]="selectedDateRange" (change)="onDateRangeChange()">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+
+        <!-- Auto Refresh -->
+        <div class="control-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()">
+            Auto Refresh ({{ refreshIntervalSeconds }}s)
+          </label>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="control-group">
+          <button class="export-btn" (click)="exportToPDF()">📄 Export PDF</button>
+          <button class="export-btn" (click)="exportToExcel()">📊 Export Excel</button>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon users-icon">👥</div>
+        <div class="metric-content">
+          <h3>Total Users</h3>
+          <p class="metric-value">{{ totalUsers }}</p>
+          <p class="metric-subtitle">{{ activeUsers }} active, {{ inactiveUsers }} inactive</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon payments-icon">💰</div>
+        <div class="metric-content">
+          <h3>Total Payments</h3>
+          <p class="metric-value">{{ paymentStats.totalPayments }}</p>
+          <p class="metric-subtitle">€{{ paymentStats.totalAmount.toFixed(2) }} total</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon average-icon">📊</div>
+        <div class="metric-content">
+          <h3>Average Payment</h3>
+          <p class="metric-value">€{{ paymentStats.averageAmount.toFixed(2) }}</p>
+          <p class="metric-subtitle">Per transaction</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon growth-icon">📈</div>
+        <div class="metric-content">
+          <h3>Monthly Growth</h3>
+          <p class="metric-value">{{ userCreationStats.length }}</p>
+          <p class="metric-subtitle">Months of activity</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon performance-icon">⚡</div>
+        <div class="metric-content">
+          <h3>Page Load Time</h3>
+          <p class="metric-value">{{ pageLoadTime.toFixed(2) }}ms</p>
+          <p class="metric-subtitle">Performance metric</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon engagement-icon">🎯</div>
+        <div class="metric-content">
+          <h3>User Engagement</h3>
+          <p class="metric-value">{{ userEngagement.toFixed(1) }}%</p>
+          <p class="metric-subtitle">Active users ratio</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analytics -->
+    <div class="analytics-grid">
+      <!-- User Role Distribution -->
+      <div class="chart-card">
+        <h3>User Distribution by Role</h3>
+        <div class="role-distribution">
+          <div *ngFor="let role of userRoleStats" class="role-item">
+            <div class="role-info">
+              <div class="role-color" [style.background-color]="getRoleColor(role.role)"></div>
+              <span class="role-name">{{ getRoleDisplayName(role.role) }}</span>
+              <span class="role-count">{{ role.count }}</span>
+            </div>
+            <div class="role-bar">
+              <div class="role-progress" 
+                   [style.width]="role.percentage + '%'"
+                   [style.background-color]="getRoleColor(role.role)"></div>
+            </div>
+            <span class="role-percentage">{{ role.percentage.toFixed(1) }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Creation Timeline -->
+      <div class="chart-card">
+        <h3>User Registration Timeline</h3>
+        <div class="timeline-chart">
+          <div *ngFor="let month of userCreationStats" class="timeline-item">
+            <div class="timeline-bar">
+                          <div class="timeline-progress" 
+                 [style.height]="getTimelineHeight(month.count) + '%'"></div>
+            </div>
+            <div class="timeline-label">
+              <span class="month-name">{{ month.month }}</span>
+              <span class="month-count">{{ month.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Analytics -->
+    <div class="payment-analytics">
+      <h3>Payment Trends</h3>
+      <div class="payment-chart">
+        <div *ngFor="let payment of paymentStats.monthlyPayments" class="payment-item">
+          <div class="payment-bar">
+            <div class="payment-progress" 
+                 [style.height]="getPaymentHeight(payment.amount) + '%'"></div>
+          </div>
+          <div class="payment-label">
+            <span class="payment-month">{{ payment.month }}</span>
+            <span class="payment-amount">€{{ payment.amount.toFixed(2) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <div class="activity-section">
+        <h3>Recent Users</h3>
+        <div class="activity-list">
+          <div *ngFor="let user of recentUsers" class="activity-item">
+            <div class="activity-icon" [style.background-color]="getRoleColor(user.userType || 'UNKNOWN')">
+              {{ user.username.charAt(0).toUpperCase() }}
+            </div>
+            <div class="activity-content">
+              <p class="activity-title">{{ user.fullName || user.username }}</p>
+              <p class="activity-subtitle">{{ user.email }}</p>
+              <p class="activity-time">{{ user.createdAt | date:'short' }}</p>
+            </div>
+            <div class="activity-status" [class.active]="user.active">
+              {{ user.active ? 'Active' : 'Inactive' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="activity-section">
+        <h3>Recent Payments</h3>
+        <div class="activity-list">
+          <div *ngFor="let invoice of recentInvoices" class="activity-item">
+            <div class="activity-icon payment-icon">€</div>
+            <div class="activity-content">
+              <p class="activity-title">Payment #{{ invoice.invoiceId }}</p>
+              <p class="activity-subtitle">{{ invoice.sponsor?.sponsorId || 'N/A' }}</p>
+              <p class="activity-time">{{ invoice.createdAt | date:'short' }}</p>
+            </div>
+            <div class="activity-amount">
+              €{{ invoice.amount.toFixed(2) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

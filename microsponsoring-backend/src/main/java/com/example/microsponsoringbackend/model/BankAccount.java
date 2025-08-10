@@ -15,10 +15,12 @@ import java.util.UUID;
 @Table(name = "bank_accounts")
 public class BankAccount {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID userId;
 
     @Enumerated(EnumType.STRING)

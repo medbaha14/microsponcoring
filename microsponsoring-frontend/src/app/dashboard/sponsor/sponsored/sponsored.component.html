@@ -1,6 +1,6 @@
 <div class="sponsoring-list-container">
   <div class="sponsoring-list-header">
-    <h2>Sponsorships</h2>
+    <h2>My Investments</h2>
   </div>
   <div class="sponsoring-chart-flex">
     <canvas
@@ -16,7 +16,7 @@
   <table class="sponsoring-table">
     <thead>
       <tr>
-        <th>Organisation Name</th>
+        <th>Organization</th>
         <th>Amount</th>
         <th>Date</th>
         <th>PDF</th>
@@ -24,7 +24,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let s of sponsorships">
-        <td>{{ getOrganisationName(s) }}</td>
+        <td>{{ getOrganizationName(s) }}</td>
         <td>{{ s.amount | currency }}</td>
         <td>{{ s.invoiceDate | date:'mediumDate' }}</td>
         <td>

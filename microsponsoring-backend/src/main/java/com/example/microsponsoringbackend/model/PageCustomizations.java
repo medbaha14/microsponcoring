@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 public class PageCustomizations {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 
     @Column

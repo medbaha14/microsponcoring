@@ -16,7 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Sponsor {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID sponsorId;
 
     @Column
@@ -39,6 +40,7 @@ public class Sponsor {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
     @JsonBackReference
     private User user;
 }

@@ -28,6 +28,12 @@ public class SponsorController {
         return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Sponsor> getByUserId(@PathVariable UUID userId) {
+        Optional<Sponsor> result = sponsorService.findByUserId(userId);
+        return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public Sponsor create(@RequestBody Sponsor sponsor) {
         Date currentDate = new Date();

@@ -152,4 +152,10 @@
 .login-links .forgot-link {
   font-size: 0.95rem;
   opacity: 0.7;
+  cursor: pointer;
+}
+
+.login-links .forgot-link:hover {
+  opacity: 1;
+  text-decoration: underline;
 } 

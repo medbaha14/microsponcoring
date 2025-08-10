@@ -21,6 +21,12 @@ export class UserListComponent implements OnInit {
   selectedSponsor: any = null;
   selectedOrganisation: any = null;
 
+  // Pagination properties
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
+  allUsers: User[] = [];
+
   constructor(private userService: UserService) {}
 
   ngOnInit() {
@@ -30,7 +36,8 @@ export class UserListComponent implements OnInit {
   loadUsers() {
     this.userService.getAll().subscribe({
       next: (users: User[]) => {
-      this.users = users;
+        this.allUsers = users;
+        this.updatePagination();
       },
       error: (error: any) => {
         console.error('Error loading users:', error);
@@ -41,6 +48,27 @@ export class UserListComponent implements OnInit {
         });
       }
     });
+  }
+
+  updatePagination() {
+    this.totalPages = Math.ceil(this.allUsers.length / this.pageSize);
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.users = this.allUsers.slice(startIndex, endIndex);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
   }
 
   blockUser(user: User) {
@@ -87,7 +115,7 @@ export class UserListComponent implements OnInit {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, block',
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.isConfirmed && user.userId) {
         this.userService.block(user.userId).subscribe(() => {
           this.loadUsers();
@@ -103,10 +131,28 @@ export class UserListComponent implements OnInit {
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Yes, unblock',
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.isConfirmed && user.userId) {
         this.userService.deblock(user.userId).subscribe(() => {
           this.loadUsers();
+        });
+      }
+    });
+  }
+
+  deleteUser(user: User) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Delete user ${user.username}? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      confirmButtonColor: '#d33',
+    }).then((result: any) => {
+      if (result.isConfirmed && user.userId) {
+        this.userService.delete(user.userId).subscribe(() => {
+          this.loadUsers();
+          Swal.fire('Deleted!', 'User has been deleted.', 'success');
         });
       }
     });

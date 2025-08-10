@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="Microsponsoring Deployment Diagram" id="deployment-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Client Browser -->
+        <mxCell id="client-node" value="Client Browser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="angular-frontend" value="Angular Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1976d2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="80" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Web Server -->
+        <mxCell id="web-server-node" value="Web Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="50" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nginx" value="Nginx" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Application Server -->
+        <mxCell id="app-server-node" value="Application Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="50" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="spring-boot" value="Spring Boot Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="570" y="80" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="jvm" value="JVM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="570" y="130" width="110" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Database Server -->
+        <mxCell id="db-server-node" value="Database Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="50" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mysql-db" value="MySQL Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="80" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mysql-server" value="MySQL Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="130" width="110" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- External Services -->
+        <mxCell id="external-node" value="External Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="200" width="150" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="email-service" value="Email Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c62828;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="230" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-gateway" value="Payment Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c62828;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="270" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pdf-service" value="PDF Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c62828;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="310" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- File Storage -->
+        <mxCell id="storage-node" value="File Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="200" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="file-system" value="File System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ad1457;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="230" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Cloud Services -->
+        <mxCell id="cloud-node" value="Cloud Services" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e0f2f1;strokeColor=#00695c;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="200" width="150" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="aws-s3" value="AWS S3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00695c;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cloudfront-cdn" value="CloudFront CDN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00695c;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="570" y="270" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Connections -->
+        <mxCell id="conn1" value="HTTPS" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="client-node" target="web-server-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn2" value="HTTP/HTTPS" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="web-server-node" target="app-server-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn3" value="runs on" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="spring-boot" target="jvm">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn4" value="JDBC" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="app-server-node" target="db-server-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn5" value="runs on" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="mysql-db" target="mysql-server">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn6" value="SMTP/API" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="app-server-node" target="external-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn7" value="REST API" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="app-server-node" target="external-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn8" value="File I/O" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="app-server-node" target="storage-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn9" value="Backup" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="storage-node" target="cloud-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="conn10" value="Distribution" style="endArrow=open;endSize=12;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cloud-node" target="client-node">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="560" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Angular SPA&#xa;- User Interface&#xa;- Client-side routing&#xa;- HTTP requests to backend" style="shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#666600;" vertex="1" parent="1">
+          <mxGeometry x="50" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note2" value="Reverse Proxy&#xa;- SSL termination&#xa;- Static file serving&#xa;- Load balancing" style="shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#666600;" vertex="1" parent="1">
+          <mxGeometry x="300" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note3" value="Spring Boot App&#xa;- REST API endpoints&#xa;- Business logic&#xa;- Security & authentication" style="shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#666600;" vertex="1" parent="1">
+          <mxGeometry x="550" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note4" value="MySQL Database&#xa;- User data&#xa;- Sponsorship records&#xa;- Invoice data&#xa;- Configuration" style="shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#666600;" vertex="1" parent="1">
+          <mxGeometry x="800" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile> 

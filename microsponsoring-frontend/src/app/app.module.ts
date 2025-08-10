@@ -8,6 +8,8 @@ import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { LoginComponent } from './shared/components/login/login.component';
 import { RegisterComponent } from './shared/components/register/register.component';
+import { ForgotPasswordComponent } from './shared/components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './shared/components/reset-password/reset-password.component';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { SponsorModalComponent } from './dashboard/admin/sponsor-modal/sponsor-modal.component';
 import { OrganisationModalComponent } from './dashboard/admin/organisation-modal/organisation-modal.component';
@@ -19,6 +21,8 @@ import { AddUserModalComponent } from './dashboard/admin/add-user-modal/add-user
     AppComponent,
     LoginComponent,
     RegisterComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
     SponsorModalComponent,
     OrganisationModalComponent,
     UserListComponent,

@@ -4,6 +4,8 @@ import { MainComponent as OrganisationMainComponent } from './dashboard/organisa
 import { MainComponent as SponsorMainComponent } from './dashboard/sponsor/main/main.component';
 import { LoginComponent } from './shared/components/login/login.component';
 import { RegisterComponent } from './shared/components/register/register.component';
+import { ForgotPasswordComponent } from './shared/components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './shared/components/reset-password/reset-password.component';
 import { AuthGuard } from './services/auth.guard';
 import { UserListComponent } from './dashboard/admin/user-list/user-list.component';
 
@@ -11,6 +13,8 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'profile/:userId', loadComponent: () => import('./dashboard/organisation/profile/profile.component').then(m => m.OrganisationProfileComponent) },
   
   // Payment result pages

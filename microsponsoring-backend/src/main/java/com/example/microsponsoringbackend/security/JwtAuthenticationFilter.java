@@ -33,8 +33,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        // Skip JWT check for login and register endpoints
-        if (requestURI.equals("/api/auth/login") || requestURI.equals("/api/auth/register")) {
+        // Skip JWT check for public endpoints that don't require authentication
+        if (requestURI.equals("/api/auth/login") || 
+            requestURI.equals("/api/auth/register") ||
+            requestURI.equals("/api/auth/forgot-password") ||
+            requestURI.equals("/api/auth/reset-password") ||
+            requestURI.equals("/api/auth/validate-reset-token") ||
+            requestURI.startsWith("/api/users") ||
+            requestURI.startsWith("/api/images") ||
+            requestURI.startsWith("/api/companies-non-profits") ||
+            requestURI.startsWith("/api/recognition-benefits/company") ||
+            requestURI.startsWith("/api/public")) {
             filterChain.doFilter(request, response);
             return;
         }
