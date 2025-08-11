@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarCloud Backend Analysis
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: medbaha14/SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -35,7 +35,7 @@ jobs:
             -Dsonar.java.libraries=microsponsoring-backend/target/lib/*.jar
 
       - name: SonarCloud Frontend Analysis
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: medbaha14/SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
