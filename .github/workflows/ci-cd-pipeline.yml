@@ -215,7 +215,7 @@ jobs:
         run: |
           kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/secrets.yaml
-          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8b/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
           kubectl apply -f k8s/monitoring.yaml
 
