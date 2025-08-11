@@ -49,8 +49,6 @@ jobs:
             -Dsonar.organization=medbaha14
             -Dsonar.sources=microsponsoring-backend/src/main/java
             -Dsonar.java.binaries=microsponsoring-backend/target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
-            -Dsonar.java.libraries=microsponsoring-backend/target/lib/*.jar
 
       - name: SonarCloud Frontend Analysis
         uses: SonarSource/sonarcloud-github-action@master
@@ -62,7 +60,6 @@ jobs:
             -Dsonar.projectKey=medbaha14_microsponcoring
             -Dsonar.organization=medbaha14
             -Dsonar.sources=microsponsoring-frontend/src
-            -Dsonar.typescript.lcov.reportPaths=microsponsoring-frontend/coverage/lcov.info
 
   backend:
     name: Backend Build & Test
