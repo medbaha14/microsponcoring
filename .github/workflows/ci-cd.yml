@@ -1,5 +1,4 @@
 name: CI/CD Pipeline
-
 on:
   push:
     branches: [ main, develop ]
@@ -21,28 +20,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: SonarQube Backend Analysis
-        uses: sonarqube-quality-gate-action@master
+      - name: SonarCloud Backend Analysis
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=microsponsoring-backend
-            -Dsonar.sources=src/main/java
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.projectKey=medbaha14_microsponcoring
+            -Dsonar.organization=medbaha14
+            -Dsonar.sources=microsponsoring-backend/src/main/java
+            -Dsonar.java.binaries=microsponsoring-backend/target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
+            -Dsonar.java.libraries=microsponsoring-backend/target/lib/*.jar
 
-      - name: SonarQube Frontend Analysis
-        uses: sonarqube-quality-gate-action@master
+      - name: SonarCloud Frontend Analysis
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=microsponsoring-frontend
-            -Dsonar.sources=src
-            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.projectKey=medbaha14_microsponcoring
+            -Dsonar.organization=medbaha14
+            -Dsonar.sources=microsponsoring-frontend/src
+            -Dsonar.typescript.lcov.reportPaths=microsponsoring-frontend/coverage/lcov.info
 
   backend:
     name: Backend Build & Test
@@ -213,7 +215,7 @@ jobs:
         run: |
           kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/secrets.yaml
-          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8b/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
           kubectl apply -f k8s/monitoring.yaml
 
@@ -264,4 +266,4 @@ jobs:
       - name: Notify Slack/Discord
         run: |
           echo "Deployment completed for ${{ github.ref }}"
-          # Add your notification logic here (Slack, Discord, etc.) 
+          # Add your notification logic here (Slack, Discord, etc.)
