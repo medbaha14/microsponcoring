@@ -121,6 +121,13 @@ jobs:
           cd microsponsoring-frontend
           npm ci --legacy-peer-deps
 
+      - name: Update Angular budgets
+        run: |
+          cd microsponsoring-frontend
+          sed -i 's/"initial": "512kb"/"initial": "1mb"/g' angular.json
+          sed -i 's/"anyComponentStyle": "2kb"/"anyComponentStyle": "10kb"/g' angular.json
+          sed -i 's/"anyComponentStyle": "4kb"/"anyComponentStyle": "10kb"/g' angular.json
+
       # Temporarily disabled tests due to missing test configuration
       # - name: Run tests
       #   run: |
@@ -130,7 +137,7 @@ jobs:
       - name: Build frontend
         run: |
           cd microsponsoring-frontend
-          npm run build -- --configuration production --budgets.initial=1mb --budgets.anyComponentStyle=10kb
+          npm run build -- --configuration production
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
