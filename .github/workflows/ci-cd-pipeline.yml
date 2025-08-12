@@ -119,7 +119,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd microsponsoring-frontend
-          npm ci
+          npm ci --legacy-peer-deps
 
       - name: Run tests
         run: |
