@@ -1,9 +1,9 @@
 name: CI/CD Pipeline
 on:
   push:
-    branches: [ main, develop, clean-branch ]
+    branches: [ main, develop, clean-branch, master ]
   pull_request:
-    branches: [ main, develop, clean-branch ]
+    branches: [ main, develop, clean-branch, master ]
 
 env:
   REGISTRY: docker.io
@@ -181,7 +181,7 @@ jobs:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     needs: [backend, frontend, security-scan]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -254,7 +254,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: docker-build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     environment: production
     steps:
       - name: Checkout code
