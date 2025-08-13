@@ -175,6 +175,7 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
 
   docker-build:
     name: Build and Push Docker Images
