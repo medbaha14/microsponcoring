@@ -1,0 +1,39 @@
+version: 2
+updates:
+  # NPM dependencies (Angular/Frontend)
+  - package-ecosystem: "npm"
+    directory: "/microsponsoring-frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "medbaha"
+    assignees:
+      - "medbaha"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # Maven dependencies (Spring Boot/Backend)
+  - package-ecosystem: "maven"
+    directory: "/microsponsoring-backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "medbaha"
+    assignees:
+      - "medbaha"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: "scope" 

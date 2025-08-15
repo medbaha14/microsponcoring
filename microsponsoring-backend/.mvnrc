@@ -1,0 +1,15 @@
+# Maven Security Configuration
+-Ddependency-check.failOnCVSS=7
+-Ddependency-check.formats=HTML,JSON,SARIF
+-Ddependency-check.outputDirectory=target/dependency-check-reports
+-Ddependency-check.suppressionFiles=suppression.xml
+
+# Security settings
+-Dmaven.security.checksumPolicy=warn
+-Dmaven.security.checksumPolicy.fail=false
+
+# Dependency check settings
+-Ddependency-check.scanSet=src/main/java,src/main/resources
+-Ddependency-check.skipProvidedScope=false
+-Ddependency-check.skipRuntimeScope=false
+-Ddependency-check.skipTestScope=true 
