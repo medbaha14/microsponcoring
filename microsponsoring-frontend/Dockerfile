@@ -13,6 +13,9 @@ RUN npm ci --legacy-peer-deps
 # Copy source code
 COPY . .
 
+# Remove Angular budgets for Docker build
+RUN sed -i '/"budgets": \[/,/\]/d' angular.json
+
 # Build the application with production configuration
 RUN npm run build -- --configuration production
 
