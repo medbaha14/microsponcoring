@@ -221,7 +221,7 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: docker-build
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' && false  # Temporarily disabled
     environment: staging
     steps:
       - name: Checkout code
@@ -254,7 +254,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: docker-build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && false  # Temporarily disabled
     environment: production
     steps:
       - name: Checkout code
@@ -286,7 +286,7 @@ jobs:
   notify:
     name: Notify Team
     runs-on: ubuntu-latest
-    needs: [deploy-staging, deploy-production]
+    needs: [docker-build]  # Only depend on docker-build since deployments are disabled
     if: always()
     steps:
       - name: Notify Slack/Discord
