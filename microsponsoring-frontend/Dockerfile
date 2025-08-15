@@ -7,14 +7,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (removed --only=production and added --legacy-peer-deps)
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application with production configuration
+RUN npm run build -- --configuration production
 
 # Production stage
 FROM nginx:alpine
