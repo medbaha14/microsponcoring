@@ -34,8 +34,8 @@ interface SecurityDashboard {
 export class SecurityDashboardComponent implements OnInit {
   vulnerabilities: SecurityVulnerability[] = [];
   loading = false;
-  lastUpdate = new Date();
-  nextScan = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  lastUpdate = '';
+  nextScan = '';
   criticalCount = 0;
   highCount = 0;
   moderateCount = 0;
@@ -60,8 +60,8 @@ export class SecurityDashboardComponent implements OnInit {
           this.highCount = data.highCount;
           this.moderateCount = data.moderateCount;
           this.lowCount = data.lowCount;
-          this.lastUpdate = new Date(data.lastUpdate).toLocaleString();
-          this.nextScan = new Date(data.nextScan).toLocaleString();
+          this.lastUpdate = data.lastUpdate;
+          this.nextScan = data.nextScan;
           this.overallStatus = data.overallStatus;
           this.loading = false;
         },
