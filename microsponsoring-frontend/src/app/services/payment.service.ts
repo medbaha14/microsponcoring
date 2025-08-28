@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Invoice } from '../models/invoice.model';
 import { TokenHandler } from './token-handler';
+import { environment } from '../../environments/environment';
 
 export interface PaymentRequest {
   sponsorId: string;
@@ -79,7 +80,7 @@ export interface CheckoutPaymentSessionResponse {
   providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = 'http://localhost:8080/api/payments';
+  private apiUrl = environment.paymentsUrl;
 
   constructor(private http: HttpClient) { }
 

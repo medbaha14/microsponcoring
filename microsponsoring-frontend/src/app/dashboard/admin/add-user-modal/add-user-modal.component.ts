@@ -3,6 +3,7 @@ import { UserService } from '../../../services/user.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../models/user.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-add-user-modal',
@@ -24,7 +25,7 @@ export class AddUserModalComponent implements OnChanges {
     if (this.newUser.profilePicture.startsWith('http')) {
       return this.newUser.profilePicture;
     }
-    return 'http://localhost:8080' + this.newUser.profilePicture;
+    return environment.baseUrl + this.newUser.profilePicture;
   }
 
   constructor(private userService: UserService) {}
@@ -50,13 +51,13 @@ export class AddUserModalComponent implements OnChanges {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('userId', this.user.userId);
-      fetch('http://localhost:8080/api/upload/profile-picture', {
+      fetch(`${environment.uploadUrl}/profile-picture`, {
         method: 'POST',
         body: formData
       })
       .then(res => res.text())
       .then(data => {
-        this.newUser.profilePicture = 'http://localhost:8080' + data;
+        this.newUser.profilePicture = environment.baseUrl + data;
         this.uploadingImage = false;
       })
       .catch(() => {

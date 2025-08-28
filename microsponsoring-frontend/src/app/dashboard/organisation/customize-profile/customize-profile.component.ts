@@ -12,6 +12,7 @@ import { ProfileUpdateService } from '../../../services/profile-update.service';
 import { CompanyNonProfits } from '../../../models/companies-non-profits.model';
 import { companyNonProfitsService } from '../../../services/companies-non-profits.service';
 import { EditRecognitionBenefitsComponent } from '../edit-recognition-benefits/edit-recognition-benefits.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-customize-profile',
@@ -106,16 +107,16 @@ export class CustomizeProfileComponent implements OnInit {
       let uploadUrl: string;
       switch (field) {
         case 'profilePicture':
-          uploadUrl = 'http://localhost:8080/api/upload/profile-picture';
+          uploadUrl = `${environment.uploadUrl}/profile-picture`;
           break;
         case 'logoUrl':
-          uploadUrl = 'http://localhost:8080/api/upload/organisation-logo';
+          uploadUrl = `${environment.uploadUrl}/organisation-logo`;
           break;
         case 'bannerImageUrl':
-          uploadUrl = 'http://localhost:8080/api/upload/organisation-banner';
+          uploadUrl = `${environment.uploadUrl}/organisation-banner`;
           break;
         case 'backgroundImageUrl':
-          uploadUrl = 'http://localhost:8080/api/upload/organisation-background';
+          uploadUrl = `${environment.uploadUrl}/organisation-background`;
           break;
         default:
           throw new Error('Invalid field type');

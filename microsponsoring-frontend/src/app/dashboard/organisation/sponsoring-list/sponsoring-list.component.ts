@@ -6,6 +6,7 @@ import { PaymentService } from '../../../services/payment.service';
 import { companyNonProfitsService } from '../../../services/companies-non-profits.service';
 import { TokenHandler } from '../../../services/token-handler';
 import { UserService } from '../../../services/user.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-sponsoring-list',
@@ -206,7 +207,7 @@ export class SponsoringListComponent implements OnInit {
   }
 
   downloadPdf(sponsorship: any) {
-    const backendUrl = `http://localhost:8080/api/invoices/${sponsorship.invoiceId}/pdf`;
+    const backendUrl = `${environment.invoicesUrl}/${sponsorship.invoiceId}/pdf`;
     window.open(backendUrl, '_blank');
   }
 

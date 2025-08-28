@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { OrganisationProfile } from '../models/OrganisationProfile';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/users';
-  private uploadUrl = 'http://localhost:8080/api/upload';
+  private apiUrl = environment.usersUrl;
+  private uploadUrl = environment.uploadUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -58,10 +59,10 @@ export class UserService {
   }
 
   getUserBySponsorId(sponsorId: string) {
-    return this.http.get<User>(`http://localhost:8080/api/users/sponsor/${sponsorId}`);
+    return this.http.get<User>(`${environment.usersUrl}/sponsor/${sponsorId}`);
   }
 
   getUsersBySponsorIds(sponsorIds: string[]) {
-    return this.http.post<{ [sponsorId: string]: User }>(`http://localhost:8080/api/users/by-sponsor-ids`, sponsorIds);
+    return this.http.post<{ [sponsorId: string]: User }>(`${environment.usersUrl}/by-sponsor-ids`, sponsorIds);
   }
 } 

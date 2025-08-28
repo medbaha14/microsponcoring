@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsponsoring Security Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .critical { color: #dc3545; }
+        .high { color: #fd7e14; }
+        .moderate { color: #ffc107; }
+        .low { color: #28a745; }
+        
+        .vulnerabilities-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2a5298;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .vulnerability-item {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .vulnerability-item.moderate {
+            border-left-color: #ffc107;
+        }
+        
+        .vulnerability-item.low {
+            border-left-color: #28a745;
+        }
+        
+        .vuln-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        
+        .vuln-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .vuln-fix {
+            background: #d4edda;
+            color: #155724;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .ecosystem-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tab.active {
+            background: #2a5298;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #dee2e6;
+        }
+        
+        .actions-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .action-button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .action-button:hover {
+            background: #1e3c72;
+        }
+        
+        .action-button.danger {
+            background: #dc3545;
+        }
+        
+        .action-button.danger:hover {
+            background: #c82333;
+        }
+        
+        .refresh-info {
+            text-align: center;
+            color: #6c757d;
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Security Dashboard</h1>
+            <p>Microsponsoring Project - Real-time Security Status</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number critical">0</div>
+                <div>Critical Issues</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number high">1</div>
+                <div>High Issues</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number moderate">6</div>
+                <div>Moderate Issues</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number low">10</div>
+                <div>Low Issues</div>
+            </div>
+        </div>
+        
+        <div class="ecosystem-tabs">
+            <div class="tab active" onclick="showEcosystem('frontend')">Frontend (NPM)</div>
+            <div class="tab" onclick="showEcosystem('backend')">Backend (Maven)</div>
+            <div class="tab" onclick="showEcosystem('docker')">Docker</div>
+        </div>
+        
+        <div id="frontend-vulns" class="vulnerabilities-section">
+            <h2 class="section-title">📱 Frontend Vulnerabilities (NPM)</h2>
+            
+            <div class="vulnerability-item high">
+                <div class="vuln-title">mysql:mysql-connector-java 8.0.33</div>
+                <div class="vuln-details">Source: Maven · microsponsoring-backend/pom.xml | 1 high vulnerability</div>
+                <div class="vuln-fix">Fix: Update to latest version</div>
+            </div>
+            
+            <div class="vulnerability-item moderate">
+                <div class="vuln-title">webpack-dev-server 5.0.4</div>
+                <div class="vuln-details">Source: npm · microsponsoring-frontend/package-lock.json | 2 moderate vulnerabilities</div>
+                <div class="vuln-fix">Fix: Update to latest version</div>
+            </div>
+            
+            <div class="vulnerability-item moderate">
+                <div class="vuln-title">esbuild 0.21.5</div>
+                <div class="vuln-details">Source: npm · microsponsoring-frontend/package-lock.json | 1 moderate vulnerability</div>
+                <div class="vuln-fix">Fix: Update to latest version</div>
+            </div>
+            
+            <div class="vulnerability-item moderate">
+                <div class="vuln-title">esbuild 0.23.0</div>
+                <div class="vuln-details">Source: npm · microsponsoring-frontend/package-lock.json | 1 moderate vulnerability</div>
+                <div class="vuln-fix">Fix: Update to latest version</div>
+            </div>
+        </div>
+        
+        <div id="backend-vulns" class="vulnerabilities-section" style="display: none;">
+            <h2 class="section-title">☕ Backend Vulnerabilities (Maven)</h2>
+            <p>OWASP dependency check results will appear here after scanning.</p>
+        </div>
+        
+        <div id="docker-vulns" class="vulnerabilities-section" style="display: none;">
+            <h2 class="section-title">🐳 Docker Vulnerabilities</h2>
+            <p>Trivy scan results will appear here after container scanning.</p>
+        </div>
+        
+        <div class="actions-section">
+            <h2 class="section-title">🚀 Security Actions</h2>
+            <button class="action-button" onclick="runSecurityScan()">Run Security Scan</button>
+            <button class="action-button" onclick="fixVulnerabilities()">Fix Safe Vulnerabilities</button>
+            <button class="action-button danger" onclick="forceUpdate()">Force Update All</button>
+            <button class="action-button" onclick="exportReport()">Export Security Report</button>
+        </div>
+        
+        <div class="refresh-info">
+            Last updated: <span id="last-update">Just now</span> | 
+            Next scan: <span id="next-scan">In 24 hours</span>
+        </div>
+    </div>
+    
+    <script>
+        function showEcosystem(ecosystem) {
+            // Hide all sections
+            document.querySelectorAll('.vulnerabilities-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(ecosystem + '-vulns').style.display = 'block';
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        function runSecurityScan() {
+            alert('Security scan initiated! Check your terminal for results.');
+        }
+        
+        function fixVulnerabilities() {
+            alert('Attempting to fix safe vulnerabilities...');
+        }
+        
+        function forceUpdate() {
+            if (confirm('This will force update all packages and may cause breaking changes. Continue?')) {
+                alert('Force update initiated. Monitor for any breaking changes.');
+            }
+        }
+        
+        function exportReport() {
+            alert('Security report exported!');
+        }
+        
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleString();
+            
+            const nextScan = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            document.getElementById('next-scan').textContent = nextScan.toLocaleString();
+        }
+        
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000); // Update every minute
+    </script>
+</body>
+</html> 

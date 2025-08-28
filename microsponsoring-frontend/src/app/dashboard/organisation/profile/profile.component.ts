@@ -14,6 +14,7 @@ import { RecognitionBenefitsService } from '../../../services/recognition-benefi
 import { RecognitionBenefits } from '../../../models/recognition-benefits.model';
 import { PaymentService, CompanyStats } from '../../../services/payment.service';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-organisation-profile',
@@ -164,7 +165,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
     if (url.startsWith('http') || url.startsWith('data:image')) {
       return url;
     }
-    return `http://localhost:8080${url}`;
+    return `${environment.baseUrl}${url}`;
   }
 
   private hexToRgba(hex: string, alpha: number): string {

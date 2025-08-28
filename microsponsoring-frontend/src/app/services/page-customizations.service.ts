@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PageCustomizations } from '../models/page-customizations.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PageCustomizationsService {
-  private apiUrl = 'http://localhost:8080/api/page-customizations';
+  private apiUrl = environment.pageCustomizationsUrl;
 
   constructor(private http: HttpClient) {}
 

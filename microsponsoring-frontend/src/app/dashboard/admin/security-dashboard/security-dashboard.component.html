@@ -1,0 +1,132 @@
+<div class="security-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>🔒 Security Dashboard</h1>
+    <p>Microsponsoring Project - Real-time Security Status</p>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="runSecurityScan()" [disabled]="loading">
+        <span *ngIf="loading">⏳</span>
+        <span *ngIf="!loading">🔄</span>
+        {{ loading ? 'Scanning...' : 'Run Security Scan' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card critical">
+      <div class="stat-number">0</div>
+      <div class="stat-label">Critical Issues</div>
+    </div>
+    <div class="stat-card high">
+      <div class="stat-number">{{ highCount }}</div>
+      <div class="stat-label">High Issues</div>
+    </div>
+    <div class="stat-card moderate">
+      <div class="stat-number">{{ moderateCount }}</div>
+      <div class="stat-label">Moderate Issues</div>
+    </div>
+    <div class="stat-card low">
+      <div class="stat-number">{{ lowCount }}</div>
+      <div class="stat-label">Low Issues</div>
+    </div>
+  </div>
+
+  <!-- Vulnerabilities Section -->
+  <div class="vulnerabilities-section">
+    <div class="section-header">
+      <h2>📋 Security Vulnerabilities</h2>
+      <div class="section-actions">
+        <button class="btn btn-warning" (click)="fixVulnerabilities()">
+          🛠️ Fix Safe Issues
+        </button>
+        <button class="btn btn-danger" (click)="forceUpdate()">
+          ⚡ Force Update All
+        </button>
+        <button class="btn btn-info" (click)="exportReport()">
+          📤 Export Report
+        </button>
+      </div>
+    </div>
+
+    <div class="vulnerabilities-list" *ngIf="!loading">
+      <div class="vulnerability-item" 
+           *ngFor="let vuln of vulnerabilities" 
+           [ngStyle]="{'border-left-color': getSeverityColor(vuln.severity)}">
+        <div class="vuln-header">
+          <span class="severity-icon">{{ getSeverityIcon(vuln.severity) }}</span>
+          <span class="package-name">{{ vuln.packageName }}</span>
+          <span class="severity-badge" [ngClass]="vuln.severity">
+            {{ vuln.severity | titlecase }}
+          </span>
+        </div>
+        <div class="vuln-details">
+          <div class="vuln-source">{{ vuln.source }}</div>
+          <div class="vuln-description">{{ vuln.description }}</div>
+          <div class="vuln-count">{{ vuln.count }} vulnerability/vulnerabilities</div>
+          <div class="vuln-cve" *ngIf="vuln.cveId">CVE: {{ vuln.cveId }}</div>
+          <div class="vuln-fix" *ngIf="vuln.fixVersion">Fix Version: {{ vuln.fixVersion }}</div>
+        </div>
+        <div class="vuln-actions">
+          <button class="btn btn-sm btn-outline-primary">View Details</button>
+          <button class="btn btn-sm btn-outline-success">Fix Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Scanning for vulnerabilities...</p>
+    </div>
+
+    <div class="no-vulnerabilities" *ngIf="!loading && vulnerabilities.length === 0">
+      <div class="success-icon">✅</div>
+      <h3>No vulnerabilities found!</h3>
+      <p>Your project is currently secure. Keep up the good work!</p>
+    </div>
+  </div>
+
+  <!-- Security Recommendations -->
+  <div class="recommendations-section">
+    <h2>💡 Security Recommendations</h2>
+    <div class="recommendations-grid">
+      <div class="recommendation-card immediate">
+        <h3>🔴 Immediate Actions</h3>
+        <ul>
+          <li>Review high and critical vulnerabilities above</li>
+          <li>Update packages with security fixes</li>
+          <li>Test updates in development environment</li>
+        </ul>
+      </div>
+      <div class="recommendation-card short-term">
+        <h3>🟡 Short-term Actions</h3>
+        <ul>
+          <li>Enable Dependabot in GitHub repository</li>
+          <li>Set up security alerts and notifications</li>
+          <li>Review and update security policies</li>
+        </ul>
+      </div>
+      <div class="recommendation-card ongoing">
+        <h3>🟢 Ongoing Actions</h3>
+        <ul>
+          <li>Run security checks weekly</li>
+          <li>Monitor GitHub Security tab</li>
+          <li>Keep dependencies updated</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="dashboard-footer">
+    <div class="footer-info">
+      <span>Last updated: {{ lastUpdate | date:'medium' }}</span>
+      <span>Next scan: {{ nextScan | date:'medium' }}</span>
+    </div>
+    <div class="footer-links">
+      <a href="#" class="link">GitHub Security Tab</a>
+      <a href="#" class="link">Dependabot Settings</a>
+      <a href="#" class="link">Security Documentation</a>
+    </div>
+  </div>
+</div> 

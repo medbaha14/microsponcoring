@@ -4,6 +4,7 @@ import { BankAccountFormComponent, BankAccount } from '../../shared/bank-account
 import { HttpClient } from '@angular/common/http';
 import { TokenHandler } from '../../../services/token-handler';
 import { PaymentAccountType } from '../../shared/bank-account-form/bank-account-form.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-bank-accounts',
@@ -27,7 +28,7 @@ export class BankAccountsComponent implements OnInit {
   showForm = false;
   isEdit = false;
   loading = false;
-  private apiUrl = 'http://localhost:8080/api/bank-accounts';
+  private apiUrl = environment.bankAccountsUrl;
 
   constructor(private http: HttpClient) {}
 

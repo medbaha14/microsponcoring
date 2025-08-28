@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RecognitionBenefits } from '../models/recognition-benefits.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class RecognitionBenefitsService {
-  private apiUrl = 'http://localhost:8080/api/recognition-benefits';
+  private apiUrl = environment.recognitionBenefitsUrl;
 
   constructor(private http: HttpClient) {}
 
