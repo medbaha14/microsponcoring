@@ -1,6 +1,7 @@
 package com.example.microsponsoringbackend.config;
 
 import com.example.microsponsoringbackend.security.JwtAuthenticationFilter;
+import com.example.microsponsoringbackend.service.DatabaseDrivenSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,20 +20,28 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    @Autowired
+    private DatabaseDrivenSecurityService databaseDrivenSecurityService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // Core public endpoints (these will be checked against database rules)
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/health/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                // Allow anyone to access images
+                .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 // Allow anyone to upload profile pictures
                 .requestMatchers(HttpMethod.POST, "/api/upload/profile-picture").permitAll()
                 // Allow organisation image uploads
                 .requestMatchers(HttpMethod.POST, "/api/upload/organisation-logo").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
                 .requestMatchers(HttpMethod.POST, "/api/upload/organisation-banner").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
                 .requestMatchers(HttpMethod.POST, "/api/upload/organisation-background").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
-                // Allow anyone to access images
-                .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 // Allow all user endpoints
                 .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/companies-non-profits").permitAll()

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create security rules table -->
+    <changeSet id="create-security-rules-table" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="security_rules"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="security_rules">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="endpoint_pattern" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="http_method" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="required_role" type="VARCHAR(100)"/>
+            <column name="is_public" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="description" type="TEXT"/>
+            <column name="priority" type="INT" defaultValueNumeric="0"/>
+        </createTable>
+        
+        <addUniqueConstraint tableName="security_rules" 
+                           columnNames="endpoint_pattern,http_method" 
+                           constraintName="uk_endpoint_method"/>
+    </changeSet>
+
+    <!-- Create performance metrics table -->
+    <changeSet id="create-performance-metrics-table" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="performance_metrics"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="performance_metrics">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="endpoint" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="http_method" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="response_time_ms" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_code" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(100)"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="TEXT"/>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_size" type="BIGINT"/>
+            <column name="response_size" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create security audit log table -->
+    <changeSet id="create-security-audit-log-table" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="security_audit_log"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="security_audit_log">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(100)"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="endpoint" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="http_method" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="details" type="TEXT"/>
+            <column name="user_agent" type="TEXT"/>
+            <column name="session_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create system health metrics table -->
+    <changeSet id="create-system-health-metrics-table" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="system_health_metrics"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="system_health_metrics">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="metric_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="metric_value" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="metric_unit" type="VARCHAR(50)"/>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(100)"/>
+            <column name="description" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create application startup log table -->
+    <changeSet id="create-application-startup-log-table" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="application_startup_log"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="application_startup_log">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="startup_timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="VARCHAR(100)"/>
+            <column name="environment" type="VARCHAR(100)"/>
+            <column name="startup_duration_ms" type="BIGINT"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="details" type="TEXT"/>
+            <column name="memory_usage_mb" type="BIGINT"/>
+            <column name="cpu_usage_percent" type="DOUBLE"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Insert default security rules -->
+    <changeSet id="insert-default-security-rules" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="security_rules"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM security_rules
+            </sqlCheck>
+        </preConditions>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/actuator/health"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Health check endpoint - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/actuator/info"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Application info endpoint - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/auth/login"/>
+            <column name="http_method" value="POST"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Login endpoint - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/auth/register"/>
+            <column name="http_method" value="POST"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Registration endpoint - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/health/**"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Health endpoints - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/public/**"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value=""/>
+            <column name="is_public" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Public API endpoints - always public"/>
+            <column name="priority" valueNumeric="1"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/users/**"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value="USER"/>
+            <column name="is_public" valueBoolean="false"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="User endpoints - requires USER role"/>
+            <column name="priority" valueNumeric="2"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/security/**"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value="ADMIN"/>
+            <column name="is_public" valueBoolean="false"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="Security endpoints - requires ADMIN role"/>
+            <column name="priority" valueNumeric="3"/>
+        </insert>
+        
+        <insert tableName="security_rules">
+            <column name="endpoint_pattern" value="/api/system/**"/>
+            <column name="http_method" value="GET"/>
+            <column name="required_role" value="ADMIN"/>
+            <column name="is_public" valueBoolean="false"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="description" value="System endpoints - requires ADMIN role"/>
+            <column name="priority" valueNumeric="3"/>
+        </insert>
+    </changeSet>
+
+    <!-- Create indexes for performance -->
+    <changeSet id="create-performance-indexes" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="performance_metrics"/>
+        </preConditions>
+        
+        <createIndex tableName="performance_metrics" indexName="idx_performance_metrics_endpoint">
+            <column name="endpoint"/>
+            <column name="timestamp"/>
+        </createIndex>
+        
+        <createIndex tableName="performance_metrics" indexName="idx_performance_metrics_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-security-indexes" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="security_audit_log"/>
+        </preConditions>
+        
+        <createIndex tableName="security_audit_log" indexName="idx_security_audit_log_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+        
+        <createIndex tableName="security_audit_log" indexName="idx_security_audit_log_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-security-rules-indexes" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="security_rules"/>
+        </preConditions>
+        
+        <createIndex tableName="security_rules" indexName="idx_security_rules_active">
+            <column name="is_active"/>
+            <column name="priority"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-system-health-indexes" author="assistant">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="system_health_metrics"/>
+        </preConditions>
+        
+        <createIndex tableName="system_health_metrics" indexName="idx_system_health_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -11,5 +11,12 @@ export const environment = {
   invoicesUrl: '/api/invoices',
   pageCustomizationsUrl: '/api/page-customizations',
   bankAccountsUrl: '/api/bank-accounts',
-  baseUrl: ''
+  baseUrl: '/',
+  // Build information for Kubernetes deployment
+  buildInfo: {
+    version: '1.0.0',
+    buildTime: new Date().toISOString(),
+    environment: 'production',
+    buildNumber: 'k8s-deployment'
+  }
 };

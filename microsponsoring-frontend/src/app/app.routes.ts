@@ -34,6 +34,7 @@ export const routes: Routes = [
           { path: 'stats-page', loadComponent: () => import('./dashboard/admin/stats-page/stats-page.component').then(m => m.StatsPageComponent) },
           { path: 'invoices', loadComponent: () => import('./dashboard/admin/invoices/invoices.component').then(m => m.InvoicesComponent) },
           { path: 'security', loadComponent: () => import('./dashboard/admin/security-dashboard/security-dashboard.component').then(m => m.SecurityDashboardComponent) },
+          { path: 'debug', loadComponent: () => import('./dashboard/admin/debug/debug.component').then(m => m.DebugComponent) },
         ]
       },
       {

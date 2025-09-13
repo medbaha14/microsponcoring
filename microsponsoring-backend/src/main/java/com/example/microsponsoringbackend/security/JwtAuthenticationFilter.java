@@ -33,6 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
+        logger.info("JWT Filter processing request: {}", requestURI);
+        
         // Skip JWT check for public endpoints that don't require authentication
         if (requestURI.equals("/api/auth/login") || 
             requestURI.equals("/api/auth/register") ||
@@ -43,7 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.startsWith("/api/images") ||
             requestURI.startsWith("/api/companies-non-profits") ||
             requestURI.startsWith("/api/recognition-benefits/company") ||
-            requestURI.startsWith("/api/public")) {
+            requestURI.startsWith("/api/public") ||
+            requestURI.startsWith("/api/health") ||
+            requestURI.startsWith("/actuator")) {
+            logger.info("Skipping JWT check for public endpoint: {}", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
