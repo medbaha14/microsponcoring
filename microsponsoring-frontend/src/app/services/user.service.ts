@@ -2,14 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
-<<<<<<< Updated upstream
-import { OrganisationProfile } from '../models/OrganisationProfile';
-import { environment } from '../../environments/environment';
-=======
 import { OrganisationProfile } from '../models/organisation-profile.model';
 import { environment } from '../../environments/environment';
-import { TokenHandler } from './token-handler';
->>>>>>> Stashed changes
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -19,7 +13,7 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = TokenHandler.getToken();
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -84,14 +78,11 @@ export class UserService {
 
   getUsersBySponsorIds(sponsorIds: string[]) {
     return this.http.post<{ [sponsorId: string]: User }>(`${environment.usersUrl}/by-sponsor-ids`, sponsorIds);
-<<<<<<< Updated upstream
-=======
   }
   
   initializeUserProfiles(userId: string): Observable<any> {
     console.log('UserService: Initializing profiles for user:', userId);
     return this.http.post<any>(`${this.apiUrl}/${userId}/initialize-profiles`, {}, 
       { headers: this.getAuthHeaders() });
->>>>>>> Stashed changes
   }
-} 
+}

@@ -3,10 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Sponsor } from '../models/sponsor.model';
 import { environment } from '../../environments/environment';
-<<<<<<< Updated upstream
-import { TokenHandler } from './token-handler';
-=======
->>>>>>> Stashed changes
 
 @Injectable({ providedIn: 'root' })
 export class SponsorService {
@@ -15,7 +11,7 @@ export class SponsorService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = TokenHandler.getToken();
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -45,4 +41,4 @@ export class SponsorService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
-} 
+}

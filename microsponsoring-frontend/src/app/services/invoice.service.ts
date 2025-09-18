@@ -3,10 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Invoice } from '../models/invoice.model';
 import { environment } from '../../environments/environment';
-<<<<<<< Updated upstream
-=======
-import { TokenHandler } from './token-handler';
->>>>>>> Stashed changes
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -15,7 +11,7 @@ export class InvoiceService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = TokenHandler.getToken();
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -69,4 +65,4 @@ export class InvoiceService {
   getInvoiceStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/stats`, { headers: this.getAuthHeaders() });
   }
-} 
+}
