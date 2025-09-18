@@ -5,7 +5,7 @@ export const environment = {
   usersUrl: 'http://localhost:8080/api/users',
   paymentsUrl: 'http://localhost:8080/api/payments',
   uploadUrl: 'http://localhost:8080/api/upload',
-  companiesUrl: 'http://localhost:8080/api/companies',
+  companiesUrl: 'http://localhost:8080/api/companies-non-profits',
   sponsorsUrl: 'http://localhost:8080/api/sponsors',
   recognitionBenefitsUrl: 'http://localhost:8080/api/recognition-benefits',
   invoicesUrl: 'http://localhost:8080/api/invoices',

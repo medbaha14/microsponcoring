@@ -5,7 +5,7 @@ export const environment = {
   usersUrl: '/api/users',
   paymentsUrl: '/api/payments',
   uploadUrl: '/api/upload',
-  companiesUrl: '/api/companies',
+  companiesUrl: '/api/companies-non-profits',
   sponsorsUrl: '/api/sponsors',
   recognitionBenefitsUrl: '/api/recognition-benefits',
   invoicesUrl: '/api/invoices',
