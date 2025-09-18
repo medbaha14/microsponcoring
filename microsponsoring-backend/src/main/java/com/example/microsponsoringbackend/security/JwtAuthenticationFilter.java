@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
+import java.util.Collection;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -66,8 +68,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     logger.info("Loaded user details for {} with authorities: {}", username, userDetails.getAuthorities());
                     if (jwtUtil.validateToken(token, userDetails)) {
+                        // Extract authorities from JWT token and ensure they have ROLE_ prefix
+                        Collection<? extends GrantedAuthority> tokenAuthorities = jwtUtil.extractAuthorities(token);
+                        Collection<? extends GrantedAuthority> authorities = tokenAuthorities.isEmpty() ? 
+                            userDetails.getAuthorities() : tokenAuthorities;
+                        
+                        logger.info("Using authorities for authentication: {}", authorities);
+                        
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                                new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         logger.info("JWT authentication successful for user: {} on URI: {}", username, requestURI);
