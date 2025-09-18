@@ -3,7 +3,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Sponsor } from '../models/sponsor.model';
 import { environment } from '../../environments/environment';
+<<<<<<< Updated upstream
 import { TokenHandler } from './token-handler';
+=======
+>>>>>>> Stashed changes
 
 @Injectable({ providedIn: 'root' })
 export class SponsorService {

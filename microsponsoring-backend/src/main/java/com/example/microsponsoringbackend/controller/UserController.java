@@ -12,12 +12,12 @@ import com.example.microsponsoringbackend.dto.OrganisationProfileDTO;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import com.example.microsponsoringbackend.model.UserType;
+import com.example.microsponsoringbackend.model.Sponsor;
+import com.example.microsponsoringbackend.model.companyNonProfits;
+import com.example.microsponsoringbackend.model.PageCustomizations;
 import com.example.microsponsoringbackend.service.SponsorService;
 import com.example.microsponsoringbackend.service.companyNonProfitsService;
 import com.example.microsponsoringbackend.service.PageCustomizationsService;
-import com.example.microsponsoringbackend.model.companyNonProfits;
-import com.example.microsponsoringbackend.model.PageCustomizations;
-import com.example.microsponsoringbackend.model.Sponsor;
 
 import java.util.Date;
 import java.util.List;
@@ -76,9 +76,22 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
+        logger.info("=== UserController.create called ===");
+        logger.info("Username: {}", user.getUsername());
+        logger.info("UserType: {}", user.getUserType());
+        logger.info("Password provided: {}", user.getPassword() != null ? "YES" : "NO");
+        
         Date currentDate = new Date();
         user.setCreatedAt(currentDate);
         user.setUpdatedAt(currentDate);
+        
+        // Hash the password before saving
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            logger.info("Password hashed successfully");
+        } else {
+            logger.warn("No password provided for user creation!");
+        }
         
         // Save the user first
         User savedUser = userService.save(user);
@@ -241,4 +254,4 @@ public class UserController {
             logger.warn("Unknown user type: {} for user: {}", user.getUserType(), user.getUsername());
         }
     }
-} 
+}

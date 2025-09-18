@@ -32,10 +32,18 @@ export class companyNonProfitsService {
   }
 
   create(data: CompanyNonProfits): Observable<CompanyNonProfits> {
+<<<<<<< Updated upstream
     return this.http.post<CompanyNonProfits>(this.apiUrl, data, { headers: this.getAuthHeaders() });
   }
 
   update(id: string, data: CompanyNonProfits): Observable<CompanyNonProfits> {
+=======
+    console.log('CompanyService: Creating company with data:', data);
+    return this.http.post<CompanyNonProfits>(this.apiUrl, data, { headers: this.getAuthHeaders() });
+  }
+
+  update(id: number, data: CompanyNonProfits): Observable<CompanyNonProfits> {
+>>>>>>> Stashed changes
     return this.http.put<CompanyNonProfits>(`${this.apiUrl}/${id}`, data, { headers: this.getAuthHeaders() });
   }
 

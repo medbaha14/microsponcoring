@@ -385,6 +385,79 @@ body.dark-mode .upload-status {
   color: var(--color-cream);
 }
 
+/* Info Banner Styles */
+.info-banner {
+  background: linear-gradient(135deg, var(--color-dark-teal), var(--color-medium-teal));
+  color: var(--color-cream);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--color-light-teal);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-banner h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: var(--color-cream);
+}
+
+.info-banner p {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.info-banner ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.info-banner li {
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.info-banner em {
+  opacity: 0.9;
+  font-style: italic;
+}
+
+body.dark-mode .info-banner {
+  background: linear-gradient(135deg, var(--color-medium-teal), var(--color-light-teal));
+  border-left-color: var(--color-cream);
+}
+
+.setup-btn {
+  background: var(--color-cream);
+  color: var(--color-dark-teal);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 15px 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.setup-btn:hover {
+  background: var(--color-light-teal);
+  color: var(--color-cream);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .setup-btn {
+  background: var(--color-light-teal);
+  color: var(--color-cream);
+}
+
+body.dark-mode .setup-btn:hover {
+  background: var(--color-cream);
+  color: var(--color-dark-teal);
+}
+
 .overlay {
     position: fixed;
     top: 0;

@@ -45,7 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.equals("/api/auth/validate-reset-token") ||
             requestURI.startsWith("/api/users") ||
             requestURI.startsWith("/api/images") ||
+<<<<<<< Updated upstream
             (requestURI.startsWith("/api/companies-non-profits") && request.getMethod().equals("GET")) || // Only skip GET requests
+=======
+            (requestURI.startsWith("/api/companies-non-profits") && request.getMethod().equals("GET")) ||
+>>>>>>> Stashed changes
             requestURI.startsWith("/api/recognition-benefits/company") ||
             requestURI.startsWith("/api/public") ||
             requestURI.startsWith("/api/health") ||

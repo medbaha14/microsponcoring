@@ -45,6 +45,7 @@ public class SecurityConfig {
                 // Allow all user endpoints
                 .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/companies-non-profits").permitAll()
+<<<<<<< Updated upstream
                 .requestMatchers(HttpMethod.GET, "/api/companies-non-profits/user/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/companies-non-profits/*").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
                 .requestMatchers(HttpMethod.POST, "/api/companies-non-profits").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
@@ -56,9 +57,17 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/sponsors").hasAnyRole("ADMIN", "SPONSOR")
                 .requestMatchers(HttpMethod.PUT, "/api/sponsors/{id}").hasAnyRole("ADMIN", "SPONSOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/sponsors/{id}").hasRole("ADMIN")
+=======
+                .requestMatchers(HttpMethod.GET, "/api/companies-non-profits/{id}").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
+                .requestMatchers(HttpMethod.GET, "/api/companies-non-profits/user/{userId}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/companies-non-profits").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
+                .requestMatchers(HttpMethod.PUT, "/api/companies-non-profits/{id}").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
+                .requestMatchers(HttpMethod.DELETE, "/api/companies-non-profits/{id}").hasRole("ADMIN")
+>>>>>>> Stashed changes
                 // Allow authenticated users to get or update their own user by id
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/{id}").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/users/{id}/initialize-profiles").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}/organisation-profile").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/users/{id}/organisation-profile").hasAnyRole("ADMIN", "ORGANISATION_NONPROFIT")
                 // Recognition Benefits - Allow organisations to manage their benefits

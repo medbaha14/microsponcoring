@@ -27,7 +27,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+<<<<<<< Updated upstream
 import java.util.UUID;
+=======
+>>>>>>> Stashed changes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,7 @@ public class AuthController {
 
     @Autowired
     private PasswordResetService passwordResetService;
+<<<<<<< Updated upstream
 
     @Autowired
     private SponsorService sponsorService;
@@ -59,6 +63,18 @@ public class AuthController {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+=======
+    
+    @Autowired
+    private SponsorService sponsorService;
+    
+    @Autowired
+    private companyNonProfitsService companyService;
+    
+    @Autowired
+    private PageCustomizationsService pageCustomizationsService;
+
+>>>>>>> Stashed changes
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         logger.info("Registration request received for username: {}", request.getUsername());
@@ -163,29 +179,45 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid or expired token"));
         }
     }
+<<<<<<< Updated upstream
 
     /**
      * Creates related profiles based on user type after user creation
      * ADMIN: No additional profiles needed
      * SPONSOR: Creates empty Sponsor profile
      * ORGANISATION_NONPROFIT: Creates empty Company and PageCustomizations profiles
+=======
+    
+    /**
+     * Creates related profiles based on user type
+>>>>>>> Stashed changes
      */
     private void createRelatedProfile(User user) {
         Date currentDate = new Date();
         
         if (user.getUserType() == UserType.SPONSOR) {
+<<<<<<< Updated upstream
             // Create empty Sponsor profile
             Sponsor sponsor = new Sponsor();
             sponsor.setSponsorId(UUID.randomUUID());
             sponsor.setUser(user);
             sponsor.setPaymentMethod("CREDIT_CARD"); // Default payment method
             sponsor.setSponcerCat("GENERAL"); // Default category
+=======
+            logger.info("Creating sponsor profile for user: {}", user.getUsername());
+            
+            Sponsor sponsor = new Sponsor();
+            sponsor.setUser(user);
+            sponsor.setPaymentMethod("CREDIT_CARD"); // Default payment method
+            sponsor.setSponcerCat("GENERAL"); // Default sponsor category
+>>>>>>> Stashed changes
             sponsor.setTotalAmountSpent(0.0);
             sponsor.setTotalSponsorships(0);
             sponsor.setCreatedAt(currentDate);
             sponsor.setUpdatedAt(currentDate);
             
             sponsorService.save(sponsor);
+<<<<<<< Updated upstream
             logger.info("Created Sponsor profile for user: {}", user.getUsername());
             
         } else if (user.getUserType() == UserType.ORGANISATION_NONPROFIT) {
@@ -195,11 +227,24 @@ public class AuthController {
             company.setUser(user);
             company.setActivityType("GENERAL"); // Default activity type
             company.setDetails(""); // Empty details
+=======
+            logger.info("Sponsor profile created for user: {}", user.getUsername());
+            
+        } else if (user.getUserType() == UserType.ORGANISATION_NONPROFIT) {
+            logger.info("Creating organization profile for user: {}", user.getUsername());
+            
+            // Create company profile
+            companyNonProfits company = new companyNonProfits();
+            company.setUser(user);
+            company.setActivityType("COMMUNITY_SUPPORT"); // Default activity type
+            company.setDetails("A dedicated organization working to make a positive impact in our community.");
+>>>>>>> Stashed changes
             company.setTotalAmountReceived(0.0);
             company.setTotalSponsorships(0);
             company.setCreatedAt(currentDate);
             company.setUpdatedAt(currentDate);
             
+<<<<<<< Updated upstream
             companyNonProfitsService.save(company);
             logger.info("Created Company profile for user: {}", user.getUsername());
             
@@ -219,6 +264,23 @@ public class AuthController {
             
             pageCustomizationsService.save(customizations);
             logger.info("Created PageCustomizations profile for user: {}", user.getUsername());
+=======
+            companyNonProfits savedCompany = companyService.save(company);
+            logger.info("Company profile created for user: {}", user.getUsername());
+            
+            // Create page customizations
+            PageCustomizations pageCustomizations = new PageCustomizations();
+            pageCustomizations.setCompany(savedCompany);
+            pageCustomizations.setBackgroundColor("#1976d2"); // Default blue
+            pageCustomizations.setPrimaryColor("#1976d2");
+            pageCustomizations.setSecondaryColor("#424242");
+            pageCustomizations.setFontStyle("Arial, sans-serif");
+            pageCustomizations.setCreatedAt(currentDate);
+            pageCustomizations.setUpdatedAt(currentDate);
+            
+            pageCustomizationsService.save(pageCustomizations);
+            logger.info("Page customizations created for user: {}", user.getUsername());
+>>>>>>> Stashed changes
             
         } else if (user.getUserType() == UserType.ADMIN) {
             logger.info("Admin user created, no additional profiles needed: {}", user.getUsername());
