@@ -5,7 +5,6 @@ import { OrganisationProfileComponent } from '../profile/profile.component';
 import { OrganisationProfile } from '../../../models/organisation-profile.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ThemeService } from '../../../services/theme.service';
-import { TokenHandler } from '../../../services/token-handler';
 import { UserService } from '../../../services/user.service';
 import Swal from 'sweetalert2';
 import { ProfileUpdateService } from '../../../services/profile-update.service';
@@ -65,7 +64,7 @@ export class CustomizeProfileComponent implements OnInit {
   }
 
   loadProfile() {
-    const user = TokenHandler.getUser();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
     console.log('CustomizeProfile: Loading profile for user:', user);
     
     if (user && user.userId) {
@@ -167,8 +166,8 @@ export class CustomizeProfileComponent implements OnInit {
     }
 
     this.uploadingImages[field] = true;
-    const user = TokenHandler.getUser();
-    const token = TokenHandler.getToken();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = localStorage.getItem('token');
     
     console.log('CustomizeProfile: Starting image upload');
     console.log('CustomizeProfile: Field:', field);
@@ -332,8 +331,8 @@ export class CustomizeProfileComponent implements OnInit {
 
   saveChanges() {
     // Debug user authentication and role
-    const token = TokenHandler.getToken();
-    const user = TokenHandler.getUser();
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
     console.log('CustomizeProfile: Current token:', token ? 'Present' : 'Missing');
     console.log('CustomizeProfile: Current user:', user);
     console.log('CustomizeProfile: User type/role:', user?.userType);
@@ -434,7 +433,7 @@ export class CustomizeProfileComponent implements OnInit {
   }
 
   initializeUserProfiles() {
-    const user = TokenHandler.getUser();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
     if (!user || !user.userId) {
       Swal.fire('Error', 'User information not found. Please log in again.', 'error');
       return;
@@ -454,7 +453,7 @@ export class CustomizeProfileComponent implements OnInit {
     });
 
     this.userService.initializeUserProfiles(user.userId).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         console.log('CustomizeProfile: Profile initialization successful:', response);
         
         Swal.fire({
@@ -467,7 +466,7 @@ export class CustomizeProfileComponent implements OnInit {
           this.loadProfile();
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('CustomizeProfile: Error initializing profiles:', err);
         
         let errorMessage = 'Failed to initialize your profile. Please try again.';
