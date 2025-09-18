@@ -21,6 +21,7 @@ import com.example.microsponsoringbackend.service.PageCustomizationsService;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -190,6 +191,75 @@ public class UserController {
                 sponsor -> sponsor.getUser()
             ));
         return ResponseEntity.ok(result);
+    }
+    
+    @PostMapping("/{id}/initialize-profiles")
+    public ResponseEntity<?> initializeProfiles(@PathVariable UUID id) {
+        logger.info("Initialize profiles request for user ID: {}", id);
+        
+        try {
+            Optional<User> userOpt = userService.findById(id);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            User user = userOpt.get();
+            logger.info("Found user: {} with type: {}", user.getUsername(), user.getUserType());
+            
+            // Check if user already has the required profiles
+            if (user.getUserType() == UserType.ORGANISATION_NONPROFIT) {
+                // Check if company profile exists
+                if (user.getCompanyNonProfits() == null) {
+                    logger.info("Creating missing organization profiles for user: {}", user.getUsername());
+                    createRelatedProfile(user);
+                    return ResponseEntity.ok().body(Map.of("message", "Organization profiles created successfully"));
+                } else {
+                    return ResponseEntity.ok().body(Map.of("message", "Organization profiles already exist"));
+                }
+            } else if (user.getUserType() == UserType.SPONSOR) {
+                // Check if sponsor profile exists
+                if (user.getSponsor() == null) {
+                    logger.info("Creating missing sponsor profile for user: {}", user.getUsername());
+                    createRelatedProfile(user);
+                    return ResponseEntity.ok().body(Map.of("message", "Sponsor profile created successfully"));
+                } else {
+                    return ResponseEntity.ok().body(Map.of("message", "Sponsor profile already exists"));
+                }
+            } else {
+                return ResponseEntity.ok().body(Map.of("message", "No additional profiles needed for this user type"));
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error initializing profiles for user {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to initialize profiles: " + e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/stats")
+    public ResponseEntity<java.util.Map<String, Object>> getUserStats() {
+        try {
+            List<User> allUsers = userService.findAll();
+            
+            long totalUsers = allUsers.size();
+            long activeUsers = allUsers.stream().filter(User::getActive).count();
+            long adminUsers = allUsers.stream().filter(u -> u.getUserType() == UserType.ADMIN).count();
+            long sponsorUsers = allUsers.stream().filter(u -> u.getUserType() == UserType.SPONSOR).count();
+            long organisationUsers = allUsers.stream().filter(u -> u.getUserType() == UserType.ORGANISATION_NONPROFIT).count();
+            
+            java.util.Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("totalUsers", totalUsers);
+            stats.put("activeUsers", activeUsers);
+            stats.put("inactiveUsers", totalUsers - activeUsers);
+            stats.put("adminUsers", adminUsers);
+            stats.put("sponsorUsers", sponsorUsers);
+            stats.put("organisationUsers", organisationUsers);
+            stats.put("timestamp", System.currentTimeMillis());
+            
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            logger.error("Error getting user stats: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     /**

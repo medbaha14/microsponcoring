@@ -45,11 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.equals("/api/auth/validate-reset-token") ||
             requestURI.startsWith("/api/users") ||
             requestURI.startsWith("/api/images") ||
-<<<<<<< Updated upstream
-            (requestURI.startsWith("/api/companies-non-profits") && request.getMethod().equals("GET")) || // Only skip GET requests
-=======
             (requestURI.startsWith("/api/companies-non-profits") && request.getMethod().equals("GET")) ||
->>>>>>> Stashed changes
             requestURI.startsWith("/api/recognition-benefits/company") ||
             requestURI.startsWith("/api/public") ||
             requestURI.startsWith("/api/health") ||
@@ -58,19 +54,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        
         String header = request.getHeader("Authorization");
         System.out.println("[DEBUG] Authorization header: " + header);
         logger.info("Processing request: {} with Authorization header: {}", requestURI, header);
+        
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             try {
                 String username = jwtUtil.extractUsername(token);
                 logger.info("Extracted username from token: {}", username);
-                  if (username != null &&
+                
+                if (username != null &&
                     (SecurityContextHolder.getContext().getAuthentication() == null ||
                      SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     logger.info("Loaded user details for {} with authorities: {}", username, userDetails.getAuthorities());
+                    
                     if (jwtUtil.validateToken(token, userDetails)) {
                         // Extract authorities from JWT token and ensure they have ROLE_ prefix
                         Collection<? extends GrantedAuthority> tokenAuthorities = jwtUtil.extractAuthorities(token);
@@ -100,6 +100,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } else {
             logger.warn("No Authorization header found for URI: {}", requestURI);
         }
+        
         filterChain.doFilter(request, response);
     }
-} 
+}

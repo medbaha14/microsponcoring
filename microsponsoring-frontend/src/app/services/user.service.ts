@@ -85,4 +85,9 @@ export class UserService {
     return this.http.post<any>(`${this.apiUrl}/${userId}/initialize-profiles`, {}, 
       { headers: this.getAuthHeaders() });
   }
+
+  getUserStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats`, { headers: this.getAuthHeaders() });
+  }
 }
+

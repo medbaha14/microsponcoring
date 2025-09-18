@@ -83,4 +83,44 @@ public class SecurityController {
             return ResponseEntity.internalServerError().body("Error exporting report: " + e.getMessage());
         }
     }
+    
+    @GetMapping("/alerts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<java.util.List<java.util.Map<String, Object>>> getSecurityAlerts() {
+        try {
+            java.util.List<java.util.Map<String, Object>> alerts = new java.util.ArrayList<>();
+            
+            // Add some sample security alerts
+            java.util.Map<String, Object> alert1 = new java.util.HashMap<>();
+            alert1.put("id", "1");
+            alert1.put("type", "HIGH");
+            alert1.put("title", "Suspicious Login Activity");
+            alert1.put("description", "Multiple failed login attempts detected from IP 192.168.1.100");
+            alert1.put("timestamp", System.currentTimeMillis() - 3600000); // 1 hour ago
+            alert1.put("status", "ACTIVE");
+            alerts.add(alert1);
+            
+            java.util.Map<String, Object> alert2 = new java.util.HashMap<>();
+            alert2.put("id", "2");
+            alert2.put("type", "MEDIUM");
+            alert2.put("title", "Unusual API Usage Pattern");
+            alert2.put("description", "High volume of API requests detected from user 'testuser'");
+            alert2.put("timestamp", System.currentTimeMillis() - 7200000); // 2 hours ago
+            alert2.put("status", "RESOLVED");
+            alerts.add(alert2);
+            
+            java.util.Map<String, Object> alert3 = new java.util.HashMap<>();
+            alert3.put("id", "3");
+            alert3.put("type", "LOW");
+            alert3.put("title", "Password Policy Violation");
+            alert3.put("description", "User 'newuser' created account with weak password");
+            alert3.put("timestamp", System.currentTimeMillis() - 10800000); // 3 hours ago
+            alert3.put("status", "ACTIVE");
+            alerts.add(alert3);
+            
+            return ResponseEntity.ok(alerts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 } 

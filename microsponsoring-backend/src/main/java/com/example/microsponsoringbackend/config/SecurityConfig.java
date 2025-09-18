@@ -56,6 +56,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/sponsors").hasAnyRole("ADMIN", "SPONSOR")
                 .requestMatchers(HttpMethod.PUT, "/api/sponsors/{id}").hasAnyRole("ADMIN", "SPONSOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/sponsors/{id}").hasRole("ADMIN")
+                // Admin endpoints - require ADMIN role
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/security/**").hasRole("ADMIN")
+                .requestMatchers("/api/system/**").hasRole("ADMIN")
                 // Allow authenticated users to get or update their own user by id
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/{id}").authenticated()

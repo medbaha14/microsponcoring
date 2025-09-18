@@ -148,7 +148,7 @@ public class PerformanceMonitoringService {
     /**
      * Get current system metrics
      */
-    private Map<String, Object> getSystemMetrics() {
+    public Map<String, Object> getSystemMetrics() {
         Map<String, Object> metrics = new HashMap<>();
         
         try {
