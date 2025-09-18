@@ -13,6 +13,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import com.example.microsponsoringbackend.model.UserType;
 import com.example.microsponsoringbackend.service.SponsorService;
+import com.example.microsponsoringbackend.service.companyNonProfitsService;
+import com.example.microsponsoringbackend.service.PageCustomizationsService;
+import com.example.microsponsoringbackend.model.companyNonProfits;
+import com.example.microsponsoringbackend.model.PageCustomizations;
+import com.example.microsponsoringbackend.model.Sponsor;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +36,10 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SponsorService sponsorService;
+    @Autowired
+    private companyNonProfitsService companyNonProfitsService;
+    @Autowired
+    private PageCustomizationsService pageCustomizationsService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping
@@ -70,7 +79,21 @@ public class UserController {
         Date currentDate = new Date();
         user.setCreatedAt(currentDate);
         user.setUpdatedAt(currentDate);
-        return userService.save(user);
+        
+        // Save the user first
+        User savedUser = userService.save(user);
+        logger.info("User created successfully: {} with type: {}", savedUser.getUsername(), savedUser.getUserType());
+        
+        // Create related profile based on user type
+        try {
+            createRelatedProfile(savedUser);
+            logger.info("Related profile created successfully for user: {}", savedUser.getUsername());
+        } catch (Exception e) {
+            logger.error("Error creating related profile for user {}: {}", savedUser.getUsername(), e.getMessage(), e);
+            // Don't fail the user creation if profile creation fails
+        }
+        
+        return savedUser;
     }
 
     @PutMapping("/{id}")
@@ -154,5 +177,68 @@ public class UserController {
                 sponsor -> sponsor.getUser()
             ));
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Creates related profiles based on user type after user creation
+     * ADMIN: No additional profiles needed
+     * SPONSOR: Creates empty Sponsor profile
+     * ORGANISATION_NONPROFIT: Creates empty Company and PageCustomizations profiles
+     */
+    private void createRelatedProfile(User user) {
+        Date currentDate = new Date();
+        
+        if (user.getUserType() == UserType.SPONSOR) {
+            // Create empty Sponsor profile
+            Sponsor sponsor = new Sponsor();
+            sponsor.setSponsorId(UUID.randomUUID());
+            sponsor.setUser(user);
+            sponsor.setPaymentMethod("CREDIT_CARD"); // Default payment method
+            sponsor.setSponcerCat("GENERAL"); // Default category
+            sponsor.setTotalAmountSpent(0.0);
+            sponsor.setTotalSponsorships(0);
+            sponsor.setCreatedAt(currentDate);
+            sponsor.setUpdatedAt(currentDate);
+            
+            sponsorService.save(sponsor);
+            logger.info("Created Sponsor profile for user: {}", user.getUsername());
+            
+        } else if (user.getUserType() == UserType.ORGANISATION_NONPROFIT) {
+            // Create empty Company profile
+            companyNonProfits company = new companyNonProfits();
+            company.setCompanyId(UUID.randomUUID());
+            company.setUser(user);
+            company.setActivityType("GENERAL"); // Default activity type
+            company.setDetails(""); // Empty details
+            company.setTotalAmountReceived(0.0);
+            company.setTotalSponsorships(0);
+            company.setCreatedAt(currentDate);
+            company.setUpdatedAt(currentDate);
+            
+            companyNonProfitsService.save(company);
+            logger.info("Created Company profile for user: {}", user.getUsername());
+            
+            // Create empty PageCustomizations profile
+            PageCustomizations customizations = new PageCustomizations();
+            customizations.setId(UUID.randomUUID());
+            customizations.setCompany(company);
+            customizations.setBackgroundColor("#FFFFFF"); // Default white background
+            customizations.setPrimaryColor("#222831"); // Default dark teal
+            customizations.setSecondaryColor("#393E46"); // Default medium teal
+            customizations.setFontStyle("Arial"); // Default font
+            customizations.setLogoUrl(""); // Empty logo URL
+            customizations.setBannerImageUrl(""); // Empty banner URL
+            customizations.setBackgroundImageUrl(""); // Empty background image URL
+            customizations.setCreatedAt(currentDate);
+            customizations.setUpdatedAt(currentDate);
+            
+            pageCustomizationsService.save(customizations);
+            logger.info("Created PageCustomizations profile for user: {}", user.getUsername());
+            
+        } else if (user.getUserType() == UserType.ADMIN) {
+            logger.info("Admin user created, no additional profiles needed: {}", user.getUsername());
+        } else {
+            logger.warn("Unknown user type: {} for user: {}", user.getUserType(), user.getUsername());
+        }
     }
 } 

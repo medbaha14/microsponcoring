@@ -13,3 +13,4 @@ USE microsponsoring;
 SELECT 'Database microsponsoring created successfully!' as status;
 SELECT 'You can now run the Spring Boot application' as next_step;
 
+

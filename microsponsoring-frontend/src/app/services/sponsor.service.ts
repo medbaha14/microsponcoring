@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Sponsor } from '../models/sponsor.model';
 import { environment } from '../../environments/environment';
+import { TokenHandler } from './token-handler';
 
 @Injectable({ providedIn: 'root' })
 export class SponsorService {
@@ -10,12 +11,20 @@ export class SponsorService {
 
   constructor(private http: HttpClient) {}
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = TokenHandler.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   getAll(): Observable<Sponsor[]> {
     return this.http.get<Sponsor[]>(this.apiUrl);
   }
 
-  getById(id: number): Observable<Sponsor> {
-    return this.http.get<Sponsor>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<Sponsor> {
+    return this.http.get<Sponsor>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   getByUserId(userId: string): Observable<Sponsor> {
@@ -23,14 +32,14 @@ export class SponsorService {
   }
 
   create(data: Sponsor): Observable<Sponsor> {
-    return this.http.post<Sponsor>(this.apiUrl, data);
+    return this.http.post<Sponsor>(this.apiUrl, data, { headers: this.getAuthHeaders() });
   }
 
-  update(id: number, data: Sponsor): Observable<Sponsor> {
-    return this.http.put<Sponsor>(`${this.apiUrl}/${id}`, data);
+  update(id: string, data: Sponsor): Observable<Sponsor> {
+    return this.http.put<Sponsor>(`${this.apiUrl}/${id}`, data, { headers: this.getAuthHeaders() });
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 } 
