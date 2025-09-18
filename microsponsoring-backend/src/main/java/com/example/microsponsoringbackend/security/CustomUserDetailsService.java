@@ -23,8 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        // Map your UserType to a role string, e.g. ADMIN, SPONSOR, etc.
-        String role = user.getUserType().name();
+        // Map your UserType to a role string with ROLE_ prefix for Spring Security
+        String role = "ROLE_" + user.getUserType().name();
 
         GrantedAuthority authority = new SimpleGrantedAuthority(role);
 

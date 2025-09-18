@@ -16,8 +16,10 @@ import com.example.microsponsoringbackend.service.SponsorService;
 import com.example.microsponsoringbackend.service.companyNonProfitsService;
 import com.example.microsponsoringbackend.service.PageCustomizationsService;
 import com.example.microsponsoringbackend.util.JwtUtil;
+import com.example.microsponsoringbackend.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +55,9 @@ public class AuthController {
 
     @Autowired
     private PageCustomizationsService pageCustomizationsService;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -116,7 +121,9 @@ public class AuthController {
             user.setLastLogin(new Date());
             userService.save(user);
 
-            String token = jwtUtil.generateToken(user.getUsername());
+            // Load user details with authorities for JWT generation
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+            String token = jwtUtil.generateToken(userDetails);
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", user);
