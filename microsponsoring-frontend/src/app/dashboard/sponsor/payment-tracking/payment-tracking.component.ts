@@ -140,7 +140,7 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
     
     // First try to get payment stats from the existing payments API
     this.paymentService.getSponsorStats(this.currentSponsor!.sponsorId).subscribe({
-      next: (stats) => {
+      next: (stats: any) => {
         console.log('Payment Tracking: Payment stats loaded:', stats);
         
         // Convert payment stats to our summary format
@@ -158,7 +158,7 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
         // Now load the actual invoice data for transactions
         this.loadInvoiceTransactions();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading payment stats:', error);
         // Fallback to payment transaction service
         this.paymentTransactionService.getTransactionSummary(this.currentSponsor!.sponsorId).subscribe({
@@ -208,24 +208,31 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
   }
 
   convertInvoiceToTransaction(invoice: Invoice): PaymentTransaction {
+    // Helper function to convert date to string
+    const dateToString = (date: string | Date | undefined): string => {
+      if (!date) return new Date().toISOString();
+      if (typeof date === 'string') return date;
+      return date.toISOString();
+    };
+
     return {
-      transactionId: invoice.invoiceId,
+      transactionId: invoice.invoiceId || '',
       sponsorId: invoice.sponsor?.sponsorId || '',
       companyId: invoice.company?.companyId || '',
       amount: invoice.amount || 0,
       currency: 'EUR',
       paymentMethod: 'CREDIT_CARD', // Default since we don't have this in invoice
-      transactionReference: invoice.invoiceId,
+      transactionReference: invoice.invoiceId || '',
       description: `Sponsorship payment for ${invoice.company?.user?.fullName || 'Organization'}`,
       status: this.convertInvoiceStatusToTransactionStatus(invoice.status || 'PENDING'),
       type: TransactionType.SPONSORSHIP,
-      transactionDate: invoice.createdAt || invoice.invoiceDate || new Date().toISOString(),
-      processedDate: invoice.status === 'PAID' ? (invoice.updatedAt || new Date().toISOString()) : undefined,
+      transactionDate: dateToString(invoice.createdAt || invoice.invoiceDate),
+      processedDate: invoice.status === 'PAID' ? dateToString(invoice.updatedAt) : undefined,
       uploadedFileName: invoice.generatedPdfUrl ? 'invoice.pdf' : undefined,
       uploadedFilePath: invoice.generatedPdfUrl,
       notes: `Invoice ${invoice.invoiceId}`,
-      createdAt: invoice.createdAt || new Date().toISOString(),
-      updatedAt: invoice.updatedAt || new Date().toISOString()
+      createdAt: dateToString(invoice.createdAt),
+      updatedAt: dateToString(invoice.updatedAt)
     };
   }
 
