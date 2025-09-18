@@ -86,6 +86,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/payments/company/{companyId}/invoices").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/payments/sponsor/{sponsorId}/stats").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/payments/company/{companyId}/stats").authenticated()
+                // Payment Transactions - Allow sponsors to manage their payment transactions
+                .requestMatchers("/api/payment-transactions/**").hasAnyRole("ADMIN", "SPONSOR")
+                // Sample Data - Allow admins to create sample data for testing
+                .requestMatchers("/api/sample-data/**").hasRole("ADMIN")
                 // Allow public access to invoice PDFs
                 .requestMatchers(HttpMethod.GET, "/api/invoices/*/pdf").permitAll()
                 // Allow authenticated users to access invoices

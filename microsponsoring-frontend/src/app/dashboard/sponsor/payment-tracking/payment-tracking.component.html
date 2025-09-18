@@ -1,0 +1,284 @@
+<div class="payment-tracking-container" [class.dark-mode]="isDarkMode">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>💳 Payment Tracking</h1>
+    <p>Track and manage all your payment transactions</p>
+    
+    <div class="header-actions">
+      <button class="export-btn" (click)="exportToCSV()" [disabled]="isLoading">
+        <span class="icon">📊</span>
+        <span>Export CSV</span>
+      </button>
+      <button class="refresh-btn" (click)="loadData()" [disabled]="isLoading">
+        <span class="icon">🔄</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid" *ngIf="summary && !isLoadingSummary">
+    <div class="summary-card total">
+      <div class="card-icon">💰</div>
+      <div class="card-content">
+        <h3>Total Spent</h3>
+        <p class="card-value">{{ formatCurrency(summary.totalAmount || 0) }}</p>
+        <small>{{ summary.totalCount || 0 }} transactions</small>
+      </div>
+    </div>
+    
+    <div class="summary-card pending">
+      <div class="card-icon">⏳</div>
+      <div class="card-content">
+        <h3>Pending</h3>
+        <p class="card-value">{{ formatCurrency(summary.pendingAmount || 0) }}</p>
+        <small>{{ summary.pendingCount || 0 }} transactions</small>
+      </div>
+    </div>
+    
+    <div class="summary-card recent">
+      <div class="card-icon">📈</div>
+      <div class="card-content">
+        <h3>Recent Activity</h3>
+        <p class="card-value">{{ summary.recentTransactions?.length || 0 }}</p>
+        <small>Last 30 days</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Summary -->
+  <div class="summary-grid" *ngIf="isLoadingSummary">
+    <div class="summary-card loading">
+      <div class="card-icon">⏳</div>
+      <div class="card-content">
+        <h3>Loading...</h3>
+        <p class="card-value">Please wait</p>
+        <small>Fetching data</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Search transactions..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input">
+      <span class="search-icon">🔍</span>
+    </div>
+    
+    <div class="filter-controls">
+      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="filter-select">
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="PROCESSING">Processing</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="FAILED">Failed</option>
+        <option value="CANCELLED">Cancelled</option>
+        <option value="REFUNDED">Refunded</option>
+      </select>
+      
+      <select [(ngModel)]="selectedType" (change)="onFilterChange()" class="filter-select">
+        <option value="">All Types</option>
+        <option value="SPONSORSHIP">Sponsorship</option>
+        <option value="REFUND">Refund</option>
+        <option value="ADJUSTMENT">Adjustment</option>
+        <option value="FEE">Fee</option>
+        <option value="OTHER">Other</option>
+      </select>
+      
+      <input 
+        type="date" 
+        [(ngModel)]="startDate"
+        (change)="onFilterChange()"
+        class="date-input"
+        placeholder="Start Date">
+      
+      <input 
+        type="date" 
+        [(ngModel)]="endDate"
+        (change)="onFilterChange()"
+        class="date-input"
+        placeholder="End Date">
+      
+      <button class="clear-filters-btn" (click)="clearFilters()">
+        <span class="icon">🗑️</span>
+        <span>Clear</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- File Upload Modal -->
+  <div class="upload-modal" *ngIf="selectedTransactionId">
+    <div class="modal-content">
+      <h3>Upload Transaction File</h3>
+      <p>Upload supporting documents for this transaction</p>
+      
+      <div class="file-upload">
+        <input 
+          type="file" 
+          id="fileInput"
+          (change)="onFileSelected($event)"
+          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          class="file-input">
+        <label for="fileInput" class="file-label">
+          <span class="icon">📁</span>
+          <span>Choose File</span>
+        </label>
+        <span class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+      </div>
+      
+      <div class="modal-actions">
+        <button 
+          class="upload-btn" 
+          (click)="uploadFile()" 
+          [disabled]="!selectedFile || isUploading">
+          <span class="icon" *ngIf="!isUploading">📤</span>
+          <span class="spinner" *ngIf="isUploading">⏳</span>
+          <span>{{ isUploading ? 'Uploading...' : 'Upload' }}</span>
+        </button>
+        <button class="cancel-btn" (click)="selectedTransactionId = null; selectedFile = null">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading transactions...</p>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="table-container" *ngIf="!isLoading">
+    <div class="table-header">
+      <h3>Transactions ({{ filteredTransactions.length }})</h3>
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+        {{ Math.min(currentPage * itemsPerPage, filteredTransactions.length) }} 
+        of {{ filteredTransactions.length }}
+      </div>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Reference</th>
+            <th>File</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transaction of getPaginatedTransactions()" class="transaction-row">
+            <td class="date-cell">
+              {{ transaction.transactionDate | date:'short' }}
+            </td>
+            <td class="description-cell">
+              <div class="description-content">
+                <span class="description-text">{{ transaction.description || 'No description' }}</span>
+                <span class="notes" *ngIf="transaction.notes">{{ transaction.notes }}</span>
+              </div>
+            </td>
+            <td class="amount-cell">
+              <span class="amount-value">{{ formatCurrency(transaction.amount) }}</span>
+              <span class="currency">{{ transaction.currency }}</span>
+            </td>
+            <td class="status-cell">
+              <span class="status-badge" [class]="getStatusClass(transaction.status)">
+                <span class="status-icon">{{ getStatusIcon(transaction.status) }}</span>
+                <span class="status-text">{{ transaction.status }}</span>
+              </span>
+            </td>
+            <td class="type-cell">
+              <span class="type-badge">{{ transaction.type }}</span>
+            </td>
+            <td class="reference-cell">
+              <span class="reference" *ngIf="transaction.transactionReference">
+                {{ transaction.transactionReference }}
+              </span>
+              <span class="no-reference" *ngIf="!transaction.transactionReference">
+                -
+              </span>
+            </td>
+            <td class="file-cell">
+              <div class="file-info" *ngIf="transaction.uploadedFileName">
+                <span class="file-icon">📎</span>
+                <span class="file-name">{{ transaction.uploadedFileName }}</span>
+                <button class="download-btn" (click)="downloadFile(transaction)">
+                  <span class="icon">⬇️</span>
+                </button>
+              </div>
+              <button 
+                class="upload-btn-small" 
+                *ngIf="!transaction.uploadedFileName"
+                (click)="onTransactionSelected(transaction.transactionId)">
+                <span class="icon">📤</span>
+                <span>Upload</span>
+              </button>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button class="edit-btn" title="Edit">
+                  <span class="icon">✏️</span>
+                </button>
+                <button class="delete-btn" title="Delete">
+                  <span class="icon">🗑️</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="page-btn" 
+        (click)="currentPage = Math.max(1, currentPage - 1)"
+        [disabled]="currentPage === 1">
+        <span class="icon">◀</span>
+        Previous
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="page-number"
+          [class.active]="currentPage === i + 1"
+          (click)="currentPage = i + 1">
+          {{ i + 1 }}
+        </button>
+      </div>
+      
+      <button 
+        class="page-btn" 
+        (click)="currentPage = Math.min(totalPages, currentPage + 1)"
+        [disabled]="currentPage === totalPages">
+        Next
+        <span class="icon">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredTransactions.length === 0">
+    <div class="empty-icon">💳</div>
+    <h3>No transactions found</h3>
+    <p *ngIf="transactions.length === 0">No payment transactions available. Your sponsorship data will appear here once you make payments.</p>
+    <p *ngIf="transactions.length > 0">No transactions match your current filters. Try adjusting your search criteria.</p>
+    <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="transactions.length > 0">
+      Clear Filters
+    </button>
+  </div>
+</div>

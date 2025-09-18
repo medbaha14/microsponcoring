@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Invoice } from '../models/invoice.model';
-import { TokenHandler } from './token-handler';
 import { environment } from '../../environments/environment';
 
 export interface PaymentRequest {
@@ -85,8 +84,7 @@ export class PaymentService {
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = TokenHandler.getToken();
-    console.log('Token from storage:', token);
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
