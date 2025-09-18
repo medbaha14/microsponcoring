@@ -28,9 +28,14 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
+        // Extract authority names as strings for JWT storage
+        Collection<String> authorityNames = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+                
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .claim("authorities", userDetails.getAuthorities())
+                .claim("authorities", authorityNames)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
