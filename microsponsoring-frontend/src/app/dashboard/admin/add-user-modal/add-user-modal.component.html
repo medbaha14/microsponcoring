@@ -47,11 +47,31 @@
       </div>
       <div>
         <label>User Type</label>
-        <select name="userType" [(ngModel)]="newUser.userType" required>
+        <select name="userType" [(ngModel)]="newUser.userType" required (change)="onUserTypeChange()">
           <option value="ADMIN">Admin</option>
           <option value="SPONSOR">Sponsor</option>
           <option value="ORGANISATION_NONPROFIT">Organisation/Nonprofit</option>
         </select>
+      </div>
+      <!-- Conditional Fields -->
+      <div *ngIf="newUser.userType === 'SPONSOR'">
+        <div>
+          <label>Payment Method</label>
+          <select name="paymentMethod" [(ngModel)]="newUser.sponsor.paymentMethod">
+            <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+          </select>
+        </div>
+        <div>
+          <label>Sponsor Category</label>
+          <input name="sponcerCat" [(ngModel)]="newUser.sponsor.sponcerCat" />
+        </div>
+      </div>
+
+      <div *ngIf="newUser.userType === 'ORGANISATION_NONPROFIT'">
+        <div>
+          <label>Activity Type</label>
+          <input name="activityType" [(ngModel)]="newUser.companyNonProfits.activityType" />
+        </div>
       </div>
       <div>
         <label>Accepted Conditions</label>

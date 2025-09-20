@@ -134,6 +134,19 @@ public class UserController {
         if (user.getWebsiteUrl() != null) existingUser.setWebsiteUrl(user.getWebsiteUrl());
         if (user.getIsVerified() != null) existingUser.setIsVerified(user.getIsVerified());
 
+        if (user.getSponsor() != null && user.getUserType() == UserType.SPONSOR) {
+        	Sponsor sponsor = existingUser.getSponsor() == null ? new Sponsor() : existingUser.getSponsor();
+        	sponsor.setPaymentMethod(user.getSponsor().getPaymentMethod());
+        	sponsor.setSponcerCat(user.getSponsor().getSponcerCat());
+        	sponsorService.save(sponsor);
+            existingUser.setSponsor(sponsor);
+        } else if (user.getCompanyNonProfits() != null && user.getUserType() == UserType.ORGANISATION_NONPROFIT) {
+        	companyNonProfits companyNonProfits = existingUser.getCompanyNonProfits() == null ? new companyNonProfits() : existingUser.getCompanyNonProfits();
+        	companyNonProfits.setActivityType(user.getCompanyNonProfits().getActivityType());
+        	companyNonProfitsService.save(companyNonProfits);
+            existingUser.setCompanyNonProfits(companyNonProfits);
+        }
+
         // Always update the updatedAt field
         existingUser.setUpdatedAt(new Date());
 
@@ -282,6 +295,10 @@ public class UserController {
             sponsor.setTotalSponsorships(0);
             sponsor.setCreatedAt(currentDate);
             sponsor.setUpdatedAt(currentDate);
+            if (user.getSponsor() != null) {
+                sponsor.setPaymentMethod(user.getSponsor().getPaymentMethod());
+                sponsor.setSponcerCat(user.getSponsor().getSponcerCat());
+            }
             
             sponsorService.save(sponsor);
             logger.info("Created Sponsor profile for user: {}", user.getUsername());
@@ -297,6 +314,9 @@ public class UserController {
             company.setTotalSponsorships(0);
             company.setCreatedAt(currentDate);
             company.setUpdatedAt(currentDate);
+            if (user.getCompanyNonProfits() != null) {
+                company.setActivityType(user.getCompanyNonProfits().getActivityType());
+            }
             
             companyNonProfitsService.save(company);
             logger.info("Created Company profile for user: {}", user.getUsername());

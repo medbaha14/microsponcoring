@@ -10,6 +10,7 @@ import com.example.microsponsoringbackend.model.UserType;
 import com.example.microsponsoringbackend.model.Sponsor;
 import com.example.microsponsoringbackend.model.companyNonProfits;
 import com.example.microsponsoringbackend.model.PageCustomizations;
+import com.example.microsponsoringbackend.model.PaymentAccountType;
 import com.example.microsponsoringbackend.service.UserService;
 import com.example.microsponsoringbackend.service.PasswordResetService;
 import com.example.microsponsoringbackend.service.SponsorService;
@@ -93,7 +94,7 @@ public class AuthController {
             
             // Create related profile based on user type
             try {
-                createRelatedProfile(savedUser);
+                createRelatedProfile(savedUser, request);
                 logger.info("Related profile created successfully for user: {}", savedUser.getUsername());
             } catch (Exception e) {
                 logger.error("Error creating related profile for user {}: {}", savedUser.getUsername(), e.getMessage(), e);
@@ -170,7 +171,7 @@ public class AuthController {
      * SPONSOR: Creates empty Sponsor profile
      * ORGANISATION_NONPROFIT: Creates empty Company and PageCustomizations profiles
      */
-    private void createRelatedProfile(User user) {
+    private void createRelatedProfile(User user, RegisterRequest registerRequest) {
         Date currentDate = new Date();
         
         if (user.getUserType() == UserType.SPONSOR) {
@@ -178,13 +179,14 @@ public class AuthController {
             Sponsor sponsor = new Sponsor();
             sponsor.setSponsorId(UUID.randomUUID());
             sponsor.setUser(user);
-            sponsor.setPaymentMethod("CREDIT_CARD"); // Default payment method
-            sponsor.setSponcerCat("GENERAL"); // Default category
             sponsor.setTotalAmountSpent(0.0);
             sponsor.setTotalSponsorships(0);
             sponsor.setCreatedAt(currentDate);
             sponsor.setUpdatedAt(currentDate);
-            
+            if (registerRequest.getSponsor() != null) {
+                sponsor.setPaymentMethod(registerRequest.getSponsor().getPaymentMethod());
+                sponsor.setSponcerCat(registerRequest.getSponsor().getSponcerCat());
+            }
             sponsorService.save(sponsor);
             logger.info("Created Sponsor profile for user: {}", user.getUsername());
             
@@ -193,12 +195,14 @@ public class AuthController {
             companyNonProfits company = new companyNonProfits();
             company.setCompanyId(UUID.randomUUID());
             company.setUser(user);
-            company.setActivityType("GENERAL"); // Default activity type
             company.setDetails(""); // Empty details
             company.setTotalAmountReceived(0.0);
             company.setTotalSponsorships(0);
             company.setCreatedAt(currentDate);
             company.setUpdatedAt(currentDate);
+            if (registerRequest.getCompanyNonProfits() != null) {
+                company.setActivityType(registerRequest.getCompanyNonProfits().getActivityType());
+            }
             
             companyNonProfitsService.save(company);
             logger.info("Created Company profile for user: {}", user.getUsername());
