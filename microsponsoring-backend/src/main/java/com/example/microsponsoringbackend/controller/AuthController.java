@@ -186,6 +186,9 @@ public class AuthController {
             if (registerRequest.getSponsor() != null) {
                 sponsor.setPaymentMethod(registerRequest.getSponsor().getPaymentMethod());
                 sponsor.setSponcerCat(registerRequest.getSponsor().getSponcerCat());
+            } else {
+                sponsor.setPaymentMethod(PaymentAccountType.CREDIT_CARD.name());
+                sponsor.setSponcerCat("");
             }
             sponsorService.save(sponsor);
             logger.info("Created Sponsor profile for user: {}", user.getUsername());
@@ -200,9 +203,7 @@ public class AuthController {
             company.setTotalSponsorships(0);
             company.setCreatedAt(currentDate);
             company.setUpdatedAt(currentDate);
-            if (registerRequest.getCompanyNonProfits() != null) {
-                company.setActivityType(registerRequest.getCompanyNonProfits().getActivityType());
-            }
+            company.setActivityType(registerRequest.getCompanyNonProfits() != null ? registerRequest.getCompanyNonProfits().getActivityType() : "");
             
             companyNonProfitsService.save(company);
             logger.info("Created Company profile for user: {}", user.getUsername());

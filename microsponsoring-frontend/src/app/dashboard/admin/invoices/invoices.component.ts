@@ -220,10 +220,10 @@ export class InvoicesComponent implements OnInit {
     this.stats = {
       totalInvoices: this.invoices.length,
       totalAmount: this.invoices.reduce((sum, inv) => sum + inv.amount, 0),
-      paidAmount: this.invoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.amount, 0),
-      pendingAmount: this.invoices.filter(inv => inv.status === 'PENDING').reduce((sum, inv) => sum + inv.amount, 0),
-      paidCount: this.invoices.filter(inv => inv.status === 'PAID').length,
-      pendingCount: this.invoices.filter(inv => inv.status === 'PENDING').length
+      paidAmount: this.invoices.filter(inv => inv.paymentStatus === 'PAID').reduce((sum, inv) => sum + inv.amount, 0),
+      pendingAmount: this.invoices.filter(inv => inv.paymentStatus === 'PENDING').reduce((sum, inv) => sum + inv.amount, 0),
+      paidCount: this.invoices.filter(inv => inv.paymentStatus === 'PAID').length,
+      pendingCount: this.invoices.filter(inv => inv.paymentStatus === 'PENDING').length
     };
   }
 
