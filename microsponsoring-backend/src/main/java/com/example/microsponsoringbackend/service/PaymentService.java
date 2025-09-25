@@ -29,6 +29,9 @@ public class PaymentService {
     
     @Autowired
     private BankAccountService bankAccountService;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Process a payment and automatically generate an invoice
@@ -96,8 +99,25 @@ public class PaymentService {
             System.err.println("Failed to generate invoice PDF: " + e.getMessage());
         }
 
+        // Insert notifications for both parties in the transaction
+        notifyTransactionParties(sponsor, company, amount);
+
         return invoice;
     }
+
+	private void notifyTransactionParties(Sponsor sponsor, companyNonProfits company, Double amount) {
+		notificationService.create(
+            company.getUser(),
+            String.format("Your company %s received a sponsorship payment of %.2f TND from %s.",
+                          company.getUser().getFullName(), amount, sponsor.getUser().getFullName())
+        );
+
+        notificationService.create(
+            sponsor.getUser(),
+            String.format("Your payment of %.2f TND to %s was successful.",
+                          amount, company.getUser().getFullName())
+        );
+	}
 
     /**
      * Validate payment request
