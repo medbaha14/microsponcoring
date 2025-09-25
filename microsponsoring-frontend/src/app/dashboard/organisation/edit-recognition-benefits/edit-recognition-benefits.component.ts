@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RecognitionBenefitsService } from '../../../services/recognition-benefits.service';
 import { RecognitionBenefits } from '../../../models/recognition-benefits.model';
@@ -11,7 +16,7 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './edit-recognition-benefits.component.html',
-  styleUrl: './edit-recognition-benefits.component.css'
+  styleUrl: './edit-recognition-benefits.component.css',
 })
 export class EditRecognitionBenefitsComponent {
   @Input() company: CompanyNonProfits | null = null;
@@ -30,7 +35,8 @@ export class EditRecognitionBenefitsComponent {
       showName: [false],
       showLogo: [false],
       logoSize: [''],
-      placement: ['']
+      currencyType: [''],
+      placement: [''],
     });
   }
 
@@ -39,7 +45,7 @@ export class EditRecognitionBenefitsComponent {
       const benefitData: RecognitionBenefits = {
         ...this.benefitForm.value,
         currency: Number(this.benefitForm.value.currency),
-        companyNonProfits: this.company
+        companyNonProfits: this.company,
       };
 
       this.recognitionBenefitsService.create(benefitData).subscribe({
@@ -51,10 +57,14 @@ export class EditRecognitionBenefitsComponent {
         error: (err) => {
           console.error('Error saving benefit:', err);
           Swal.fire('Error', 'Failed to save benefit.', 'error');
-        }
+        },
       });
     } else {
-      Swal.fire('Error', 'Please fill out all required fields or ensure company is present.', 'error');
+      Swal.fire(
+        'Error',
+        'Please fill out all required fields or ensure company is present.',
+        'error'
+      );
     }
   }
 }
