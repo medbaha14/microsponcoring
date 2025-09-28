@@ -1,0 +1,269 @@
+/* Notification dropdown container */
+.notification-dropdown {
+  position: absolute;
+  top: 0; /* aligned with container */
+  left: 56px; /* to the right of bell container (48px + 8px gap) */
+  z-index: 200;
+  width: 400px; /* fixed width */
+  min-height: 60px; /* minimum height to show empty state nicely */
+  max-height: 400px; /* scrollable if many notifications */
+  background: var(--color-cream);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(9, 107, 104, 0.2);
+  color: var(--color-dark-teal);
+  padding-top: 12px 0 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Individual notification row */
+.notification-dropdown .notification-item {
+  background: #515864ff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 50px;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  font-size: 0.9rem;
+  color: var(--color-cream);
+}
+
+/* Unread notifications (optional: bolder text) */
+.notification-dropdown .notification-item.unread {
+  font-weight: bold;
+}
+
+/* Empty state styling */
+.notification-dropdown .empty {
+  text-align: center;
+  color: var(--color-cream); /* less opaque */
+  font-style: italic;
+  padding: 16px 0;
+  font-size: 0.95rem;
+}
+
+/* Scrollbar styling for dropdown */
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+.notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+/* Optional: small hover highlight if needed (not clickable) */
+.notification-dropdown .notification-item:hover {
+  background: #515864ff;
+}
+
+/* Notification container (like logo) */
+.notification-box {
+  background: var(--color-medium-teal);
+  color: var(--color-cream);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.5rem;
+  border-radius: 8px;
+  min-width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.notification-box:hover {
+  background: #5c6370ff; /* slight highlight */
+}
+
+.notification-box.active {
+  background: #5c6370ff;
+}
+
+/* Notification icon */
+.notification-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Badge for unread notifications */
+.badge {
+  position: absolute;
+  transform: translate(70%, -50%);
+  background: #f44336d1;
+  color: var(--color-cream);
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Override styles for notification dropdown */
+
+.notification-dropdown {
+  position: absolute;
+  top: 0;
+  left: 56px;
+  z-index: 200;
+  width: 400px;
+  max-height: 400px;
+  background: #2c3e50; /* steel */
+  border-radius: 12px;
+  padding: 12px 0 5px;
+  display: flex;
+  flex-direction: column;
+  color: #f5f5dc; /* cream text */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Header & tabs */
+.dropdown-header {
+  flex: 0 0 auto;
+  margin-bottom: 8px;
+  padding: 0 12px;
+}
+.dropdown-header .title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+.dropdown-header .tabs {
+  display: flex;
+  gap: 8px;
+}
+.dropdown-header .tabs button {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: #34495e;
+  color: #f5f5dc;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.dropdown-header .tabs button.active {
+  background: #1abc9c; /* highlight active tab */
+}
+.dropdown-header .tabs button:hover {
+  background: #16a085;
+}
+
+/* Individual notification row */
+.notification-item {
+  background: #34495e;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  font-size: 0.9rem;
+}
+
+/* Timestamp styling */
+.notification-item .timestamp {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  align-self: flex-end;
+}
+
+/* Empty state styling */
+.empty {
+  text-align: center;
+  color: rgba(245, 245, 220, 0.7);
+  font-style: italic;
+  padding: 16px 0;
+  font-size: 0.95rem;
+}
+
+.notification-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px 12px;
+
+  /* Smooth fade at bottom */
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+}
+
+.notification-item {
+  display: flex !important;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.notif-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+.notif-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  padding-top: 2px;
+}
+
+.message {
+  padding-top: 8px;
+  padding-left: 8px;
+  white-space: normal;
+}
+
+/* Loading item looks just like normal .notification-item */
+.loading-placeholder {
+  height: 50px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: #34495e; /* same as .notification-item background */
+}
+
+/* The glow animation layer */
+.loading-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150px;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -150px;
+  }
+  100% {
+    left: 100%;
+  }
+}

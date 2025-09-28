@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '../../../services/theme.service';
 import { TokenHandler } from '../../../services/token-handler';
+import { NotificationDropdownComponent } from '../../shared/notification-dropdown/notification-dropdown.component';
 
 @Component({
   selector: 'app-organisation-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, NotificationDropdownComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })

@@ -6,9 +6,15 @@
     <div class="logo">SP</div>
     <div class="title">
       <h2>Sponsor Dashboard</h2>
-      <span>Web sponsor</span>
+      <div class="flex-box"><span>Web sponsor</span>
+        <!-- Notification Bell -->
+        <div class="notification-container">
+          <app-notification-dropdown></app-notification-dropdown>
+        </div>
+      </div>
     </div>
   </div>
+
   <ul class="sidebar-menu">
     <li><a [routerLink]="['/dashboard/sponsor/sponsored']"><span class="icon">🤝</span> <span class="menu-text">Sponsored</span></a></li>
     <li><a [routerLink]="['/dashboard/sponsor/organisation-list']"><span class="icon">🏢</span> <span class="menu-text">Organisation List</span></a></li>
