@@ -3,6 +3,8 @@ package com.example.microsponsoringbackend.service;
 import com.example.microsponsoringbackend.model.*;
 import com.example.microsponsoringbackend.repository.*;
 import com.example.microsponsoringbackend.dto.PaymentRequest;
+import com.example.microsponsoringbackend.enums.NotificationType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,14 +111,14 @@ public class PaymentService {
 		notificationService.create(
             company.getUser(),
             String.format("Your company %s received a sponsorship payment of %.2f TND from %s.",
-                          company.getUser().getFullName(), amount, sponsor.getUser().getFullName())
+                          company.getUser().getFullName(), amount, sponsor.getUser().getUsername()), NotificationType.INCOMING
         );
 
         notificationService.create(
             sponsor.getUser(),
             String.format("Your payment of %.2f TND to %s was successful.",
-                          amount, company.getUser().getFullName())
-        );
+                          amount, company.getUser().getUsername()), NotificationType.OUTGOING
+            );
 	}
 
     /**

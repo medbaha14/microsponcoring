@@ -49,7 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.startsWith("/api/recognition-benefits/company/**") ||
             requestURI.startsWith("/api/public") ||
             requestURI.startsWith("/api/health") ||
-            requestURI.startsWith("/actuator")) {
+            requestURI.startsWith("/actuator") ||
+            // Permit WebSocket handshake (JWT for web socket will be checked in WebSocketConfig)
+            requestURI.equals("/ws-notifications")) {
             logger.info("Skipping JWT check for public endpoint: {}", requestURI);
             filterChain.doFilter(request, response);
             return;

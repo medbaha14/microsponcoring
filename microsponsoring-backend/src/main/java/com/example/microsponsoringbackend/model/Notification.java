@@ -1,10 +1,17 @@
 package com.example.microsponsoringbackend.model;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 import java.util.Date;
 import java.util.UUID;
 
+import com.example.microsponsoringbackend.enums.NotificationType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,7 +49,8 @@ public class Notification {
 	private Date updatedAt = new Date();
 
 	// Recipient
-	@ManyToOne
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
@@ -57,4 +65,8 @@ public class Notification {
 	protected void onUpdate() {
 		this.updatedAt = new Date();
 	}
+	
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private NotificationType type;
 }

@@ -72,6 +72,9 @@ public class SecurityConfig {
     .requestMatchers("/api/sample-data/**").hasRole("ADMIN")
     .requestMatchers(HttpMethod.GET, "/api/invoices/*/pdf").permitAll()
     .requestMatchers(HttpMethod.GET, "/api/invoices/**").authenticated()
+    // Permit SockJS endpoints
+    .requestMatchers("/ws-notifications/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/notifications/**").authenticated()
 
     .anyRequest().authenticated()
 )
