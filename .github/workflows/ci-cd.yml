@@ -140,22 +140,23 @@ jobs:
         mvn dependency:copy-dependencies
         
     - name: SonarCloud Scan
-      uses: SonarSource/sonarqube-scan-action@v5.0.0
+      run: |
+        cd microsponsoring-backend
+        mvn sonar:sonar \
+          -Dsonar.projectKey=medbaha14_microsponcoring \
+          -Dsonar.organization=medbaha14 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.sources=src/main/java \
+          -Dsonar.java.binaries=target/classes \
+          -Dsonar.tests=src/test/java \
+          -Dsonar.java.test.binaries=target/test-classes \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
       timeout-minutes: 10
       continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        projectKey: medbaha14_microsponcoring
-        organization: medbaha14
-        sources: microsponsoring-backend/src/main/java
-        java-binaries: microsponsoring-backend/target/classes
-        java-libraries: microsponsoring-backend/target/dependency/*.jar
-        args: >
-          -Dsonar.tests=microsponsoring-backend/src/test/java
-          -Dsonar.java.test.binaries=microsponsoring-backend/target/test-classes
-          -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
         
     - name: SonarCloud Quality Gate Check
       uses: sonarqube-quality-gate-action@v2.0.0

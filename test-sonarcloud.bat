@@ -40,7 +40,7 @@ if exist "target\dependency\*.jar" (
 echo.
 echo Step 4: Testing SonarCloud configuration...
 echo This will run a dry-run test (no actual upload)
-call mvn sonar:sonar -Dsonar.projectKey=test-project -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes -Dsonar.java.libraries=target/dependency/*.jar -Dsonar.skip=true
+call mvn sonar:sonar -Dsonar.projectKey=test-project -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes -Dsonar.tests=src/test/java -Dsonar.java.test.binaries=target/test-classes -Dsonar.skip=true
 if %errorlevel% neq 0 (
     echo ❌ SonarCloud configuration test failed
     pause

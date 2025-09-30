@@ -37,7 +37,7 @@ if ($jarFiles) {
 Write-Host ""
 Write-Host "Step 4: Testing SonarCloud configuration..." -ForegroundColor Yellow
 Write-Host "This will run a dry-run test (no actual upload)" -ForegroundColor Cyan
-mvn sonar:sonar -Dsonar.projectKey=test-project -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes -Dsonar.java.libraries=target/dependency/*.jar -Dsonar.skip=true
+mvn sonar:sonar -Dsonar.projectKey=test-project -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes -Dsonar.tests=src/test/java -Dsonar.java.test.binaries=target/test-classes -Dsonar.skip=true
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ SonarCloud configuration test failed" -ForegroundColor Red
     Read-Host "Press Enter to exit"
