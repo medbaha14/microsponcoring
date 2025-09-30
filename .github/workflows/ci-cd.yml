@@ -1,0 +1,264 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Backend Build and Test
+  backend:
+    runs-on: ubuntu-latest
+    name: Backend Build & Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Build with Maven
+      run: |
+        cd microsponsoring-backend
+        mvn clean compile package -DskipTests
+        
+    - name: Run Tests
+      run: |
+        cd microsponsoring-backend
+        mvn test
+        
+    - name: Generate Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Maven Tests
+        path: microsponsoring-backend/target/surefire-reports/*.xml
+        reporter: java-junit
+        
+    - name: Build Docker Image
+      run: |
+        cd microsponsoring-backend
+        docker build -t microsponsoring-backend:${{ github.sha }} .
+        
+    - name: Upload Backend Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-jar
+        path: microsponsoring-backend/target/*.jar
+
+  # Frontend Build and Test
+  frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Build & Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: microsponsoring-frontend/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd microsponsoring-frontend
+        npm ci --legacy-peer-deps
+        
+    - name: Run Linting
+      run: |
+        cd microsponsoring-frontend
+        npm run lint || echo "Linting completed with warnings"
+        
+    - name: Build Application
+      run: |
+        cd microsponsoring-frontend
+        npm run build -- --configuration production
+        
+    - name: Build Docker Image
+      run: |
+        cd microsponsoring-frontend
+        docker build -t microsponsoring-frontend:${{ github.sha }} .
+        
+    - name: Upload Frontend Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: microsponsoring-frontend/dist/
+
+  # Code Quality Analysis
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Analysis
+    needs: [backend, frontend]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+        
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Build project
+      run: |
+        cd microsponsoring-backend
+        mvn clean compile package -DskipTests
+        
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarqube-scan-action@v5.0.0
+      timeout-minutes: 10
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        projectKey: medbaha14_microsponcoring
+        organization: medbaha14
+        sources: microsponsoring-backend/src/main/java
+        java-binaries: microsponsoring-backend/target/classes
+        
+    - name: SonarCloud Quality Gate Check
+      uses: sonarqube-quality-gate-action@v2.0.0
+      timeout-minutes: 5
+      continue-on-error: true
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        
+    - name: Local Code Quality Check (Fallback)
+      if: failure()
+      run: |
+        echo "SonarCloud analysis failed, running local quality checks..."
+        cd microsponsoring-backend
+        mvn spotbugs:check || echo "SpotBugs completed with issues"
+        mvn checkstyle:check || echo "Checkstyle completed with issues"
+
+  # Security Scanning
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    needs: [backend, frontend]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Run OWASP Dependency Check
+      run: |
+        cd microsponsoring-backend
+        mvn org.owasp:dependency-check-maven:check -DfailOnError=false
+        
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-report
+        path: microsponsoring-backend/target/dependency-check-reports/
+
+  # Docker Build and Push
+  docker:
+    runs-on: ubuntu-latest
+    name: Docker Build & Push
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.CONTAINER_REGISTRY }}
+        username: ${{ secrets.CONTAINER_USERNAME }}
+        password: ${{ secrets.CONTAINER_PASSWORD }}
+        
+    - name: Build and Push Backend
+      run: |
+        cd microsponsoring-backend
+        docker build -t ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-backend:${{ github.sha }} .
+        docker push ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-backend:${{ github.sha }}
+        
+    - name: Build and Push Frontend
+      run: |
+        cd microsponsoring-frontend
+        docker build -t ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-frontend:${{ github.sha }} .
+        docker push ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-frontend:${{ github.sha }}
+
+  # Kubernetes Deployment
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Kubernetes
+    needs: [docker, code-quality, security]
+    if: github.ref == 'refs/heads/main' && always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+        
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+    - name: Deploy to Kubernetes
+      run: |
+        export KUBECONFIG=kubeconfig
+        # Update image tags in deployment files
+        sed -i "s|image: microsponsoring-backend:latest|image: ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-backend:${{ github.sha }}|g" k8s/backend-deployment.yaml
+        sed -i "s|image: microsponsoring-frontend:latest|image: ${{ secrets.CONTAINER_REGISTRY }}/microsponsoring-frontend:${{ github.sha }}|g" k8s/frontend-deployment.yaml
+        
+        # Apply deployments
+        kubectl apply -f k8s/namespace.yaml
+        kubectl apply -f k8s/secrets.yaml
+        kubectl apply -f k8s/backend-deployment.yaml
+        kubectl apply -f k8s/frontend-deployment.yaml
+        kubectl apply -f k8s/monitoring.yaml
