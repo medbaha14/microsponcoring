@@ -19,7 +19,13 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("nvd-vulnerabilities", "security-dashboard", "vulnerability-stats"));
+        cacheManager.setCacheNames(Arrays.asList(
+            "nvd-vulnerabilities", 
+            "security-dashboard", 
+            "vulnerability-stats",
+            "securityRules", 
+            "performanceMetrics"
+        ));
         return cacheManager;
     }
 }
