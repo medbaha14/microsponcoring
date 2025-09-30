@@ -20,10 +20,20 @@ if ($LASTEXITCODE -ne 0) {
     Read-Host "Press Enter to exit"
     exit 1
 }
-Write-Host "✓ Backend built successfully" -ForegroundColor Green
+Write-Host "✓ Application built" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "Step 3: Building Docker image..." -ForegroundColor Yellow
+Write-Host "Step 3: Copying dependencies for SonarCloud..." -ForegroundColor Yellow
+mvn dependency:copy-dependencies
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Dependency copy failed" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+Write-Host "✓ Dependencies copied" -ForegroundColor Green
+
+Write-Host ""
+Write-Host "Step 4: Building Docker image..." -ForegroundColor Yellow
 docker build -t microsponsoring-backend:latest .
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Docker build failed" -ForegroundColor Red
@@ -33,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "✓ Docker image built successfully" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "Step 4: Tagging for your registry..." -ForegroundColor Yellow
+Write-Host "Step 5: Tagging for your registry..." -ForegroundColor Yellow
 Write-Host "Please update the following command with your registry:" -ForegroundColor Cyan
 Write-Host "docker tag microsponsoring-backend:latest YOUR_REGISTRY/microsponsoring-backend:latest" -ForegroundColor Cyan
 Write-Host "docker push YOUR_REGISTRY/microsponsoring-backend:latest" -ForegroundColor Cyan

@@ -21,10 +21,20 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo ✓ Backend built successfully
+echo ✓ Application built
 
 echo.
-echo Step 3: Building Docker image...
+echo Step 3: Copying dependencies for SonarCloud...
+call mvn dependency:copy-dependencies
+if %errorlevel% neq 0 (
+    echo ❌ Build failed
+    pause
+    exit /b 1
+)
+echo ✓ Dependencies copied
+
+echo.
+echo Step 4: Building Docker image...
 docker build -t microsponsoring-backend:latest .
 if %errorlevel% neq 0 (
     echo ❌ Docker build failed
@@ -34,7 +44,7 @@ if %errorlevel% neq 0 (
 echo ✓ Docker image built successfully
 
 echo.
-echo Step 4: Tagging for your registry...
+echo Step 5: Tagging for your registry...
 echo Please update the following command with your registry:
 echo docker tag microsponsoring-backend:latest YOUR_REGISTRY/microsponsoring-backend:latest
 echo docker push YOUR_REGISTRY/microsponsoring-backend:latest
