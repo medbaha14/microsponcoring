@@ -19,13 +19,19 @@ export class UserService {
       'Authorization': `Bearer ${token}`
     });
   }
-
+ private authJson(): HttpHeaders {
+    const token = localStorage.getItem('token') ?? '';
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,        // <= IMPORTANT
+    });
+  }
   getAll(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
-  getById(userId: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${userId}`);
+  getById(userId: string) {
+    return this.http.get<User>(`${this.apiUrl}/${userId}`, { headers: this.authJson() });
   }
 
   create(user: User): Observable<User> {
@@ -49,7 +55,7 @@ export class UserService {
   }
 
   getOrganisationProfile(userId: string): Observable<OrganisationProfile> {
-    return this.http.get<OrganisationProfile>(`${this.apiUrl}/${userId}/organisation-profile`, 
+    return this.http.get<OrganisationProfile>(`${this.apiUrl}/${userId}/organisation-profile`,
       { headers: this.getAuthHeaders() });
   }
 
@@ -57,8 +63,8 @@ export class UserService {
     console.log('UserService: Updating organization profile for user:', userId);
     console.log('UserService: Profile data:', profile);
     console.log('UserService: API URL:', `${this.apiUrl}/${userId}/organisation-profile`);
-    
-    return this.http.put<void>(`${this.apiUrl}/${userId}/organisation-profile`, profile, 
+
+    return this.http.put<void>(`${this.apiUrl}/${userId}/organisation-profile`, profile,
       { headers: this.getAuthHeaders() });
   }
 
@@ -79,15 +85,18 @@ export class UserService {
   getUsersBySponsorIds(sponsorIds: string[]) {
     return this.http.post<{ [sponsorId: string]: User }>(`${environment.usersUrl}/by-sponsor-ids`, sponsorIds);
   }
-  
+
   initializeUserProfiles(userId: string): Observable<any> {
     console.log('UserService: Initializing profiles for user:', userId);
-    return this.http.post<any>(`${this.apiUrl}/${userId}/initialize-profiles`, {}, 
+    return this.http.post<any>(`${this.apiUrl}/${userId}/initialize-profiles`, {},
       { headers: this.getAuthHeaders() });
   }
 
   getUserStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/stats`, { headers: this.getAuthHeaders() });
+  }
+     patch(userId: string, payload: Partial<User>) {
+    return this.http.put<User>(`${this.apiUrl}/${userId}`, payload, { headers: this.authJson() });
   }
 }
 

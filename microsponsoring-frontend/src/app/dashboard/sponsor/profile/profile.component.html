@@ -12,6 +12,7 @@
   </div>
 
   <div *ngIf="!loading && !error && sponsor" class="profile-content">
+
     <!-- Statistics Section -->
     <div class="stats-section" *ngIf="stats">
       <h3>Your Sponsorship Statistics</h3>
@@ -57,5 +58,87 @@
         </div>
       </div>
     </div>
+
+  <div class="profile-info" *ngIf="user as u">
+  <div class="header-line">
+    <h3>Sponsor coordonnées</h3>
+
+    <!-- Actions bloc -->
+    <div class="actions">
+      <button *ngIf="!editMode" class="btn" (click)="beginAll()">Modifier</button>
+
+      <ng-container *ngIf="editMode">
+        <button class="btn primary" [disabled]="saving" (click)="saveAll()">Enregistrer</button>
+        <button class="btn" (click)="cancelAll()">Annuler</button>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="coords-grid">
+    <!-- Photo -->
+    <div class="coord-item photo">
+      <img [src]="u.profilePicture || defaultAvatar" alt="Profile" />
+    </div>
+
+    <!-- Nom complet -->
+    <div class="coord-item">
+      <label>Nom complet :</label>
+      <ng-container *ngIf="!editMode; else fullNameEdit">
+        <span>{{ u.fullName || u.username || '—' }}</span>
+      </ng-container>
+      <ng-template #fullNameEdit>
+        <input type="text" [(ngModel)]="formDraft.fullName" class="ie-input" />
+      </ng-template>
+    </div>
+
+    <!-- Email -->
+    <div class="coord-item">
+      <label>Email :</label>
+      <ng-container *ngIf="!editMode; else emailEdit">
+        <a *ngIf="u.email" [href]="'mailto:'+u.email">{{ u.email }}</a>
+        <span *ngIf="!u.email">—</span>
+      </ng-container>
+      <ng-template #emailEdit>
+        <input type="email" [(ngModel)]="formDraft.email" class="ie-input" />
+      </ng-template>
+    </div>
+
+    <!-- Localisation -->
+    <div class="coord-item">
+      <label>Localisation :</label>
+      <ng-container *ngIf="!editMode; else locationEdit">
+        <span>{{ u.location || '—' }}</span>
+      </ng-container>
+      <ng-template #locationEdit>
+        <input type="text" [(ngModel)]="formDraft.location" class="ie-input" />
+      </ng-template>
+    </div>
+
+    <!-- Site web -->
+    <div class="coord-item">
+      <label>Site web :</label>
+      <ng-container *ngIf="!editMode; else webEdit">
+        <a *ngIf="u.websiteUrl" [href]="u.websiteUrl" target="_blank" rel="noopener">{{ u.websiteUrl }}</a>
+        <span *ngIf="!u.websiteUrl">—</span>
+      </ng-container>
+      <ng-template #webEdit>
+        <input type="url" [(ngModel)]="formDraft.websiteUrl" class="ie-input" placeholder="https://..." />
+      </ng-template>
+    </div>
+
+    <!-- Bio -->
+    <div class="coord-item wide">
+      <label>Bio :</label>
+      <ng-container *ngIf="!editMode; else bioEdit">
+        <span>{{ u.bio || '—' }}</span>
+      </ng-container>
+      <ng-template #bioEdit>
+        <textarea rows="3" [(ngModel)]="formDraft.bio" class="ie-input"></textarea>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+
   </div>
 </div>
