@@ -33,10 +33,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build backend for SonarCloud
+      - name: Build and test backend for SonarCloud
         run: |
           cd microsponsoring-backend
-          mvn clean compile
+          mvn clean compile test-compile
 
       - name: SonarCloud Backend Analysis
         uses: SonarSource/sonarcloud-github-action@master
@@ -49,7 +49,10 @@ jobs:
             -Dsonar.organization=medbaha14
             -Dsonar.sources=microsponsoring-backend/src/main/java
             -Dsonar.java.binaries=microsponsoring-backend/target/classes
-
+            -Dsonar.java.test.binaries=microsponsoring-backend/target/test-classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
+            -Dsonar.tests.exclusions=**/*
+            
       - name: SonarCloud Frontend Analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
