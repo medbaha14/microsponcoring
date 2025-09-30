@@ -38,31 +38,21 @@ jobs:
           cd microsponsoring-backend
           mvn clean compile test-compile
 
-      - name: SonarCloud Backend Analysis
+      - name: SonarCloud Analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          projectBaseDir: .
           args: >
             -Dsonar.projectKey=medbaha14_microsponcoring
             -Dsonar.organization=medbaha14
-            -Dsonar.sources=microsponsoring-backend/src/main/java
+            -Dsonar.sources=microsponsoring-backend/src/main/java,microsponsoring-frontend/src
             -Dsonar.java.binaries=microsponsoring-backend/target/classes
             -Dsonar.java.test.binaries=microsponsoring-backend/target/test-classes
             -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
-            -Dsonar.tests.exclusions=**/*
-            
-      - name: SonarCloud Frontend Analysis
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=medbaha14_microsponcoring
-            -Dsonar.organization=medbaha14
-            -Dsonar.sources=microsponsoring-frontend/src
+            -Dsonar.javascript.lcov.reportPaths=microsponsoring-frontend/coverage/lcov.info
 
   backend:
     name: Backend Build & Test
