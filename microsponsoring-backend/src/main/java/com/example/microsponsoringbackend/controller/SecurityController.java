@@ -123,4 +123,28 @@ public class SecurityController {
             return ResponseEntity.internalServerError().build();
         }
     }
+    
+    @PostMapping("/sync-nvd")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> syncNVDVulnerabilities() {
+        try {
+            String result = securityService.syncVulnerabilitiesFromNVD().get();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error syncing NVD vulnerabilities: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<java.util.Map<String, Object>> getSecurityStats() {
+        try {
+            java.util.Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("vulnerabilityStats", securityService.getVulnerabilityStats());
+            stats.put("ecosystemStats", securityService.getEcosystemStats());
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 } 

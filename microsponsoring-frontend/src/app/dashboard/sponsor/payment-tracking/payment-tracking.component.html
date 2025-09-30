@@ -111,41 +111,6 @@
     </div>
   </div>
 
-  <!-- File Upload Modal -->
-  <div class="upload-modal" *ngIf="selectedTransactionId">
-    <div class="modal-content">
-      <h3>Upload Transaction File</h3>
-      <p>Upload supporting documents for this transaction</p>
-      
-      <div class="file-upload">
-        <input 
-          type="file" 
-          id="fileInput"
-          (change)="onFileSelected($event)"
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-          class="file-input">
-        <label for="fileInput" class="file-label">
-          <span class="icon">📁</span>
-          <span>Choose File</span>
-        </label>
-        <span class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
-      </div>
-      
-      <div class="modal-actions">
-        <button 
-          class="upload-btn" 
-          (click)="uploadFile()" 
-          [disabled]="!selectedFile || isUploading">
-          <span class="icon" *ngIf="!isUploading">📤</span>
-          <span class="spinner" *ngIf="isUploading">⏳</span>
-          <span>{{ isUploading ? 'Uploading...' : 'Upload' }}</span>
-        </button>
-        <button class="cancel-btn" (click)="selectedTransactionId = null; selectedFile = null">
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
@@ -175,7 +140,6 @@
             <th>Type</th>
             <th>Reference</th>
             <th>File</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -212,29 +176,15 @@
             </td>
             <td class="file-cell">
               <div class="file-info" *ngIf="transaction.uploadedFileName">
-                <span class="file-icon">📎</span>
+                <span class="file-icon">📄</span>
                 <span class="file-name">{{ transaction.uploadedFileName }}</span>
-                <button class="download-btn" (click)="downloadFile(transaction)">
+                <button class="download-btn" (click)="downloadFile(transaction)" title="Download Invoice PDF">
                   <span class="icon">⬇️</span>
                 </button>
               </div>
-              <button 
-                class="upload-btn-small" 
-                *ngIf="!transaction.uploadedFileName"
-                (click)="onTransactionSelected(transaction.transactionId)">
-                <span class="icon">📤</span>
-                <span>Upload</span>
-              </button>
-            </td>
-            <td class="actions-cell">
-              <div class="action-buttons">
-                <button class="edit-btn" title="Edit">
-                  <span class="icon">✏️</span>
-                </button>
-                <button class="delete-btn" title="Delete">
-                  <span class="icon">🗑️</span>
-                </button>
-              </div>
+              <span class="no-file" *ngIf="!transaction.uploadedFileName">
+                No PDF available
+              </span>
             </td>
           </tr>
         </tbody>

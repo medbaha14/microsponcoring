@@ -1,19 +1,21 @@
 .security-dashboard {
   padding: 20px;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e8e8e8;
 }
 
 /* Header Section */
 .dashboard-header {
   text-align: center;
   margin-bottom: 30px;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 25px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
   color: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dashboard-header h1 {
@@ -61,6 +63,35 @@
 }
 
 .refresh-btn .btn-text {
+  font-weight: 500;
+}
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+.sync-btn:hover {
+  background: rgba(139, 92, 246, 0.5);
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.sync-btn .btn-icon {
+  font-size: 1rem;
+}
+
+.sync-btn .btn-text {
   font-weight: 500;
 }
 
@@ -221,22 +252,25 @@
 }
 
 .info-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .info-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 .card-header {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #EC4899 0%, #F472B6 50%, #FBBF24 100%);
   color: white;
-  padding: 15px 20px;
+  padding: 18px 22px;
 }
 
 .card-header h3 {
@@ -246,15 +280,16 @@
 }
 
 .card-content {
-  padding: 20px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .info-row:last-child {
@@ -263,66 +298,74 @@
 
 .label {
   font-weight: 500;
-  color: #666;
+  color: #B0B0B0;
 }
 
 .value {
   font-weight: 600;
-  color: #333;
+  color: #FFFFFF;
 }
 
 .version {
-  color: #007bff;
+  color: #60A5FA;
   font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .environment-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 6px 14px;
+  border-radius: 25px;
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .environment-badge.production {
-  background: #dc3545;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
   color: white;
 }
 
 .environment-badge.staging {
-  background: #ffc107;
-  color: #212529;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: white;
 }
 
 .environment-badge.development {
-  background: #28a745;
+  background: linear-gradient(135deg, #10B981, #059669);
   color: white;
 }
 
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 6px 14px;
+  border-radius: 25px;
   font-size: 0.85rem;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .status-badge.healthy {
-  background: #28a745;
+  background: linear-gradient(135deg, #10B981, #059669);
   color: white;
 }
 
 .status-badge.warning {
-  background: #ffc107;
-  color: #212529;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: white;
 }
 
 .status-badge.critical {
-  background: #dc3545;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: white;
+}
+
+.status-badge.high_risk {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   color: white;
 }
 
 .active-users {
-  color: #28a745;
+  color: #10B981;
   font-size: 1.2rem;
   font-weight: 700;
 }
@@ -333,7 +376,7 @@
 }
 
 .metrics-section h2 {
-  color: #333;
+  color: #FFFFFF;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
@@ -346,11 +389,19 @@
 }
 
 .metric-card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.2);
 }
 
 .metric-header {
@@ -367,27 +418,30 @@
 
 .metric-label {
   font-weight: 600;
-  color: #666;
+  color: #B0B0B0;
 }
 
 .metric-value {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 15px;
+  color: #FFFFFF;
 }
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 4px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .progress-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 8px;
   transition: width 0.3s ease;
+  background: linear-gradient(90deg, #8B5CF6, #A855F7);
 }
 
 /* Security Section */
@@ -396,7 +450,7 @@
 }
 
 .security-section h2 {
-  color: #333;
+  color: #FFFFFF;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
@@ -404,33 +458,42 @@
 
 .vulnerability-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px;
   margin-bottom: 25px;
 }
 
 .vuln-stat {
   text-align: center;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 22px;
+  border-radius: 16px;
   color: white;
   font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vuln-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 .vuln-stat.critical {
-  background: linear-gradient(135deg, #dc3545, #c82333);
+  background: linear-gradient(135deg, #EF4444, #DC2626, #B91C1C);
 }
 
 .vuln-stat.high {
-  background: linear-gradient(135deg, #fd7e14, #e55a00);
+  background: linear-gradient(135deg, #F97316, #EA580C, #C2410C);
 }
 
 .vuln-stat.moderate {
-  background: linear-gradient(135deg, #ffc107, #e0a800);
+  background: linear-gradient(135deg, #F59E0B, #D97706, #B45309);
 }
 
 .vuln-stat.low {
-  background: linear-gradient(135deg, #28a745, #1e7e34);
+  background: linear-gradient(135deg, #10B981, #059669, #047857);
 }
 
 .vuln-count {
@@ -448,48 +511,58 @@
 .vulnerability-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
 }
 
 .vuln-item {
   display: flex;
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vuln-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.2);
 }
 
 .vuln-severity {
-  width: 60px;
+  width: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: white;
+  font-weight: 700;
 }
 
 .vuln-details {
   flex: 1;
-  padding: 20px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .vuln-name {
   font-weight: 600;
   font-size: 1.1rem;
   margin-bottom: 8px;
-  color: #333;
+  color: #FFFFFF;
 }
 
 .vuln-source {
-  color: #666;
+  color: #B0B0B0;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
 
 .vuln-description {
-  color: #555;
+  color: #E0E0E0;
   margin-bottom: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .vuln-meta {
@@ -499,20 +572,24 @@
 }
 
 .vuln-meta span {
-  background: #f8f9fa;
-  padding: 4px 8px;
-  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 0.85rem;
-  color: #666;
+  color: #E0E0E0;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-weight: 500;
 }
 
 .no-vulns {
   text-align: center;
   padding: 40px;
-  background: white;
-  border-radius: 12px;
-  color: #28a745;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  color: #10B981;
   font-size: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 /* Login Section */

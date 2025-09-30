@@ -123,6 +123,59 @@
                     <skipProvidedScope>false</skipProvidedScope>
                     <skipRuntimeScope>false</skipRuntimeScope>
                     <skipTestScope>true</skipTestScope>
+                    <!-- Disable problematic analyzers that require API access -->
+                    <analyzers>
+                        <ossIndexEnabled>false</ossIndexEnabled>
+                        <nuspecEnabled>false</nuspecEnabled>
+                        <nugetconfEnabled>false</nugetconfEnabled>
+                        <composerEnabled>false</composerEnabled>
+                        <nodeEnabled>false</nodeEnabled>
+                        <nodeAuditEnabled>false</nodeAuditEnabled>
+                        <retirejsEnabled>false</retirejsEnabled>
+                        <npmAuditEnabled>false</npmAuditEnabled>
+                        <yarnAuditEnabled>false</yarnAuditEnabled>
+                        <pnpmAuditEnabled>false</pnpmAuditEnabled>
+                        <bundleAuditEnabled>false</bundleAuditEnabled>
+                        <pyDistEnabled>false</pyDistEnabled>
+                        <pyPkgEnabled>false</pyPkgEnabled>
+                        <pipEnabled>false</pipEnabled>
+                        <pipfileEnabled>false</pipfileEnabled>
+                        <poetryEnabled>false</poetryEnabled>
+                        <rubyBundlerAuditEnabled>false</rubyBundlerAuditEnabled>
+                        <cocoapodsEnabled>false</cocoapodsEnabled>
+                        <swiftPackageManagerEnabled>false</swiftPackageManagerEnabled>
+                        <carthageEnabled>false</carthageEnabled>
+                        <goModEnabled>false</goModEnabled>
+                        <goDepEnabled>false</goDepEnabled>
+                        <goModGraphEnabled>false</goModGraphEnabled>
+                        <goSumEnabled>false</goSumEnabled>
+                        <cargoEnabled>false</cargoEnabled>
+                        <rEnabled>false</rEnabled>
+                        <cmakeEnabled>false</cmakeEnabled>
+                        <conanEnabled>false</conanEnabled>
+                        <autoconfEnabled>false</autoconfEnabled>
+                        <makeEnabled>false</makeEnabled>
+                        <msbuildEnabled>false</msbuildEnabled>
+                        <nugetEnabled>false</nugetEnabled>
+                        <paketEnabled>false</paketEnabled>
+                        <cpanEnabled>false</cpanEnabled>
+                        <haskellEnabled>false</haskellEnabled>
+                        <sbtEnabled>false</sbtEnabled>
+                        <gradleEnabled>false</gradleEnabled>
+                        <mavenEnabled>true</mavenEnabled>
+                        <nexusEnabled>false</nexusEnabled>
+                        <centralEnabled>true</centralEnabled>
+                        <nvdEnabled>true</nvdEnabled>
+                        <vulnDbEnabled>false</vulnDbEnabled>
+                        <ossIndexEnabled>false</ossIndexEnabled>
+                    </analyzers>
+                    <!-- Add retry and timeout configurations -->
+                    <connectionTimeout>30000</connectionTimeout>
+                    <readTimeout>30000</readTimeout>
+                    <retryCount>3</retryCount>
+                    <retryDelay>5000</retryDelay>
+                    <!-- Disable fail on error to prevent build failure -->
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>

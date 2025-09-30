@@ -11,6 +11,7 @@ import { User } from '../../../models/user.model';
 import { SponsorService } from '../../../services/sponsor.service';
 import { Sponsor } from '../../../models/sponsor.model';
 import { Invoice } from '../../../models/invoice.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-payment-tracking',
@@ -32,7 +33,6 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
   // Loading states
   isLoading = true;
   isLoadingSummary = true;
-  isUploading = false;
   
   // Filters
   filters: TransactionFilters = {};
@@ -47,9 +47,6 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
   itemsPerPage = 10;
   totalPages = 0;
   
-  // File upload
-  selectedFile: File | null = null;
-  selectedTransactionId: string | null = null;
   
   // Theme
   isDarkMode = false;
@@ -229,7 +226,7 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
       transactionDate: dateToString(invoice.createdAt || invoice.invoiceDate),
       processedDate: invoice.status === 'PAID' ? dateToString(invoice.updatedAt) : undefined,
       uploadedFileName: invoice.generatedPdfUrl ? 'invoice.pdf' : undefined,
-      uploadedFilePath: invoice.generatedPdfUrl,
+      uploadedFilePath: invoice.generatedPdfUrl ? `${environment.baseUrl}${invoice.generatedPdfUrl}` : undefined,
       notes: `Invoice ${invoice.invoiceId}`,
       createdAt: dateToString(invoice.createdAt),
       updatedAt: dateToString(invoice.updatedAt)
@@ -312,60 +309,54 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
-  }
-
-  onTransactionSelected(transactionId: string) {
-    this.selectedTransactionId = transactionId;
-  }
-
-  uploadFile() {
-    if (!this.selectedFile || !this.selectedTransactionId) {
-      return;
-    }
-
-    this.isUploading = true;
-    this.paymentTransactionService.uploadTransactionFile(this.selectedTransactionId, this.selectedFile).subscribe({
-      next: (updatedTransaction) => {
-        // Update the transaction in the list
-        const index = this.transactions.findIndex(t => t.transactionId === updatedTransaction.transactionId);
-        if (index !== -1) {
-          this.transactions[index] = updatedTransaction;
-          this.applyFilters();
-        }
-        
-        this.selectedFile = null;
-        this.selectedTransactionId = null;
-        this.isUploading = false;
-        
-        // Reset file input
-        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
-        }
-      },
-      error: (error) => {
-        console.error('Error uploading file:', error);
-        this.isUploading = false;
-      }
-    });
-  }
 
   downloadFile(transaction: PaymentTransaction) {
-    this.paymentTransactionService.downloadTransactionFile(transaction.transactionId).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = transaction.uploadedFileName || 'transaction_file';
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: (error) => {
-        console.error('Error downloading file:', error);
-      }
-    });
+    // Use the invoice service to download the PDF with proper authentication
+    if (transaction.transactionId) {
+      console.log('Downloading invoice PDF for transaction:', transaction.transactionId);
+      
+      // Try authenticated download first
+      this.invoiceService.downloadInvoicePdfAlt(transaction.transactionId).subscribe({
+        next: (blob) => {
+          console.log('Download successful with authentication');
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = transaction.uploadedFileName || 'invoice.pdf';
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (authError) => {
+          console.log('Authenticated download failed, trying public access:', authError);
+          // Fallback: try public access
+          this.invoiceService.downloadInvoicePdf(transaction.transactionId).subscribe({
+            next: (blob) => {
+              console.log('Download successful with public access');
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = transaction.uploadedFileName || 'invoice.pdf';
+              link.click();
+              window.URL.revokeObjectURL(url);
+            },
+            error: (publicError) => {
+              console.error('Both authenticated and public download failed:', publicError);
+              // Final fallback: try direct URL
+              if (transaction.uploadedFilePath) {
+                console.log('Trying direct URL as final fallback:', transaction.uploadedFilePath);
+                const link = document.createElement('a');
+                link.href = transaction.uploadedFilePath;
+                link.download = transaction.uploadedFileName || 'invoice.pdf';
+                link.target = '_blank';
+                link.click();
+              }
+            }
+          });
+        }
+      });
+    } else {
+      console.warn('No transaction ID available for download');
+    }
   }
 
   updateChartData() {
