@@ -13,7 +13,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "✓ Project cleaned" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "Step 2: Building with dependency check (non-failing)..." -ForegroundColor Yellow
+Write-Host "Step 2: Building application..." -ForegroundColor Yellow
 mvn package -DskipTests
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Build failed" -ForegroundColor Red

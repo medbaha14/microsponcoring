@@ -14,7 +14,7 @@ if %errorlevel% neq 0 (
 echo ✓ Project cleaned
 
 echo.
-echo Step 2: Building with dependency check (non-failing)...
+echo Step 2: Building application...
 call mvn package -DskipTests
 if %errorlevel% neq 0 (
     echo ❌ Build failed
