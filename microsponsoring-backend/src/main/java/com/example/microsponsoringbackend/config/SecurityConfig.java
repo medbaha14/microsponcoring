@@ -34,14 +34,16 @@ public class SecurityConfig {
     .requestMatchers("/actuator/**", "/api/health/**", "/api/auth/**", "/api/public/**").permitAll()
     .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
     .requestMatchers(HttpMethod.POST, "/api/upload/profile-picture").permitAll()
-
+    .requestMatchers("/ws-notifications/**").permitAll()
     // --- RECOGNITION BENEFITS (ordre important) ---
-    .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/company/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/api/recognition-benefits").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
-    .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/{id}").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
-    .requestMatchers(HttpMethod.POST, "/api/recognition-benefits").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
-    .requestMatchers(HttpMethod.PUT, "/api/recognition-benefits/**").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
-    .requestMatchers(HttpMethod.DELETE, "/api/recognition-benefits/**").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+ .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/company/**").permitAll()
+// puis seulement après :
+.requestMatchers(HttpMethod.GET, "/api/recognition-benefits").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+.requestMatchers(HttpMethod.GET, "/api/recognition-benefits/{id}").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+.requestMatchers(HttpMethod.POST, "/api/recognition-benefits").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+.requestMatchers(HttpMethod.PUT,  "/api/recognition-benefits/**").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+.requestMatchers(HttpMethod.DELETE,"/api/recognition-benefits/**").hasAnyRole("ADMIN","ORGANISATION_NONPROFIT")
+
 
     // --- USERS ---
     .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
