@@ -151,6 +151,11 @@ jobs:
         organization: medbaha14
         sources: microsponsoring-backend/src/main/java
         java-binaries: microsponsoring-backend/target/classes
+        java-libraries: microsponsoring-backend/target/dependency/*.jar
+        args: >
+          -Dsonar.tests=microsponsoring-backend/src/test/java
+          -Dsonar.java.test.binaries=microsponsoring-backend/target/test-classes
+          -Dsonar.coverage.jacoco.xmlReportPaths=microsponsoring-backend/target/site/jacoco/jacoco.xml
         
     - name: SonarCloud Quality Gate Check
       uses: sonarqube-quality-gate-action@v2.0.0
