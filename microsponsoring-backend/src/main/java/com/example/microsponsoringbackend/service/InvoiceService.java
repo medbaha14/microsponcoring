@@ -41,4 +41,4 @@ public class InvoiceService {
     public boolean existsById(UUID id) {
         return repository.existsById(id);
     }
-} 
+}

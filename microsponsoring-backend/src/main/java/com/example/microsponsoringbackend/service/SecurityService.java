@@ -204,4 +204,4 @@ public class SecurityService {
         logger.info("Starting scheduled vulnerability sync...");
         syncVulnerabilitiesFromNVD();
     }
-} 
+}

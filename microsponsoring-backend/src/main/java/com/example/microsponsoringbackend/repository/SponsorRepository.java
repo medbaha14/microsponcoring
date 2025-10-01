@@ -8,4 +8,4 @@ import java.util.Optional;
 public interface SponsorRepository extends JpaRepository<Sponsor, UUID> {
     Optional<Sponsor> findByUser_UserId(UUID userId);
     Optional<Sponsor> findByUser_Username(String username);
-} 
+}

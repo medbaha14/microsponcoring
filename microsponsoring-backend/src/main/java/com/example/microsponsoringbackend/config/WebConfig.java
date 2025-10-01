@@ -23,4 +23,4 @@ public class WebConfig {
     }
 
     // RestTemplate bean is defined in RestTemplateConfig.java to avoid conflicts
-} 
+}

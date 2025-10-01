@@ -155,4 +155,4 @@ public class companyNonProfitsController {
         companyNonProfitsService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-} 
+}

@@ -80,4 +80,4 @@ public class CheckoutPaymentRequest {
         @JsonProperty("benefit_ids")
         private String benefitIds;
     }
-} 
+}

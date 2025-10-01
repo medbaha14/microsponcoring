@@ -16,4 +16,4 @@ public class TestController {
     public String echo(@RequestBody String message) {
         return "Echo: " + message;
     }
-} 
+}

@@ -317,4 +317,4 @@ public class PaymentService {
         public Integer getTotalInvoices() { return totalInvoices; }
         public Double getTotalReceivedFromInvoices() { return totalReceivedFromInvoices; }
     }
-} 
+}

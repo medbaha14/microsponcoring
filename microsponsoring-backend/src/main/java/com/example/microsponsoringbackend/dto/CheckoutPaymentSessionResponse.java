@@ -8,4 +8,4 @@ public class CheckoutPaymentSessionResponse {
     private String session_secret;
     private String status;
     // Add more fields as needed based on the API response
-} 
+}

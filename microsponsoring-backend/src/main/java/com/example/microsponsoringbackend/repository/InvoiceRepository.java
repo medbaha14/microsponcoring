@@ -8,4 +8,4 @@ import java.util.UUID;
 public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     List<Invoice> findBySponsor_SponsorId(UUID sponsorId);
     List<Invoice> findByCompany_CompanyId(UUID companyId);
-} 
+}
