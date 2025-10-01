@@ -1,7 +1,7 @@
 package com.example.microsponsoringbackend.model;
 
-public enum Status {
-    ACTIVE,
+public enum PaymentStatus {
     PENDING,
-    SUSPENDED
+    PAID,
+    FAILED
 }

@@ -1,4 +1,4 @@
-﻿package com.example.microsponsoringbackend.model;
+package com.example.microsponsoringbackend.model;
 
 public enum UserType {
     SPONSOR,
