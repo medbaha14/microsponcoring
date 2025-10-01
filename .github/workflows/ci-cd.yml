@@ -33,21 +33,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze with SonarCloud
+      - name: Build and test
         run: |
           cd microsponsoring-backend
-          mvn clean verify sonar:sonar \
-            -Dsonar.projectKey=medbaha14_microsponcoring \
-            -Dsonar.organization=medbaha14 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.sources=src/main/java \
-            -Dsonar.tests=src/test/java \
-            -Dsonar.java.binaries=target/classes \
-            -Dsonar.java.test.binaries=target/test-classes \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          mvn clean verify
 
   backend:
     name: Backend Build & Test
