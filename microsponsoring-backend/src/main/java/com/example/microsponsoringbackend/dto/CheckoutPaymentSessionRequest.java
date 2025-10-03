@@ -49,4 +49,4 @@ public class CheckoutPaymentSessionRequest {
         @JsonProperty("allow_upgrade")
         private boolean allowUpgrade;
     }
-} 
+}

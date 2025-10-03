@@ -122,7 +122,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
   ngOnChanges(changes: SimpleChanges) {
     if (changes['profile'] && this.profile) {
       this.updateBackgroundStyle();
-      
+
       // If the profile input changes, re-fetch the company and benefits
       if (this.profile.userId) {
         this.companyService.getCompanyByUserId(this.profile.userId).subscribe(company => {
@@ -141,7 +141,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
 
   updateBackgroundStyle() {
     if (!this.profile) return;
-    
+
     let style = '';
     if (this.profile.backgroundImageUrl) {
       const overlayColor = this.hexToRgba(this.profile.backgroundColor || '#ffffff', 0.6);
@@ -177,6 +177,6 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
   }
 
   pay() {
-    alert('Payment flow coming soon!');
+   // alert('Payment flow coming soon!');
   }
 }

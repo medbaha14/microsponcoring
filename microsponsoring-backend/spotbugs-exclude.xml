@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude specific patterns that are false positives or acceptable -->
+    
+    <!-- Exclude serialVersionUID warnings -->
+    <Match>
+        <Class name="~.*"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    
+    <!-- Exclude unused fields that might be used by frameworks -->
+    <Match>
+        <Class name="~.*"/>
+        <Field name="~.*"/>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+    </Match>
+    
+    <!-- Exclude specific test-related warnings -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="~.*"/>
+    </Match>
+    
+    <!-- Exclude Spring Boot main class warnings -->
+    <Match>
+        <Class name="~.*Application"/>
+        <Bug pattern="~.*"/>
+    </Match>
+</FindBugsFilter>

@@ -88,8 +88,8 @@ export class StatsPageComponent implements OnInit {
 
   ngOnInit() {
     // Subscribe to theme service
-    this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
     
     this.measurePageLoadTime();
@@ -111,16 +111,54 @@ export class StatsPageComponent implements OnInit {
 
   loadUserStats() {
     this.isLoadingUsers = true;
-    this.userService.getAll().subscribe({
-      next: (users: User[]) => {
-        this.processUserStats(users);
-        this.isLoadingUsers = false;
-        this.checkLoadingComplete();
+    this.userService.getUserStats().subscribe({
+      next: (stats: any) => {
+        // Use the stats from the API directly
+        this.totalUsers = stats.totalUsers || 0;
+        this.activeUsers = stats.activeUsers || 0;
+        this.inactiveUsers = stats.inactiveUsers || 0;
+        
+        // Create role stats from the API data
+        this.userRoleStats = [
+          { role: 'ADMIN', count: stats.adminUsers || 0, percentage: 0 },
+          { role: 'SPONSOR', count: stats.sponsorUsers || 0, percentage: 0 },
+          { role: 'ORGANISATION_NONPROFIT', count: stats.organisationUsers || 0, percentage: 0 }
+        ];
+        
+        // Calculate percentages
+        this.userRoleStats.forEach(role => {
+          role.percentage = this.totalUsers > 0 ? (role.count / this.totalUsers) * 100 : 0;
+        });
+        
+        // Still need to load individual users for recent users and creation stats
+        this.userService.getAll().subscribe({
+          next: (users: User[]) => {
+            this.processUserStats(users);
+            this.isLoadingUsers = false;
+            this.checkLoadingComplete();
+          },
+          error: (error) => {
+            console.error('Error loading users for detailed stats:', error);
+            this.isLoadingUsers = false;
+            this.checkLoadingComplete();
+          }
+        });
       },
       error: (error) => {
         console.error('Error loading user stats:', error);
-        this.isLoadingUsers = false;
-        this.checkLoadingComplete();
+        // Fallback to loading all users
+        this.userService.getAll().subscribe({
+          next: (users: User[]) => {
+            this.processUserStats(users);
+            this.isLoadingUsers = false;
+            this.checkLoadingComplete();
+          },
+          error: (fallbackError) => {
+            console.error('Error loading users (fallback):', fallbackError);
+            this.isLoadingUsers = false;
+            this.checkLoadingComplete();
+          }
+        });
       }
     });
   }

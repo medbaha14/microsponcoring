@@ -10,4 +10,8 @@ public class RegisterRequest {
     private String password;
     private String fullName;
     private UserType userType;
+
+    // Nested DTOs for user-type specific data
+    private SponsorDto sponsor;
+    private CompanyNonProfitDto companyNonProfits;
 }

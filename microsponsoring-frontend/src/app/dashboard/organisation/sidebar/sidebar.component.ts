@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService, Theme } from '../../../services/theme.service';
 import { TokenHandler } from '../../../services/token-handler';
+import { NotificationDropdownComponent } from '../../shared/notification-dropdown/notification-dropdown.component';
 
 @Component({
   selector: 'app-organisation-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, NotificationDropdownComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -17,13 +18,13 @@ export class SidebarComponent implements OnInit {
   constructor(private themeService: ThemeService) {}
 
   ngOnInit() {
-    this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
   }
 
   toggleDarkMode() {
-    this.themeService.toggleDarkMode();
+    this.themeService.toggleTheme();
   }
 
   toggleSidebar() {

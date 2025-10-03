@@ -18,8 +18,8 @@ export class FooterComponent implements OnInit, OnDestroy {
   constructor(private themeService: ThemeService) {}
 
   ngOnInit() {
-    this.themeSubscription = this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeSubscription = this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
   }
 

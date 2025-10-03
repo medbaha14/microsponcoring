@@ -68,4 +68,4 @@ public class SponsorController {
         sponsorService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-} 
+}

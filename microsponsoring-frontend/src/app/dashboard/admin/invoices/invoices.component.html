@@ -1,1 +1,205 @@
-<p>invoices works!</p>
+<div class="invoices-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>📋 Invoice Management</h1>
+    <p class="subtitle">Manage and monitor all invoices in the system</p>
+    
+    <div class="header-actions">
+      <button class="refresh-btn" (click)="refreshData()" [disabled]="isLoading">
+        <span class="icon">🔄</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <h3>Total Invoices</h3>
+        <p class="stat-number">{{ stats.totalInvoices }}</p>
+        <small>{{ formatCurrency(stats.totalAmount) }} total value</small>
+      </div>
+    </div>
+    
+    <div class="stat-card paid">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <h3>Paid Invoices</h3>
+        <p class="stat-number">{{ stats.paidCount }}</p>
+        <small>{{ formatCurrency(stats.paidAmount) }} collected</small>
+      </div>
+    </div>
+    
+    <div class="stat-card pending">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <h3>Pending Invoices</h3>
+        <p class="stat-number">{{ stats.pendingCount }}</p>
+        <small>{{ formatCurrency(stats.pendingAmount) }} pending</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Search by invoice ID, company, or sponsor..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input">
+      <span class="search-icon">🔍</span>
+    </div>
+    
+    <div class="filter-controls">
+      <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="status-filter">
+        <option value="all">All Statuses</option>
+        <option value="PAID">Paid</option>
+        <option value="PENDING">Pending</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+      
+      <select [(ngModel)]="itemsPerPage" (change)="applyFilters()" class="items-per-page">
+        <option value="10">10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading invoices...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="refreshData()">Try Again</button>
+  </div>
+
+  <!-- Invoices Table -->
+  <div class="table-container" *ngIf="!isLoading && !error">
+    <table class="invoices-table">
+      <thead>
+        <tr>
+          <th (click)="sort('invoiceId')" class="sortable">
+            Invoice ID
+            <span class="sort-indicator" *ngIf="sortField === 'invoiceId'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th (click)="sort('company')" class="sortable">
+            Organization
+            <span class="sort-indicator" *ngIf="sortField === 'company'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th (click)="sort('sponsor')" class="sortable">
+            Sponsor
+            <span class="sort-indicator" *ngIf="sortField === 'sponsor'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th (click)="sort('amount')" class="sortable">
+            Amount
+            <span class="sort-indicator" *ngIf="sortField === 'amount'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Status</th>
+          <th (click)="sort('createdAt')" class="sortable">
+            Date Created
+            <span class="sort-indicator" *ngIf="sortField === 'createdAt'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of getPaginatedInvoices()" class="invoice-row">
+          <td class="invoice-id">{{ invoice.invoiceId }}</td>
+          <td class="company-name">
+            <div class="company-info">
+              <strong>{{ invoice.company?.name || 'N/A' }}</strong>
+              <small>{{ invoice.company?.email || '' }}</small>
+            </div>
+          </td>
+          <td class="sponsor-name">
+            <div class="sponsor-info">
+              <strong>{{ invoice.sponsor?.user?.username || 'N/A' }}</strong>
+              <small>{{ invoice.sponsor?.user?.email || '' }}</small>
+            </div>
+          </td>
+          <td class="amount">{{ formatCurrency(invoice.amount) }}</td>
+          <td class="status">
+            <span class="status-badge" [ngClass]="getStatusClass(invoice.status || 'UNKNOWN')">
+              {{ invoice.status || 'UNKNOWN' }}
+            </span>
+          </td>
+          <td class="date">{{ formatDate(invoice.createdAt) }}</td>
+          <td class="actions">
+            <button 
+              class="download-btn" 
+              (click)="downloadPdf(invoice)"
+              title="Download PDF">
+              <span class="icon">📄</span>
+              <span>PDF</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="filteredInvoices.length === 0">
+      <div class="no-results-icon">📭</div>
+      <h3>No invoices found</h3>
+      <p>Try adjusting your search criteria or filters.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1 && !isLoading && !error">
+    <button 
+      class="page-btn" 
+      (click)="goToPage(currentPage - 1)" 
+      [disabled]="currentPage === 1">
+      ← Previous
+    </button>
+    
+    <div class="page-numbers">
+      <button 
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        class="page-number"
+        [ngClass]="{ active: currentPage === i + 1 }"
+        (click)="goToPage(i + 1)">
+        {{ i + 1 }}
+      </button>
+    </div>
+    
+    <button 
+      class="page-btn" 
+      (click)="goToPage(currentPage + 1)" 
+      [disabled]="currentPage === totalPages">
+      Next →
+    </button>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="results-summary" *ngIf="!isLoading && !error">
+    <p>
+      Showing {{ getPaginatedInvoices().length }} of {{ filteredInvoices.length }} invoices
+      <span *ngIf="filteredInvoices.length !== invoices.length">
+        (filtered from {{ invoices.length }} total)
+      </span>
+    </p>
+  </div>
+</div>

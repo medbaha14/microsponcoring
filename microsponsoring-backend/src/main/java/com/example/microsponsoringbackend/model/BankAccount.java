@@ -75,4 +75,4 @@ public class BankAccount {
     protected void onUpdate() {
         updatedAt = new Date();
     }
-} 
+}

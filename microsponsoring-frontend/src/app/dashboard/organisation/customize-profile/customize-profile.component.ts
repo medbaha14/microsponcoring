@@ -5,7 +5,6 @@ import { OrganisationProfileComponent } from '../profile/profile.component';
 import { OrganisationProfile } from '../../../models/organisation-profile.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ThemeService } from '../../../services/theme.service';
-import { TokenHandler } from '../../../services/token-handler';
 import { UserService } from '../../../services/user.service';
 import Swal from 'sweetalert2';
 import { ProfileUpdateService } from '../../../services/profile-update.service';
@@ -49,27 +48,94 @@ export class CustomizeProfileComponent implements OnInit {
     private companyService: companyNonProfitsService
   ) {
     this.backgroundStyle = this.sanitizer.bypassSecurityTrustStyle('background-color: #1976d2');
-    this.themeService.darkMode$.subscribe((isDark: boolean) => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
       this.updateBackgroundStyle();
     }); 
   }
 
   ngOnInit() {
     this.loadProfile();
+    
+    // Check for company profile after a brief delay to ensure everything loads
+    setTimeout(() => {
+      this.checkCompanyProfileStatus();
+    }, 2000);
   }
 
   loadProfile() {
-    const user = TokenHandler.getUser();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    console.log('CustomizeProfile: Loading profile for user:', user);
+    
     if (user && user.userId) {
-      this.userService.getOrganisationProfile(user.userId).subscribe(profile => {
-        this.profile = profile;
-        this.updateBackgroundStyle();
+      console.log('CustomizeProfile: Calling userService.getOrganisationProfile with userId:', user.userId);
+      
+      this.userService.getOrganisationProfile(user.userId).subscribe({
+        next: (profile) => {
+          console.log('CustomizeProfile: Profile loaded successfully:', profile);
+          this.profile = profile;
+          this.updateBackgroundStyle();
+        },
+        error: (err) => {
+          console.error('CustomizeProfile: Error loading profile:', err);
+          console.error('CustomizeProfile: Error status:', err.status);
+          console.error('CustomizeProfile: Error message:', err.message);
+          
+          // Show user-friendly error message
+          if (err.status === 404) {
+            // Profile not found - offer to create company profile
+            Swal.fire({
+              title: 'Company Profile Required',
+              text: 'You need to create your company profile before you can customize your organization page. Would you like to create it now?',
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonText: 'Create Company Profile',
+              cancelButtonText: 'Cancel'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.createCompanyProfile();
+              }
+            });
+          } else if (err.status === 401) {
+            Swal.fire('Authentication Error', 'Please log in again to access your profile.', 'error');
+          } else {
+            Swal.fire('Error', 'Failed to load your profile. Please try refreshing the page.', 'error');
+          }
+        }
       });
 
-      this.companyService.getCompanyByUserId(user.userId).subscribe(company => {
-        this.company = company;
+      this.companyService.getCompanyByUserId(user.userId).subscribe({
+        next: (company) => {
+          console.log('CustomizeProfile: Company loaded successfully:', company);
+          this.company = company;
+        },
+        error: (err) => {
+          console.error('CustomizeProfile: Error loading company:', err);
+          console.error('CustomizeProfile: Company error status:', err.status);
+          
+          // If company not found, offer to create it
+          if (err.status === 404) {
+            console.log('CustomizeProfile: Company profile not found, offering to create it');
+            
+            Swal.fire({
+              title: 'Profile Setup Required',
+              text: 'Your organization profile needs to be initialized. Would you like to set it up now?',
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonText: 'Initialize Profile',
+              cancelButtonText: 'Later',
+              allowOutsideClick: false
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.initializeUserProfiles();
+              }
+            });
+          }
+        }
       });
+    } else {
+      console.error('CustomizeProfile: No user or userId found');
+      Swal.fire('Error', 'User information not found. Please log in again.', 'error');
     }
   }
 
@@ -94,10 +160,43 @@ export class CustomizeProfileComponent implements OnInit {
   }
 
   private async uploadImage(file: File, field: 'profilePicture' | 'logoUrl' | 'bannerImageUrl' | 'backgroundImageUrl') {
-    if (!this.profile?.userId) return;
+    if (!this.profile?.userId) {
+      console.error('CustomizeProfile: No profile or userId available for upload');
+      return;
+    }
 
     this.uploadingImages[field] = true;
-    const user = TokenHandler.getUser();
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = localStorage.getItem('token');
+    
+    console.log('CustomizeProfile: Starting image upload');
+    console.log('CustomizeProfile: Field:', field);
+    console.log('CustomizeProfile: File:', file.name, file.size, file.type);
+    console.log('CustomizeProfile: User:', user);
+    console.log('CustomizeProfile: User type:', user?.userType);
+    console.log('CustomizeProfile: Token available:', !!token);
+    
+    // Validate user type before upload
+    if (user?.userType !== 'ORGANISATION_NONPROFIT') {
+      this.uploadingImages[field] = false;
+      Swal.fire('Permission Error', `Only ORGANISATION_NONPROFIT users can upload ${field}. Your account type is: ${user?.userType}`, 'error');
+      return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.uploadingImages[field] = false;
+      Swal.fire('Invalid File', 'Please select a valid image file (JPEG, PNG, GIF, etc.)', 'error');
+      return;
+    }
+    
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      this.uploadingImages[field] = false;
+      Swal.fire('File Too Large', 'Image size must be less than 10MB. Please choose a smaller image.', 'error');
+      return;
+    }
     
     try {
       const formData = new FormData();
@@ -121,29 +220,71 @@ export class CustomizeProfileComponent implements OnInit {
         default:
           throw new Error('Invalid field type');
       }
+      
+      console.log('CustomizeProfile: Upload URL:', uploadUrl);
+      console.log('CustomizeProfile: FormData contents:');
+      console.log('CustomizeProfile: - file:', file.name);
+      console.log('CustomizeProfile: - userId:', user.userId);
 
       const response = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
         headers: {
-          'Authorization': `Bearer ${TokenHandler.getToken()}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('CustomizeProfile: Upload response status:', response.status);
+      console.log('CustomizeProfile: Upload response headers:', response.headers);
+
       if (response.ok) {
         const fileUrl = await response.text();
+        console.log('CustomizeProfile: Upload successful, file URL:', fileUrl);
+        
         if (this.profile) {
           this.profile[field] = fileUrl;
           this.profileUpdateService.notifyProfileUpdate(this.profile);
           this.cdr.detectChanges();
         }
-        console.log(`${field} uploaded successfully:`, fileUrl);
+        
+        Swal.fire('Success', `${field} uploaded successfully!`, 'success');
       } else {
-        throw new Error(`Upload failed: ${response.statusText}`);
+        // Get detailed error message from backend
+        const errorText = await response.text();
+        console.error('CustomizeProfile: Upload failed with status:', response.status);
+        console.error('CustomizeProfile: Error response:', errorText);
+        
+        let userMessage = `Failed to upload ${field}.`;
+        
+        if (response.status === 400) {
+          if (errorText.includes('User not found')) {
+            userMessage = 'User not found. Please log in again.';
+          } else if (errorText.includes('not an organisation')) {
+            userMessage = 'Only organization accounts can upload these images.';
+          } else if (errorText.includes('Company profile not found')) {
+            userMessage = 'Company profile not found. Please complete your organization profile first.';
+          } else if (errorText.includes('File is required')) {
+            userMessage = 'No file was selected. Please choose an image file.';
+          } else {
+            userMessage = errorText || userMessage;
+          }
+        } else if (response.status === 401) {
+          userMessage = 'Authentication failed. Please log in again.';
+        } else if (response.status === 403) {
+          userMessage = 'You do not have permission to upload images. Please ensure you are logged in as an organization user.';
+        }
+        
+        throw new Error(userMessage);
       }
     } catch (error) {
-      console.error(`Error uploading ${field}:`, error);
-      Swal.fire('Error', `Failed to upload ${field}. Please try again.`, 'error');
+      console.error(`CustomizeProfile: Error uploading ${field}:`, error);
+      
+      let errorMessage = `Failed to upload ${field}. Please try again.`;
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      Swal.fire('Upload Error', errorMessage, 'error');
     } finally {
       this.uploadingImages[field] = false;
     }
@@ -189,22 +330,162 @@ export class CustomizeProfileComponent implements OnInit {
   }
 
   saveChanges() {
+    // Debug user authentication and role
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    console.log('CustomizeProfile: Current token:', token ? 'Present' : 'Missing');
+    console.log('CustomizeProfile: Current user:', user);
+    console.log('CustomizeProfile: User type/role:', user?.userType);
+    
+    if (!token) {
+      Swal.fire('Authentication Error', 'You are not logged in. Please log in and try again.', 'error');
+      return;
+    }
+    
+    if (user?.userType !== 'ORGANISATION_NONPROFIT') {
+      Swal.fire('Permission Error', `Your account type (${user?.userType}) does not have permission to edit organization profiles. You need to be logged in as an ORGANISATION_NONPROFIT user.`, 'error');
+      return;
+    }
+
     if (this.profile && this.profile.userId) {
-      console.log(this.profile);
+      console.log('CustomizeProfile: Starting save operation');
+      console.log('CustomizeProfile: Profile data:', this.profile);
+      console.log('CustomizeProfile: User ID:', this.profile.userId);
       
       // Create a fresh copy to ensure all latest bindings are captured
       const profileToSave: OrganisationProfile = { ...this.profile };
 
-      this.userService.updateOrganisationProfile(this.profile.userId, profileToSave).subscribe({
-        next: () => {
-          Swal.fire('Success', 'Profile updated successfully!', 'success');
-        },
-        error: (err) => {
-          console.error('Error updating profile:', err);
-          Swal.fire('Error', 'Failed to update profile.', 'error');
+      // Show loading indicator
+      Swal.fire({
+        title: 'Saving...',
+        text: 'Please wait while we update your profile',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
       });
+
+      this.userService.updateOrganisationProfile(this.profile.userId, profileToSave).subscribe({
+        next: (response) => {
+          console.log('CustomizeProfile: Save successful:', response);
+          Swal.fire('Success', 'Profile updated successfully!', 'success');
+          
+          // Notify other components about the profile update
+          this.profileUpdateService.notifyProfileUpdate(this.profile!);
+        },
+        error: (err) => {
+          console.error('CustomizeProfile: Error updating profile:', err);
+          console.error('CustomizeProfile: Error status:', err.status);
+          console.error('CustomizeProfile: Error message:', err.message);
+          console.error('CustomizeProfile: Error details:', err.error);
+          
+          let errorMessage = 'Failed to update profile.';
+          
+          if (err.status === 401) {
+            errorMessage = 'You are not authorized to perform this action. Please log in again.';
+          } else if (err.status === 403) {
+            errorMessage = 'You do not have permission to update this profile.';
+          } else if (err.status === 404) {
+            errorMessage = 'Profile not found. Please try refreshing the page.';
+          } else if (err.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (err.status === 0) {
+            errorMessage = 'Cannot connect to server. Please check your internet connection.';
+          }
+          
+          Swal.fire('Error', errorMessage, 'error');
+        }
+      });
+    } else {
+      console.error('CustomizeProfile: Cannot save - no profile or user ID');
+      Swal.fire('Error', 'Profile data is missing. Please refresh the page and try again.', 'error');
     }
+  }
+
+  checkCompanyProfileStatus() {
+    console.log('CustomizeProfile: Checking company profile status');
+    console.log('CustomizeProfile: Profile:', !!this.profile);
+    console.log('CustomizeProfile: Company:', !!this.company);
+    
+    // If we have a profile but no company, we need to create the company
+    if (this.profile && !this.company) {
+      console.log('CustomizeProfile: Profile exists but company is missing');
+      
+      Swal.fire({
+        title: 'Complete Your Setup',
+        text: 'Your organization profile is partially set up. Would you like to complete the initialization now?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Complete Setup',
+        cancelButtonText: 'Later',
+        allowOutsideClick: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.initializeUserProfiles();
+        }
+      });
+    } else if (!this.profile && !this.company) {
+      console.log('CustomizeProfile: Both profile and company are missing');
+    } else {
+      console.log('CustomizeProfile: All profiles are properly loaded');
+    }
+  }
+
+  initializeUserProfiles() {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user || !user.userId) {
+      Swal.fire('Error', 'User information not found. Please log in again.', 'error');
+      return;
+    }
+
+    console.log('CustomizeProfile: Initializing missing profiles for user:', user.userId);
+
+    // Show loading
+    Swal.fire({
+      title: 'Setting Up Your Profile...',
+      text: 'Please wait while we initialize your organization profile',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.userService.initializeUserProfiles(user.userId).subscribe({
+      next: (response: any) => {
+        console.log('CustomizeProfile: Profile initialization successful:', response);
+        
+        Swal.fire({
+          title: 'Setup Complete!',
+          text: response.message || 'Your organization profile has been initialized successfully.',
+          icon: 'success',
+          confirmButtonText: 'Continue'
+        }).then(() => {
+          // Reload the profile data
+          this.loadProfile();
+        });
+      },
+      error: (err: any) => {
+        console.error('CustomizeProfile: Error initializing profiles:', err);
+        
+        let errorMessage = 'Failed to initialize your profile. Please try again.';
+        if (err.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+        } else if (err.status === 403) {
+          errorMessage = 'You do not have permission to initialize profiles.';
+        } else if (err.error && err.error.error) {
+          errorMessage = err.error.error;
+        }
+        
+        Swal.fire('Setup Error', errorMessage, 'error');
+      }
+    });
+  }
+
+  // Legacy method - now calls the new initialization
+  createCompanyProfile() {
+    this.initializeUserProfiles();
   }
 
   onProfileChange() {

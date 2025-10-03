@@ -8,4 +8,4 @@ import java.util.UUID;
 
 public interface companyNonProfitsRepository extends JpaRepository<companyNonProfits, UUID> {
     Optional<companyNonProfits> findByUser_UserId(UUID userId);
-} 
+}

@@ -1,0 +1,34 @@
+<div class="notification-box" (click)="toggleDropdown()" [class.active]="showNotifications">
+  <img src="assets/notification-bell.png" alt="Notifications" class="notification-icon" />
+  <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+</div>
+
+<div class="notification-dropdown" *ngIf="showNotifications">
+  <!-- Title -->
+  <div class="dropdown-header">
+    <span class="title">Notifications</span>
+    <div class="tabs">
+      <button [class.active]="currentTab === 'all'" (click)="switchTab('all')">All</button>
+      <button [class.active]="currentTab === 'unread'" (click)="switchTab('unread')">Unread</button>
+    </div>
+  </div>
+
+  <!-- Notifications list scrollable -->
+  <div class="notification-list" (scroll)="onScroll($event)">
+    <!-- Empty state -->
+    <div *ngIf="filteredNotifications.length === 0" class="empty">
+      No notifications
+    </div>
+
+    <!-- Notifications list -->
+    <div *ngFor="let notif of filteredNotifications" class="notification-item" [ngClass]="{'unread': !notif.isRead}">
+      <div class="notif-content">
+        <img class="notif-icon" [src]="getNotificationIcon(notif.type)" alt="notification icon" />
+        <div class="message">{{ notif.message }}</div>
+      </div>
+      <div class="timestamp">{{ notif.createdAt | date:'short' }}</div>
+    </div>
+  
+    <div *ngIf="loadingMore" class="notification-item loading-placeholder"></div>
+  </div>
+</div>

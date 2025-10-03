@@ -35,6 +35,10 @@
         <span class="btn-icon">🔄</span>
         <span class="btn-text">Refresh Data</span>
       </button>
+      <button class="sync-btn" (click)="syncNVDVulnerabilities()" [disabled]="loading">
+        <span class="btn-icon">🛡️</span>
+        <span class="btn-text">Sync NVD</span>
+      </button>
       <button class="test-btn" (click)="testBackendConnection()">
         <span class="btn-icon">🔌</span>
         <span class="btn-text">Test Connection</span>

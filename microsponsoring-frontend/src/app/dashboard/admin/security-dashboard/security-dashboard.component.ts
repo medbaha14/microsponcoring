@@ -545,4 +545,24 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       default: return '⚪';
     }
   }
+
+  // NVD Integration methods
+  syncNVDVulnerabilities() {
+    this.loading = true;
+    console.log('Syncing NVD vulnerabilities...');
+    
+    const apiUrl = this.getApiUrl();
+    this.http.post(`${apiUrl}/security/sync-nvd`, {})
+      .subscribe({
+        next: (response: any) => {
+          console.log('NVD sync successful:', response);
+          this.loadAllData(); // Refresh all data after sync
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error syncing NVD vulnerabilities:', error);
+          this.loading = false;
+        }
+      });
+  }
 } 

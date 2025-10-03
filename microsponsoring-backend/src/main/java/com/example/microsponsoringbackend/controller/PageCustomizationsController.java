@@ -66,4 +66,4 @@ public class PageCustomizationsController {
         pageCustomizationsService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-} 
+}

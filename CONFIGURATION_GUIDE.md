@@ -216,3 +216,6 @@ If you encounter configuration issues:
 3. Test individual components (database, email, Stripe) separately
 4. Use the debug logging to see what Spring Boot is trying to configure
 
+
+
+

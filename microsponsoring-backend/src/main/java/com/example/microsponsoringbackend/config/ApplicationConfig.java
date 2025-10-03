@@ -24,15 +24,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
     @Autowired
     private PerformanceMonitoringInterceptor performanceMonitoringInterceptor;
     
-    /**
-     * Configure cache manager for security rules
-     */
-    @Bean
-    public CacheManager cacheManager() {
-        ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("securityRules", "performanceMetrics"));
-        return cacheManager;
-    }
+    // Cache manager is now defined in CacheConfig.java to avoid bean conflicts
     
     /**
      * Configure async executor for performance monitoring

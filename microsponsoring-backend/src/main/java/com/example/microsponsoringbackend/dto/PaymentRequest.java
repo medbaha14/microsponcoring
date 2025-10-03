@@ -14,4 +14,4 @@ public class PaymentRequest {
     private String currency;
     private String description;
     private Boolean acceptedTerms;
-} 
+}

@@ -22,4 +22,4 @@ public class CheckoutConfig {
     public String checkoutPublicKey() {
         return publicKey;
     }
-} 
+}

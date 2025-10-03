@@ -17,4 +17,4 @@ public class SecurityDashboardDto {
     private String lastUpdate;
     private String nextScan;
     private String overallStatus;
-} 
+}

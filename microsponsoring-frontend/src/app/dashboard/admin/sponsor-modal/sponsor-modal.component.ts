@@ -67,7 +67,7 @@ export class SponsorModalComponent implements OnChanges {
         }
       });
     } else if (this.mode === 'edit' && this.sponsor?.sponsorId) {
-      this.sponsorService.update(parseInt(this.sponsor.sponsorId), this.formSponsor).subscribe({
+      this.sponsorService.update(this.sponsor.sponsorId, this.formSponsor).subscribe({
         next: () => {
           this.operationSuccess.emit();
           this.close.emit();

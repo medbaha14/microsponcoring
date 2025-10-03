@@ -195,4 +195,19 @@ public class AdminDashboardController {
             return ResponseEntity.internalServerError().body(error);
         }
     }
+    
+    /**
+     * Get system metrics
+     */
+    @GetMapping("/system/metrics")
+    public ResponseEntity<Map<String, Object>> getSystemMetrics() {
+        try {
+            Map<String, Object> metrics = performanceService.getSystemMetrics();
+            return ResponseEntity.ok(metrics);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Failed to retrieve system metrics: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
 }

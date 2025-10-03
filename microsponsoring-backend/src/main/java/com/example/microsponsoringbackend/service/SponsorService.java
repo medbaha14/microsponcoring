@@ -37,4 +37,8 @@ public class SponsorService {
     public Optional<Sponsor> findByUserId(UUID userId) {
         return repository.findByUser_UserId(userId);
     }
-} 
+
+    public Optional<Sponsor> findByUserUsername(String username) {
+        return repository.findByUser_Username(username);
+    }
+}
