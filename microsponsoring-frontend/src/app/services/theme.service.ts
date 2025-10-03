@@ -1,37 +1,57 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+export type Theme = 'light' | 'dark';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private darkMode = new BehaviorSubject<boolean>(false);
-  darkMode$ = this.darkMode.asObservable();
+  private themeSubject = new BehaviorSubject<Theme>('light');
+  public theme$ = this.themeSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    if (isPlatformBrowser(this.platformId)) {
-      // Only access localStorage in the browser
-      const isDarkMode = localStorage.getItem('darkMode') === 'true';
-      if (isDarkMode) {
-        this.setDarkMode(true);
-      }
+  constructor() {
+    // Initialize theme from localStorage or default to light
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      this.setTheme(savedTheme);
+    } else {
+      this.setTheme('light');
     }
   }
 
-  setDarkMode(isDark: boolean) {
-    this.darkMode.next(isDark);
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('darkMode', isDark.toString());
-      if (isDark) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
+  getCurrentTheme(): Theme {
+    return this.themeSubject.value;
+  }
+
+  setTheme(theme: Theme): void {
+    this.themeSubject.next(theme);
+    localStorage.setItem('theme', theme);
+    this.applyTheme(theme);
+  }
+
+  toggleTheme(): void {
+    const newTheme = this.getCurrentTheme() === 'dark' ? 'light' : 'dark';
+    this.setTheme(newTheme);
+  }
+
+  private applyTheme(theme: Theme): void {
+    const body = document.body;
+    
+    if (theme === 'dark') {
+      body.classList.remove('light-mode');
+      body.classList.add('dark-mode');
+    } else {
+      body.classList.remove('dark-mode');
+      body.classList.add('light-mode');
     }
   }
 
-  toggleDarkMode() {
-    this.setDarkMode(!this.darkMode.value);
+  isDarkMode(): boolean {
+    return this.getCurrentTheme() === 'dark';
   }
-} 
+
+  isLightMode(): boolean {
+    return this.getCurrentTheme() === 'light';
+  }
+}

@@ -56,8 +56,8 @@ export class InvoicesComponent implements OnInit {
 
   ngOnInit() {
     // Subscribe to theme changes
-    this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
     
     this.loadInvoices();

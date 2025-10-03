@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import { Notification } from '../models/notification.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +15,36 @@ export class NotificationService {
   private connectionSubject = new BehaviorSubject<boolean>(false);
   private notificationSubject = new Subject<Notification>();
   
-  private wsUrl = 'ws://localhost:8080/ws-notifications';
-  private apiUrl = 'http://localhost:8080/api/notifications';
+  private wsUrl: string = '';
+  private apiUrl: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    // Initialize URLs based on environment
+    this.initializeUrls();
+  }
+
+  private initializeUrls(): void {
+    // Use specific notification URLs from environment if available
+    if (environment.notificationsUrl) {
+      this.apiUrl = environment.notificationsUrl;
+    } else {
+      // Fallback to constructing from base API URL
+      this.apiUrl = environment.apiUrl + '/notifications';
+    }
+    
+    if (environment.wsUrl) {
+      this.wsUrl = environment.wsUrl;
+    } else {
+      // Fallback to constructing from base URL
+      const baseUrl = environment.baseUrl || 'http://localhost:8080';
+      this.wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws-notifications';
+    }
+    
+    console.log('NotificationService initialized:');
+    console.log('  Environment:', environment.production ? 'Production' : 'Development');
+    console.log('  WebSocket URL:', this.wsUrl);
+    console.log('  API URL:', this.apiUrl);
+  }
 
   // WebSocket Connection Methods
   connectWebSocket(): Promise<boolean> {
@@ -49,11 +76,11 @@ export class NotificationService {
           'Authorization': `Bearer ${token}`
         },
         
-        debug: (str) => {
+        debug: (str: string) => {
           // console.log('STOMP:', str);
         },
         
-        onConnect: (frame) => {
+        onConnect: (frame: any) => {
           // console.log('Connected to WebSocket successfully');
           // console.log('Connection frame:', frame);
           this.isConnected = true;
@@ -62,14 +89,14 @@ export class NotificationService {
           resolve(true);
         },
         
-        onStompError: (frame) => {
+        onStompError: (frame: any) => {
           // console.error('❌ STOMP error frame:', frame);
           this.isConnected = false;
           this.connectionSubject.next(false);
           reject(frame);
         },
         
-        onWebSocketError: (error) => {
+        onWebSocketError: (error: any) => {
           // console.error('❌ WebSocket connection error:', error);
           this.isConnected = false;
           this.connectionSubject.next(false);
@@ -96,7 +123,7 @@ export class NotificationService {
     // User-specific notifications
     const userDestination = `/user/queue/notifications`;
     
-    this.stompClient.subscribe(userDestination, (message) => {
+    this.stompClient.subscribe(userDestination, (message: any) => {
       try {
         const notification: Notification = JSON.parse(message.body);
         // console.log('Received user notification:', notification);
@@ -172,27 +199,28 @@ export class NotificationService {
 
   // Test method for basic WebSocket connection
   testWebSocketConnection(): void {
-    // console.log('Testing basic WebSocket connection...');
+    console.log('Testing basic WebSocket connection...');
+    console.log('WebSocket URL:', this.wsUrl);
     
-    const testSocket = new WebSocket('ws://localhost:8080/ws-notifications');
+    const testSocket = new WebSocket(this.wsUrl);
     
     testSocket.onopen = () => {
-      // console.log('Basic WebSocket connection successful!');
+      console.log('Basic WebSocket connection successful!');
       testSocket.close();
     };
     
     testSocket.onerror = (error) => {
-      // console.error('Basic WebSocket connection failed:', error);
+      console.error('Basic WebSocket connection failed:', error);
     };
     
     testSocket.onclose = (event) => {
-      // console.log('WebSocket closed:', event.code, event.reason);
+      console.log('WebSocket closed:', event.code, event.reason);
     };
 
     // Timeout after 5 seconds
     setTimeout(() => {
       if (testSocket.readyState !== WebSocket.OPEN) {
-        // console.error('WebSocket connection timeout');
+        console.error('WebSocket connection timeout');
         testSocket.close();
       }
     }, 5000);
@@ -200,14 +228,16 @@ export class NotificationService {
 
   // Test method for backend API connectivity
   testBackendConnectivity(): void {
-    // console.log('Testing backend API connectivity...');
+    console.log('Testing backend API connectivity...');
+    console.log('API URL:', this.apiUrl);
     
-    this.http.get('http://localhost:8080/api/health').subscribe({
+    const healthUrl = environment.baseUrl + '/actuator/health';
+    this.http.get(healthUrl).subscribe({
       next: (response) => {
-        // console.log('Backend API is reachable:', response);
+        console.log('Backend API is reachable:', response);
       },
       error: (error) => {
-        // console.error('Backend API is not reachable:', error);
+        console.error('Backend API is not reachable:', error);
       }
     });
   }

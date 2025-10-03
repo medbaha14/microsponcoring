@@ -3,14 +3,34 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  background: #fdfadd;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode (default) */
+body.light-mode {
+  background: #DFD0B8;
+  color: var(--color-dark-teal);
+}
+
+/* Dark mode */
+body.dark-mode {
+  background: var(--color-dark-teal);
+  color: var(--color-cream);
 }
 
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--color-cream);
   overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+body.light-mode .dashboard-layout {
+  background: #DFD0B8;
+}
+
+body.dark-mode .dashboard-layout {
+  background: var(--color-dark-teal);
 }
 
 app-organisation-sidebar {
@@ -24,9 +44,17 @@ app-organisation-sidebar {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: var(--color-cream);
   padding: 20px 0;
   overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+body.light-mode .dashboard-content {
+  background: #DFD0B8;
+}
+
+body.dark-mode .dashboard-content {
+  background: var(--color-dark-teal);
 }
 
 app-footer {

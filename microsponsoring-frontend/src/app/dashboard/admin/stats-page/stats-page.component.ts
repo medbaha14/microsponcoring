@@ -88,8 +88,8 @@ export class StatsPageComponent implements OnInit {
 
   ngOnInit() {
     // Subscribe to theme service
-    this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
     
     this.measurePageLoadTime();

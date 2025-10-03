@@ -1,8 +1,17 @@
 .security-dashboard {
   padding: 20px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .security-dashboard {
+  background: #DFD0B8;
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .security-dashboard {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: #e8e8e8;
 }
 
@@ -11,9 +20,20 @@
   text-align: center;
   margin-bottom: 30px;
   padding: 25px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .dashboard-header {
+  background: #948979;
+  color: var(--color-cream);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #7a6b5a;
+}
+
+body.dark-mode .dashboard-header {
   background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
   color: white;
-  border-radius: 20px;
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -252,11 +272,20 @@
 }
 
 .info-card {
-  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.light-mode .info-card {
+  background: #948979;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #7a6b5a;
+}
+
+body.dark-mode .info-card {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
 }
@@ -281,6 +310,14 @@
 
 .card-content {
   padding: 22px;
+  transition: background 0.3s ease;
+}
+
+body.light-mode .card-content {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .card-content {
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -298,11 +335,27 @@
 
 .label {
   font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .label {
+  color: var(--color-cream);
+}
+
+body.dark-mode .label {
   color: #B0B0B0;
 }
 
 .value {
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .value {
+  color: var(--color-cream);
+}
+
+body.dark-mode .value {
   color: #FFFFFF;
 }
 
@@ -376,10 +429,18 @@
 }
 
 .metrics-section h2 {
-  color: #FFFFFF;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .metrics-section h2 {
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .metrics-section h2 {
+  color: #FFFFFF;
 }
 
 .metrics-grid {
@@ -389,14 +450,23 @@
 }
 
 .metric-card {
-  background: rgba(255, 255, 255, 0.05);
   padding: 22px;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.light-mode .metric-card {
+  background: #948979;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #7a6b5a;
+}
+
+body.dark-mode .metric-card {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .metric-card:hover {
@@ -418,6 +488,14 @@
 
 .metric-label {
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .metric-label {
+  color: var(--color-cream);
+}
+
+body.dark-mode .metric-label {
   color: #B0B0B0;
 }
 
@@ -425,6 +503,14 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 15px;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .metric-value {
+  color: var(--color-cream);
+}
+
+body.dark-mode .metric-value {
   color: #FFFFFF;
 }
 
@@ -450,10 +536,18 @@
 }
 
 .security-section h2 {
-  color: #FFFFFF;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .security-section h2 {
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .security-section h2 {
+  color: #FFFFFF;
 }
 
 .vulnerability-summary {
@@ -516,13 +610,22 @@
 
 .vuln-item {
   display: flex;
-  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.light-mode .vuln-item {
+  background: #948979;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #7a6b5a;
+}
+
+body.dark-mode .vuln-item {
+  background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .vuln-item:hover {
@@ -675,10 +778,18 @@
 }
 
 .alerts-section h2 {
-  color: #333;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .alerts-section h2 {
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .alerts-section h2 {
+  color: #333;
 }
 
 .alerts-list {
@@ -690,10 +801,20 @@
 .alert-item {
   display: flex;
   align-items: center;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
   border-radius: 8px;
   padding: 15px;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .alert-item {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+}
+
+body.dark-mode .alert-item {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
   color: #856404;
 }
 
@@ -721,10 +842,18 @@
 }
 
 .actions-section h2 {
-  color: #333;
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.light-mode .actions-section h2 {
+  color: var(--color-dark-teal);
+}
+
+body.dark-mode .actions-section h2 {
+  color: #333;
 }
 
 .action-buttons {

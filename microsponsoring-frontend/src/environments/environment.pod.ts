@@ -11,6 +11,8 @@ export const environment = {
   invoicesUrl: '/api/invoices',
   pageCustomizationsUrl: '/api/page-customizations',
   bankAccountsUrl: '/api/bank-accounts',
+  notificationsUrl: '/api/notifications',
+  wsUrl: 'wss://192.168.179.128/ws-notifications',
   baseUrl: '/',
   // Build information for Kubernetes deployment
   buildInfo: {

@@ -65,8 +65,8 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.themeService.darkMode$.subscribe(isDark => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
     });
     
     this.loadCurrentUser();

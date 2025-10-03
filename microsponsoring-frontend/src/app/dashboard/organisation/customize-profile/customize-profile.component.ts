@@ -48,8 +48,8 @@ export class CustomizeProfileComponent implements OnInit {
     private companyService: companyNonProfitsService
   ) {
     this.backgroundStyle = this.sanitizer.bypassSecurityTrustStyle('background-color: #1976d2');
-    this.themeService.darkMode$.subscribe((isDark: boolean) => {
-      this.isDarkMode = isDark;
+    this.themeService.theme$.subscribe(theme => {
+      this.isDarkMode = theme === 'dark';
       this.updateBackgroundStyle();
     }); 
   }
