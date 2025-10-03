@@ -37,4 +37,4 @@ public class companyNonProfitsService {
     public boolean existsById(UUID id) {
         return repository.existsById(id);
     }
-} 
+}

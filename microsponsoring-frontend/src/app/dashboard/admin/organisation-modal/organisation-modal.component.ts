@@ -58,7 +58,7 @@ export class OrganisationModalComponent implements OnChanges {
         }
       });
     } else if (this.mode === 'edit' && this.organisation?.companyId) {
-      this.companiesService.update(parseInt(this.organisation.companyId), this.formOrganisation).subscribe({
+      this.companiesService.update(this.organisation.companyId, this.formOrganisation).subscribe({
         next: () => {
           this.operationSuccess.emit();
           this.close.emit();

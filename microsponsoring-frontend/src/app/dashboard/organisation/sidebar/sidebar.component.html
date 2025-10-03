@@ -6,8 +6,14 @@
     <div class="logo">OR</div>
     <div class="title">
       <h2>Organisation Dashboard</h2>
-      <span>Web organisation</span>
+      <div class="flex-box"><span>Web organisation</span>
+        <!-- Notification Bell -->
+        <div class="notification-container">
+          <app-notification-dropdown></app-notification-dropdown>
+        </div>
+      </div>
     </div>
+
   </div>
   <ul class="sidebar-menu">
     <li><a [routerLink]="['/dashboard/organisation/profile']"><span class="icon">👤</span> <span class="menu-text">Profile</span></a></li>

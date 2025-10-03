@@ -29,4 +29,4 @@ public class BankAccountService {
     public void delete(UUID id) {
         bankAccountRepository.deleteById(id);
     }
-} 
+}

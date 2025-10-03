@@ -140,4 +140,4 @@ public class UserService {
     public List<User> findAllByUserType(UserType userType) {
         return userRepository.findAllByUserType(userType);
     }
-} 
+}

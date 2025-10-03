@@ -41,4 +41,4 @@ public class RecognitionBenefitsService {
     public boolean existsById(UUID id) {
         return repository.existsById(id);
     }
-} 
+}

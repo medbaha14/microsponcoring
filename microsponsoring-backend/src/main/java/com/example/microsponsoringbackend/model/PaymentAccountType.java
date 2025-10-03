@@ -5,4 +5,4 @@ public enum PaymentAccountType {
     PAYPAL,
     STRIPE,
     CREDIT_CARD
-} 
+}

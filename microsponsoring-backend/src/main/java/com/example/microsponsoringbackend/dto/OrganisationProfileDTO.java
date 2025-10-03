@@ -36,4 +36,4 @@ public class OrganisationProfileDTO {
     private String bannerImageUrl;
     private String backgroundImageUrl;
     private List<RecognitionBenefits> recognitionBenefits;
-} 
+}

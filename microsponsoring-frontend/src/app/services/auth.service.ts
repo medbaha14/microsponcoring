@@ -4,10 +4,11 @@ import { Observable } from 'rxjs';
 import { LoginRequest } from '../models/login-request.model';
 import { RegisterRequest } from '../models/register-request.model';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = environment.authUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -30,4 +31,4 @@ export class AuthService {
   validateResetToken(token: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/validate-reset-token?token=${token}`);
   }
-} 
+}

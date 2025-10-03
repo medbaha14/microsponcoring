@@ -7,4 +7,4 @@ import java.util.UUID;
 
 public interface RecognitionBenefitsRepository extends JpaRepository<RecognitionBenefits, UUID> {
     List<RecognitionBenefits> findByCompanyNonProfits_CompanyId(UUID companyId);
-} 
+}

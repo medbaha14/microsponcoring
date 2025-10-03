@@ -1,0 +1,324 @@
+<div class="security-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h1>🔒 Security & Admin Dashboard</h1>
+    <p class="subtitle">Comprehensive system overview and security monitoring</p>
+    
+    <!-- Authentication Warning -->
+    <div class="auth-warning" *ngIf="!isAuthenticated()">
+      <span class="warning-icon">🔒</span>
+      <span class="warning-text">Authentication required. Please log in as an admin user.</span>
+      <button class="login-btn" (click)="goToLogin()">
+        <span class="btn-icon">🔑</span>
+        <span class="btn-text">Go to Login</span>
+      </button>
+    </div>
+    
+    <!-- User Info (for debugging) -->
+    <div class="user-info" *ngIf="isAuthenticated()">
+      <span class="user-icon">👤</span>
+      <span class="user-text">Logged in as: {{ getCurrentUserInfo() }}</span>
+      <button class="check-backend-btn" (click)="checkBackendAccess()">
+        <span class="btn-icon">🔍</span>
+        <span class="btn-text">Check Backend</span>
+      </button>
+    </div>
+    
+    <!-- Environment Warning -->
+    <div class="env-warning" *ngIf="!isEnvironmentLoaded() && isAuthenticated()">
+      <span class="warning-icon">⚠️</span>
+      <span class="warning-text">Environment not loaded properly</span>
+    </div>
+    
+    <div class="header-actions" *ngIf="isAuthenticated()">
+      <button class="refresh-btn" (click)="loadAllData()" [disabled]="loading">
+        <span class="btn-icon">🔄</span>
+        <span class="btn-text">Refresh Data</span>
+      </button>
+      <button class="sync-btn" (click)="syncNVDVulnerabilities()" [disabled]="loading">
+        <span class="btn-icon">🛡️</span>
+        <span class="btn-text">Sync NVD</span>
+      </button>
+      <button class="test-btn" (click)="testBackendConnection()">
+        <span class="btn-icon">🔌</span>
+        <span class="btn-text">Test Connection</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Build Information Cards -->
+  <div class="info-cards" *ngIf="isAuthenticated()">
+    <div class="info-card build-info">
+      <div class="card-header">
+        <h3>🏗️ Build Information</h3>
+      </div>
+      <div class="card-content">
+        <div class="info-row">
+          <span class="label">Version:</span>
+          <span class="value version">{{ buildInfo.version }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Build Time:</span>
+          <span class="value">{{ formatDate(buildInfo.buildTime) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Environment:</span>
+          <span class="value environment-badge" [class]="buildInfo.environment">
+            {{ buildInfo.environment }}
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="label">Last Update:</span>
+          <span class="value">{{ formatDate(buildInfo.lastUpdate) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card system-status">
+      <div class="card-header">
+        <h3>⚡ System Status</h3>
+      </div>
+      <div class="card-content">
+        <div class="info-row">
+          <span class="label">Uptime:</span>
+          <span class="value">{{ systemMetrics.uptime || 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Last Restart:</span>
+          <span class="value">{{ formatDate(systemMetrics.lastRestart) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Overall Status:</span>
+          <span class="value status-badge" [class]="overallStatus.toLowerCase()">
+            {{ getStatusIcon(overallStatus) }} {{ overallStatus || 'Unknown' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card user-overview">
+      <div class="card-header">
+        <h3>👥 User Overview</h3>
+      </div>
+      <div class="card-content">
+        <div class="info-row">
+          <span class="label">Active Users:</span>
+          <span class="value active-users">{{ userStats.activeUsers }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total Users:</span>
+          <span class="value">{{ userStats.totalUsers }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Active Rate:</span>
+          <span class="value">{{ userStats.totalUsers > 0 ? ((userStats.activeUsers / userStats.totalUsers) * 100).toFixed(1) : 0 }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Metrics Section -->
+  <div class="metrics-section" *ngIf="isAuthenticated()">
+    <h2>📊 System Resource Usage</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-icon">🖥️</span>
+          <span class="metric-label">CPU Usage</span>
+        </div>
+        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.cpu)">
+          {{ systemMetrics.cpu }}%
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="systemMetrics.cpu"
+               [style.background-color]="getMetricColor(systemMetrics.cpu)">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-icon">💾</span>
+          <span class="metric-label">Memory Usage</span>
+        </div>
+        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.memory)">
+          {{ systemMetrics.memory }}%
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="systemMetrics.memory"
+               [style.background-color]="getMetricColor(systemMetrics.memory)">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-icon">💿</span>
+          <span class="metric-label">Disk Usage</span>
+        </div>
+        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.disk)">
+          {{ systemMetrics.disk }}%
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="systemMetrics.disk"
+               [style.background-color]="getMetricColor(systemMetrics.disk)">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-icon">🌐</span>
+          <span class="metric-label">Network Usage</span>
+        </div>
+        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.network)">
+          {{ systemMetrics.network }}%
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="systemMetrics.network"
+               [style.background-color]="getMetricColor(systemMetrics.network)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Vulnerabilities Section -->
+  <div class="security-section" *ngIf="isAuthenticated()">
+    <h2>🛡️ Security Vulnerabilities</h2>
+    <div class="vulnerability-summary">
+      <div class="vuln-stat critical">
+        <span class="vuln-count">{{ criticalCount }}</span>
+        <span class="vuln-label">Critical</span>
+      </div>
+      <div class="vuln-stat high">
+        <span class="vuln-count">{{ highCount }}</span>
+        <span class="vuln-label">High</span>
+      </div>
+      <div class="vuln-stat moderate">
+        <span class="vuln-count">{{ moderateCount }}</span>
+        <span class="vuln-label">Moderate</span>
+      </div>
+      <div class="vuln-stat low">
+        <span class="vuln-count">{{ lowCount }}</span>
+        <span class="vuln-label">Low</span>
+      </div>
+    </div>
+
+    <div class="vulnerability-list" *ngIf="vulnerabilities.length > 0">
+      <div class="vuln-item" *ngFor="let vuln of vulnerabilities">
+        <div class="vuln-severity" [style.background-color]="getSeverityColor(vuln.severity)">
+          {{ getSeverityIcon(vuln.severity) }}
+        </div>
+        <div class="vuln-details">
+          <div class="vuln-name">{{ vuln.packageName }}</div>
+          <div class="vuln-source">{{ vuln.source }}</div>
+          <div class="vuln-description">{{ vuln.description }}</div>
+          <div class="vuln-meta">
+            <span class="cve-id">CVE: {{ vuln.cveId }}</span>
+            <span class="risk-score">Risk: {{ vuln.riskScore }}</span>
+            <span class="fix-version">Fix: {{ vuln.fixVersion }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-vulns" *ngIf="vulnerabilities.length === 0">
+      <p>🎉 No security vulnerabilities detected!</p>
+    </div>
+  </div>
+
+  <!-- Recent Login Attempts Section -->
+  <div class="login-section" *ngIf="isAuthenticated()">
+    <h2>🔐 Recent Login Activity</h2>
+    <div class="login-list" *ngIf="userStats.recentLogins.length > 0">
+      <div class="login-item" *ngFor="let login of userStats.recentLogins" [class]="login.success ? 'success' : 'failed'">
+        <div class="login-status">
+          <span class="status-icon">{{ login.success ? '✅' : '❌' }}</span>
+        </div>
+        <div class="login-details">
+          <div class="login-user">{{ login.username }}</div>
+          <div class="login-time">{{ formatDate(login.timestamp) }}</div>
+          <div class="login-ip">{{ login.ipAddress }}</div>
+          <div class="login-agent">{{ login.userAgent }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="no-logins" *ngIf="userStats.recentLogins.length === 0">
+      <p>No recent login activity</p>
+    </div>
+  </div>
+
+  <!-- Pending Alerts Section -->
+  <div class="alerts-section" *ngIf="isAuthenticated()">
+    <h2>⚠️ Pending Alerts</h2>
+    <div class="alerts-list" *ngIf="pendingAlerts.length > 0">
+      <div class="alert-item" *ngFor="let alert of pendingAlerts">
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-text">{{ alert }}</span>
+      </div>
+    </div>
+    <div class="no-alerts" *ngIf="pendingAlerts.length === 0">
+      <p>🎉 No pending alerts!</p>
+    </div>
+  </div>
+
+  <!-- Action Buttons Section -->
+  <div class="actions-section" *ngIf="isAuthenticated()">
+    <h2>⚡ Quick Actions</h2>
+    <div class="action-buttons">
+      <button class="action-btn primary" (click)="runSecurityScan()" [disabled]="loading">
+        <span class="btn-icon">🔍</span>
+        <span class="btn-text">Run Security Scan</span>
+      </button>
+      
+      <button class="action-btn secondary" (click)="fixVulnerabilities()">
+        <span class="btn-icon">🔧</span>
+        <span class="btn-text">Fix Vulnerabilities</span>
+      </button>
+      
+      <button class="action-btn warning" (click)="forceLogoutAllUsers()">
+        <span class="btn-icon">🚪</span>
+        <span class="btn-text">Force Logout All Users</span>
+      </button>
+      
+      <button class="action-btn info" (click)="refreshSystem()">
+        <span class="btn-icon">🔄</span>
+        <span class="btn-text">Refresh System</span>
+      </button>
+      
+      <button class="action-btn danger" (click)="forceUpdate()">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-text">Force Update</span>
+      </button>
+      
+      <button class="action-btn success" (click)="exportReport()">
+        <span class="btn-icon">📄</span>
+        <span class="btn-text">Export Report</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading && isAuthenticated()">
+    <div class="loading-spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <!-- Connection Status -->
+  <div class="connection-status" *ngIf="!loading && isAuthenticated()">
+    <div class="status-indicator">
+      <span class="status-dot" [class]="'status-' + (overallStatus || 'unknown')"></span>
+      <span class="status-text">
+        Backend: {{ getApiUrl() }}
+      </span>
+    </div>
+    <div class="env-status">
+      <small>Env: {{ getEnvironmentDisplayName() }}</small>
+    </div>
+  </div>
+</div> 

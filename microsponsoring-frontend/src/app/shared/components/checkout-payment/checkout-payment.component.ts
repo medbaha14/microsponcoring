@@ -20,9 +20,10 @@ export class CheckoutPaymentComponent implements OnInit {
   @Output() paymentSuccess = new EventEmitter<any>();
   @Output() paymentError = new EventEmitter<string>();
 
-  loading = false;
+  loading = false;          // état "en cours"
+  paymentLocked = false;    // verrou anti double-clic
   error = '';
-  
+
   // Payment form data
   paymentData = {
     cardNumber: '',
@@ -46,48 +47,43 @@ export class CheckoutPaymentComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // If companyId is empty, try to get it from the URL
+    // récup companyId si non passé en @Input
     if (!this.companyId) {
       this.route.paramMap.subscribe(params => {
         const urlCompanyId = params.get('companyId');
         if (urlCompanyId) {
           this.companyId = urlCompanyId;
         } else {
-          // Fallback: extract from URL using regex
           const url = window.location.href;
           const match = url.match(/profile\/([a-f0-9-]{36})/);
-          if (match) {
-            this.companyId = match[1];
-          }
+          if (match) this.companyId = match[1];
         }
       });
     }
-    // Initialize with current user data if available
+
     const user = TokenHandler.getUser();
-    if (user) {
-      this.paymentData.cardholderName = user.fullName || '';
-    }
+    if (user) this.paymentData.cardholderName = user.fullName || '';
   }
 
   get totalAmount(): number {
-    return this.benefits.reduce((sum, benefit) => sum + (benefit.currency || 0), 0);
+    return this.benefits.reduce((sum, b) => sum + (b.currency || 0), 0);
   }
 
   get totalAmountInPence(): number {
-    return Math.round(this.totalAmount * 100); // Convert to pence for Checkout.com
+    return Math.round(this.totalAmount * 100);
   }
 
   async processPayment(): Promise<void> {
-    if (!this.validateForm()) {
-      return;
-    }
+    // Validation simple
+    if (!this.validateForm()) return;
 
+    // Si déjà soumis/verrouillé, on ignore
+    if (this.paymentLocked) return;
+
+    // Verrouille immédiatement pour empêcher tout second clic
+    this.paymentLocked = true;
     this.loading = true;
     this.error = '';
-
-    // Debug prints
-    console.log('companyId:', this.companyId);
-    console.log('benefits:', this.benefits)
 
     try {
       const request: CheckoutPaymentSessionRequest = {
@@ -95,24 +91,10 @@ export class CheckoutPaymentComponent implements OnInit {
         currency: 'GBP',
         reference: `Sponsorship-${Date.now()}`,
         shipping: {
-          address: {
-            address_line1: this.paymentData.billingAddress.address_line1,
-            address_line2: this.paymentData.billingAddress.address_line2,
-            city: this.paymentData.billingAddress.city,
-            state: this.paymentData.billingAddress.state,
-            zip: this.paymentData.billingAddress.zip,
-            country: this.paymentData.billingAddress.country
-          }
+          address: { ...this.paymentData.billingAddress }
         },
         billing: {
-          address: {
-            address_line1: this.paymentData.billingAddress.address_line1,
-            address_line2: this.paymentData.billingAddress.address_line2,
-            city: this.paymentData.billingAddress.city,
-            state: this.paymentData.billingAddress.state,
-            zip: this.paymentData.billingAddress.zip,
-            country: this.paymentData.billingAddress.country
-          }
+          address: { ...this.paymentData.billingAddress }
         },
         threeDs: {
           enabled: false,
@@ -125,7 +107,7 @@ export class CheckoutPaymentComponent implements OnInit {
         success_url: `${window.location.origin}/payment/success`,
         failure_url: `${window.location.origin}/payment/failure`,
         metadata: {
-          sponsor_id: TokenHandler.getUser()?.sponsor.sponsorId || '',
+          sponsor_id: TokenHandler.getUser()?.sponsor?.sponsorId || '',
           company_id: this.companyId,
           benefit_ids: this.benefits.map(b => b.id || b.benefitId).join(',')
         }
@@ -134,27 +116,30 @@ export class CheckoutPaymentComponent implements OnInit {
       this.paymentService.createCheckoutSession(request).subscribe({
         next: (response) => {
           this.loading = false;
-          // Redirect to Checkout.com hosted payment page
+          // on laisse paymentLocked = true pour empêcher toute resoumission
+          this.paymentSuccess.emit(response);
+          // Décommente pour rediriger
           // this.redirectToCheckout(response.id);
         },
         error: (err) => {
+          // En cas d'échec réseau/API, on redonne la main à l'utilisateur
           this.loading = false;
+          this.paymentLocked = false;
           this.error = 'Payment session creation failed. Please try again.';
           this.paymentError.emit(this.error);
           console.error('Payment error:', err);
         }
       });
-
     } catch (err) {
       this.loading = false;
+      this.paymentLocked = false;
       this.error = 'An unexpected error occurred. Please try again.';
-      this.paymentError.emit(this.error);
+      this.paymentError.emit(this.error as any);
       console.error('Payment error:', err);
     }
   }
 
   private redirectToCheckout(sessionId: string): void {
-    // Check if this is a mock session (for testing purposes)
     if (sessionId.startsWith('mock_session_')) {
       alert('Check the console for debug output before redirect!');
       // window.location.href = `${window.location.origin}/payment/success?session_id=${sessionId}`;
@@ -165,7 +150,7 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   private validateForm(): boolean {
-    if (!this.paymentData.cardNumber || this.paymentData.cardNumber.length < 13) {
+    if (!this.paymentData.cardNumber || this.paymentData.cardNumber.replace(/\s/g, '').length < 13) {
       this.error = 'Please enter a valid card number';
       return false;
     }
@@ -181,8 +166,8 @@ export class CheckoutPaymentComponent implements OnInit {
       this.error = 'Please enter cardholder name';
       return false;
     }
-    if (!this.paymentData.billingAddress.address_line1 || !this.paymentData.billingAddress.city || 
-        !this.paymentData.billingAddress.zip || !this.paymentData.billingAddress.country) {
+    const a = this.paymentData.billingAddress;
+    if (!a.address_line1 || !a.city || !a.zip || !a.country) {
       this.error = 'Please complete billing address';
       return false;
     }
@@ -190,20 +175,20 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   formatCardNumber(event: any): void {
-    let value = event.target.value.replace(/\s/g, '');
+    let value = (event.target.value as string).replace(/\s/g, '');
     value = value.replace(/\D/g, '');
     value = value.replace(/(\d{4})/g, '$1 ').trim();
     this.paymentData.cardNumber = value;
   }
 
   formatExpiry(event: any, field: 'expiryMonth' | 'expiryYear'): void {
-    let value = event.target.value.replace(/\D/g, '');
+    let value = (event.target.value as string).replace(/\D/g, '');
     if (field === 'expiryMonth') {
-      if (parseInt(value) > 12) value = '12';
+      if (parseInt(value || '0', 10) > 12) value = '12';
       if (value.length > 2) value = value.substring(0, 2);
     } else {
       if (value.length > 2) value = value.substring(0, 2);
     }
     this.paymentData[field] = value;
   }
-} 
+}

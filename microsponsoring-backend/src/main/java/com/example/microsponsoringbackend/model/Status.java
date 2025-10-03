@@ -4,4 +4,4 @@ public enum Status {
     ACTIVE,
     PENDING,
     SUSPENDED
-} 
+}

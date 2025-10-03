@@ -10,11 +10,11 @@ import { LoginComponent } from './shared/components/login/login.component';
 import { RegisterComponent } from './shared/components/register/register.component';
 import { ForgotPasswordComponent } from './shared/components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './shared/components/reset-password/reset-password.component';
-import { AuthInterceptor } from './services/auth.interceptor';
 import { SponsorModalComponent } from './dashboard/admin/sponsor-modal/sponsor-modal.component';
 import { OrganisationModalComponent } from './dashboard/admin/organisation-modal/organisation-modal.component';
 import { UserListComponent } from './dashboard/admin/user-list/user-list.component';
 import { AddUserModalComponent } from './dashboard/admin/add-user-modal/add-user-modal.component';
+import { AuthInterceptor } from './services/auth.interceptor';
 
 @NgModule({
   declarations: [

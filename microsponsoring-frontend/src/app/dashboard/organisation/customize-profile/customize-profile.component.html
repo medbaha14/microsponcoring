@@ -1,4 +1,20 @@
 <div class="customize-profile-container" *ngIf="profile">
+  <!-- Information Banner -->
+  <div class="info-banner" *ngIf="!company">
+    <h3>🚀 Organization Profile Setup</h3>
+    <p>Your organization profile needs to be initialized to access all features. Once complete, you'll be able to:</p>
+    <ul>
+      <li>✅ Upload custom logos and images</li>
+      <li>✅ Customize colors and fonts</li>
+      <li>✅ Edit your organization details</li>
+      <li>✅ Manage recognition benefits</li>
+    </ul>
+    <button class="setup-btn" (click)="initializeUserProfiles()">
+      🔧 Initialize Profile Now
+    </button>
+    <p><em>This is a one-time setup for your organization account.</em></p>
+  </div>
+
   <!-- Form Section -->
   <form class="customize-profile-form" #form="ngForm" (ngSubmit)="saveChanges()">
     

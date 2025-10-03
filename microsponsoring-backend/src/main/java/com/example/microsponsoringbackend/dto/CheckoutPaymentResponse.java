@@ -123,4 +123,4 @@ public class CheckoutPaymentResponse {
         @JsonProperty("benefit_ids")
         private String benefitIds;
     }
-} 
+}

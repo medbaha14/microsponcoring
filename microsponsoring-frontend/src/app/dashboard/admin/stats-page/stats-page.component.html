@@ -1,12 +1,12 @@
 <div class="stats-container" [class.light-mode]="!isDarkMode">
   <!-- Loading State -->
-  <div *ngIf="!isLoading" class="loading-container">
+  <div *ngIf="isLoading" class="loading-container">
     <div class="loading-spinner"></div>
     <p>Loading statistics...</p>
   </div>
 
   <!-- Main Stats Dashboard -->
-  <div *ngIf="isLoading" class="stats-dashboard">
+  <div *ngIf="!isLoading" class="stats-dashboard">
     <!-- Header -->
     <div class="stats-header">
       <h1>Dashboard Statistics</h1>

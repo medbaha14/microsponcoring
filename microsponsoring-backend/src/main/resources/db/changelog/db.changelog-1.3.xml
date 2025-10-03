@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1.3.0-create-vulnerabilities-table" author="system">
+        <createTable tableName="vulnerabilities">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cve_id" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="title" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="severity" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cvss_score" type="DECIMAL(3,1)"/>
+            <column name="cvss_vector" type="VARCHAR(200)"/>
+            <column name="affected_package" type="VARCHAR(200)"/>
+            <column name="affected_version" type="VARCHAR(100)"/>
+            <column name="fixed_version" type="VARCHAR(100)"/>
+            <column name="ecosystem" type="VARCHAR(50)"/>
+            <column name="source" type="VARCHAR(50)"/>
+            <column name="published_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+            <column name="discovered_date" type="DATETIME"/>
+            <column name="is_active" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="references" type="TEXT"/>
+            <column name="solution" type="TEXT"/>
+        </createTable>
+        
+        <createIndex tableName="vulnerabilities" indexName="idx_vulnerabilities_cve_id">
+            <column name="cve_id"/>
+        </createIndex>
+        
+        <createIndex tableName="vulnerabilities" indexName="idx_vulnerabilities_severity">
+            <column name="severity"/>
+        </createIndex>
+        
+        <createIndex tableName="vulnerabilities" indexName="idx_vulnerabilities_ecosystem">
+            <column name="ecosystem"/>
+        </createIndex>
+        
+        <createIndex tableName="vulnerabilities" indexName="idx_vulnerabilities_active">
+            <column name="is_active"/>
+        </createIndex>
+        
+        <createIndex tableName="vulnerabilities" indexName="idx_vulnerabilities_package">
+            <column name="affected_package"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

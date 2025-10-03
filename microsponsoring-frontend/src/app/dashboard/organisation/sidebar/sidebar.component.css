@@ -1,14 +1,23 @@
 .sidebar {
   width: 80px;
-  background: var(--color-cream);
   border-radius: 16px;
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
   min-height: max-content;
-  box-shadow: 0 2px 16px rgba(9, 107, 104, 0.1);
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+}
+
+body.light-mode .sidebar {
+  background: var(--color-cream);
+  box-shadow: 0 2px 16px rgba(9, 107, 104, 0.1);
+}
+
+body.dark-mode .sidebar {
+  background: var(--color-dark-teal);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-medium-teal);
 }
 
 .sidebar.expanded {
@@ -116,12 +125,23 @@ body.dark-mode .sidebar-toggle:hover {
 
 .sidebar-search input {
   width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
   border: 1px solid var(--color-light-teal);
-  margin-bottom: 24px;
-  background: var(--color-cream);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .sidebar-search input {
+  background: #DFD0B8;
   color: var(--color-dark-teal);
+  border-color: #7a6b5a;
+}
+
+body.dark-mode .sidebar-search input {
+  background: var(--color-dark-teal);
+  color: var(--color-cream);
 }
 
 .sidebar-menu {
@@ -509,5 +529,17 @@ body.dark-mode .theme-toggle-btn {
 .sidebar-menu-item {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.notification-container {
+  border-radius: 8px;
+  position: relative;
+}
+
+.flex-box{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }

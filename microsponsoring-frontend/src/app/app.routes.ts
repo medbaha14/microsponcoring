@@ -33,6 +33,8 @@ export const routes: Routes = [
           { path: 'user-list', component: UserListComponent },
           { path: 'stats-page', loadComponent: () => import('./dashboard/admin/stats-page/stats-page.component').then(m => m.StatsPageComponent) },
           { path: 'invoices', loadComponent: () => import('./dashboard/admin/invoices/invoices.component').then(m => m.InvoicesComponent) },
+          { path: 'security', loadComponent: () => import('./dashboard/admin/security-dashboard/security-dashboard.component').then(m => m.SecurityDashboardComponent) },
+          { path: 'debug', loadComponent: () => import('./dashboard/admin/debug/debug.component').then(m => m.DebugComponent) },
         ]
       },
       {
@@ -43,6 +45,7 @@ export const routes: Routes = [
         children: [
            { path: 'sponsored', loadComponent: () => import('./dashboard/sponsor/sponsored/sponsored.component').then(m => m.SponsoredComponent) },
           { path: 'organisation-list', loadComponent: () => import('./dashboard/sponsor/organisation-list/organisation-list.component').then(m => m.OrganisationListComponent) },
+          { path: 'payment-tracking', loadComponent: () => import('./dashboard/sponsor/payment-tracking/payment-tracking.component').then(m => m.PaymentTrackingComponent) },
           { path: 'profile', loadComponent: () => import('./dashboard/sponsor/profile/profile.component').then(m => m.ProfileComponent) },
         ]
       },

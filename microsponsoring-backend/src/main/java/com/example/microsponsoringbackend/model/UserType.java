@@ -4,4 +4,4 @@ public enum UserType {
     SPONSOR,
     ORGANISATION_NONPROFIT,
     ADMIN
-} 
+}

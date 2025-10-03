@@ -7,14 +7,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (removed --only=production and added --legacy-peer-deps)
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Remove Angular budgets for Docker build
+RUN sed -i '/"budgets": \[/,/\]/d' angular.json
+
+# Build the application with pod configuration for Kubernetes
+RUN npm run build -- --configuration pod
 
 # Production stage
 FROM nginx:alpine

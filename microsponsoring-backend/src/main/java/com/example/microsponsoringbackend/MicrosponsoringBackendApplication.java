@@ -48,4 +48,4 @@ public class MicrosponsoringBackendApplication {
         
         SpringApplication.run(MicrosponsoringBackendApplication.class, args);
     }
-} 
+}

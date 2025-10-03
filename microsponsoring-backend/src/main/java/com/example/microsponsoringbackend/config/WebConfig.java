@@ -22,8 +22,5 @@ public class WebConfig {
         };
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-} 
+    // RestTemplate bean is defined in RestTemplateConfig.java to avoid conflicts
+}

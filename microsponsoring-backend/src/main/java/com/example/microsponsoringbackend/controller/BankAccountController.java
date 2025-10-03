@@ -45,4 +45,4 @@ public class BankAccountController {
         bankAccountService.delete(id);
         return ResponseEntity.noContent().build();
     }
-} 
+}

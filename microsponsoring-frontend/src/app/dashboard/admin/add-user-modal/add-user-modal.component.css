@@ -70,4 +70,11 @@ input:checked + .slider {
 }
 input:checked + .slider:before {
   transform: translateX(20px);
-} 
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  box-sizing: border-box; /* ensures padding + border stay inside the width */
+}

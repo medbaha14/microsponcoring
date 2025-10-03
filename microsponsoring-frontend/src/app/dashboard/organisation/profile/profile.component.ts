@@ -14,6 +14,7 @@ import { RecognitionBenefitsService } from '../../../services/recognition-benefi
 import { RecognitionBenefits } from '../../../models/recognition-benefits.model';
 import { PaymentService, CompanyStats } from '../../../services/payment.service';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-organisation-profile',
@@ -121,7 +122,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
   ngOnChanges(changes: SimpleChanges) {
     if (changes['profile'] && this.profile) {
       this.updateBackgroundStyle();
-      
+
       // If the profile input changes, re-fetch the company and benefits
       if (this.profile.userId) {
         this.companyService.getCompanyByUserId(this.profile.userId).subscribe(company => {
@@ -140,7 +141,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
 
   updateBackgroundStyle() {
     if (!this.profile) return;
-    
+
     let style = '';
     if (this.profile.backgroundImageUrl) {
       const overlayColor = this.hexToRgba(this.profile.backgroundColor || '#ffffff', 0.6);
@@ -164,7 +165,7 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
     if (url.startsWith('http') || url.startsWith('data:image')) {
       return url;
     }
-    return `http://localhost:8080${url}`;
+    return `${environment.baseUrl}${url}`;
   }
 
   private hexToRgba(hex: string, alpha: number): string {
@@ -176,6 +177,6 @@ export class OrganisationProfileComponent implements OnInit, OnChanges, OnDestro
   }
 
   pay() {
-    alert('Payment flow coming soon!');
+   // alert('Payment flow coming soon!');
   }
 }

@@ -33,4 +33,4 @@ public class PageCustomizationsService {
     public boolean existsById(UUID id) {
         return repository.existsById(id);
     }
-} 
+}
