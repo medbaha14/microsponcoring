@@ -37,7 +37,7 @@ public class SecurityService {
         
         int criticalCount = (int) vulnerabilities.stream().filter(v -> "critical".equalsIgnoreCase(v.getSeverity())).count();
         int highCount = (int) vulnerabilities.stream().filter(v -> "high".equalsIgnoreCase(v.getSeverity())).count();
-        int moderateCount = (int) vulnerabilities.stream().filter(v -> "moderate".equalsIgnoreCase(v.getSeverity())).count();
+        int moderateCount = (int) vulnerabilities.stream().filter(v -> "moderate".equalsIgnoreCase(v.getSeverity()) || "medium".equalsIgnoreCase(v.getSeverity())).count();
         int lowCount = (int) vulnerabilities.stream().filter(v -> "low".equalsIgnoreCase(v.getSeverity())).count();
         
         String overallStatus = calculateOverallStatus(criticalCount, highCount, moderateCount, lowCount);
@@ -85,14 +85,14 @@ public class SecurityService {
      */
     private SecurityVulnerabilityDto convertToDto(Vulnerability vuln) {
         String packageName = vuln.getAffectedPackage();
-        if (vuln.getAffectedVersion() != null && !vuln.getAffectedVersion().isEmpty()) {
+        if (vuln.getAffectedVersion() != null && !vuln.getAffectedVersion().isEmpty() && !"ALL".equals(vuln.getAffectedVersion())) {
             packageName += " " + vuln.getAffectedVersion();
         }
         
-        String source = vuln.getEcosystem() + " · " + vuln.getSource();
+        String source = vuln.getEcosystem() != null ? vuln.getEcosystem() + " · " + vuln.getSource() : vuln.getSource();
         
         // Convert severity to lowercase for frontend consistency
-        String severity = vuln.getSeverity().toLowerCase();
+        String severity = vuln.getSeverity() != null ? vuln.getSeverity().toLowerCase() : "unknown";
         
         int count = 1; // Each vulnerability is counted individually
         
@@ -133,7 +133,34 @@ public class SecurityService {
      */
     @Async
     public CompletableFuture<String> syncVulnerabilitiesFromNVD() {
-        return nvdService.syncVulnerabilitiesFromNVD();
+        logger.info("Starting NVD vulnerability sync...");
+        try {
+            // Get known vulnerable packages
+            List<String> packages = nvdService.getKnownVulnerablePackages();
+            
+            // Fetch vulnerabilities for all packages
+            CompletableFuture<List<Vulnerability>> future = nvdService.fetchVulnerabilitiesForPackages(packages);
+            List<Vulnerability> vulnerabilities = future.get();
+            
+            // Save to database
+            int savedCount = 0;
+            for (Vulnerability vuln : vulnerabilities) {
+                if (!vulnerabilityRepository.existsByCveId(vuln.getCveId())) {
+                    vulnerabilityRepository.save(vuln);
+                    savedCount++;
+                }
+            }
+            
+            String result = String.format("NVD sync completed. Found %d vulnerabilities, saved %d new entries.", 
+                vulnerabilities.size(), savedCount);
+            logger.info(result);
+            
+            return CompletableFuture.completedFuture(result);
+            
+        } catch (Exception e) {
+            logger.error("Error syncing vulnerabilities from NVD: {}", e.getMessage());
+            return CompletableFuture.completedFuture("Error syncing vulnerabilities: " + e.getMessage());
+        }
     }
     
     /**
@@ -357,6 +384,85 @@ public class SecurityService {
                 "LOW", 0L
             );
         }
+    }
+    
+    /**
+     * Get security alerts for the dashboard
+     */
+    public List<Object> getSecurityAlerts() {
+        try {
+            List<Vulnerability> criticalVulns = vulnerabilityRepository.findBySeverityIgnoreCaseAndIsActiveTrue("CRITICAL");
+            List<Vulnerability> highVulns = vulnerabilityRepository.findBySeverityIgnoreCaseAndIsActiveTrue("HIGH");
+            
+            List<Object> alerts = new ArrayList<>();
+            
+            // Create alerts for critical vulnerabilities
+            for (Vulnerability vuln : criticalVulns) {
+                alerts.add(createAlertFromVulnerability(vuln, "CRITICAL"));
+            }
+            
+            // Create alerts for high vulnerabilities
+            for (Vulnerability vuln : highVulns) {
+                alerts.add(createAlertFromVulnerability(vuln, "HIGH"));
+            }
+            
+            // Add sync status alert if needed
+            if (isNvdSyncNeeded()) {
+                alerts.add(createSyncAlert());
+            }
+            
+            return alerts;
+            
+        } catch (Exception e) {
+            logger.error("Error generating security alerts: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Create alert object from vulnerability
+     */
+    private Object createAlertFromVulnerability(Vulnerability vuln, String alertType) {
+        return java.util.Map.of(
+            "id", vuln.getCveId(),
+            "type", alertType,
+            "title", vuln.getCveId() + " - " + vuln.getAffectedPackage(),
+            "description", vuln.getDescription(),
+            "timestamp", System.currentTimeMillis(),
+            "status", "PENDING",
+            "cveId", vuln.getCveId(),
+            "package", vuln.getAffectedPackage(),
+            "riskScore", vuln.getCvssScore() != null ? String.format("%.1f", vuln.getCvssScore()) : "0.0"
+        );
+    }
+    
+    /**
+     * Create sync alert
+     */
+    private Object createSyncAlert() {
+        return java.util.Map.of(
+            "id", "SYNC_NEEDED",
+            "type", "WARNING",
+            "title", "NVD Data Sync Required",
+            "description", "No vulnerability data found. Please sync with NVD database.",
+            "timestamp", System.currentTimeMillis(),
+            "status", "PENDING"
+        );
+    }
+    
+    /**
+     * Get sync status object for frontend
+     */
+    public java.util.Map<String, Object> getSyncStatus() {
+        long vulnerabilityCount = vulnerabilityRepository.count();
+        boolean syncNeeded = vulnerabilityCount == 0;
+        
+        return java.util.Map.of(
+            "syncStatus", syncNeeded ? "NEEDS_SYNC" : "SYNCED",
+            "syncNeeded", syncNeeded,
+            "lastChecked", System.currentTimeMillis(),
+            "vulnerabilityCount", vulnerabilityCount
+        );
     }
     
     /**

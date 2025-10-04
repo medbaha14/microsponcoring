@@ -75,6 +75,17 @@ public class SecurityController {
         }
     }
 
+    @GetMapping("/vulnerabilities/attention-needed")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<SecurityVulnerabilityDto>> getVulnerabilitiesNeedingAttention() {
+        try {
+            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getVulnerabilitiesNeedingAttention();
+            return ResponseEntity.ok(vulnerabilities);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping("/scan")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> runSecurityScan() {
@@ -132,41 +143,10 @@ public class SecurityController {
     
     @GetMapping("/alerts")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Map<String, Object>>> getSecurityAlerts() {
+    public ResponseEntity<List<Object>> getSecurityAlerts() {
         try {
-            // Generate dynamic alerts based on current vulnerability data
-            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getVulnerabilities();
-            List<Map<String, Object>> alerts = new java.util.ArrayList<>();
-            
-            // Create alerts for high and critical vulnerabilities
-            for (SecurityVulnerabilityDto vuln : vulnerabilities) {
-                if ("critical".equalsIgnoreCase(vuln.getSeverity()) || "high".equalsIgnoreCase(vuln.getSeverity())) {
-                    Map<String, Object> alert = new HashMap<>();
-                    alert.put("id", vuln.getCveId());
-                    alert.put("type", vuln.getSeverity().toUpperCase());
-                    alert.put("title", "Security Vulnerability: " + vuln.getPackageName());
-                    alert.put("description", vuln.getDescription());
-                    alert.put("timestamp", System.currentTimeMillis());
-                    alert.put("status", "ACTIVE");
-                    alert.put("cveId", vuln.getCveId());
-                    alert.put("package", vuln.getPackageName());
-                    alert.put("riskScore", vuln.getRiskScore());
-                    alerts.add(alert);
-                }
-            }
-            
-            // If no high/critical vulnerabilities, create an informational alert
-            if (alerts.isEmpty()) {
-                Map<String, Object> infoAlert = new HashMap<>();
-                infoAlert.put("id", "info-1");
-                infoAlert.put("type", "INFO");
-                infoAlert.put("title", "Security Status: Normal");
-                infoAlert.put("description", "No critical or high severity vulnerabilities detected");
-                infoAlert.put("timestamp", System.currentTimeMillis());
-                infoAlert.put("status", "ACTIVE");
-                alerts.add(infoAlert);
-            }
-            
+            // Use the new method from SecurityService that generates alerts from vulnerabilities
+            List<Object> alerts = securityService.getSecurityAlerts();
             return ResponseEntity.ok(alerts);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -198,15 +178,9 @@ public class SecurityController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getSyncStatus() {
         try {
-            String syncStatus = securityService.getNvdSyncStatus();
-            boolean syncNeeded = securityService.isNvdSyncNeeded();
-            
-            Map<String, Object> status = new HashMap<>();
-            status.put("syncStatus", syncStatus);
-            status.put("syncNeeded", syncNeeded);
-            status.put("lastChecked", System.currentTimeMillis());
-            
-            return ResponseEntity.ok(status);
+            // Use the new method that returns a complete sync status object
+            Map<String, Object> syncStatus = securityService.getSyncStatus();
+            return ResponseEntity.ok(syncStatus);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -219,6 +193,7 @@ public class SecurityController {
             SecurityDashboardDto dashboard = securityService.getSecurityDashboard();
             List<Object[]> vulnerabilityStats = securityService.getVulnerabilityStats();
             List<Object[]> ecosystemStats = securityService.getEcosystemStats();
+            Map<String, Long> severityCounts = securityService.getVulnerabilityCountBySeverity();
             
             Map<String, Object> stats = new HashMap<>();
             stats.put("vulnerabilityCounts", Map.of(
@@ -232,6 +207,7 @@ public class SecurityController {
             stats.put("lastUpdate", dashboard.getLastUpdate());
             stats.put("vulnerabilityStats", vulnerabilityStats);
             stats.put("ecosystemStats", ecosystemStats);
+            stats.put("severityCounts", severityCounts);
             stats.put("syncStatus", securityService.getNvdSyncStatus());
             
             return ResponseEntity.ok(stats);
@@ -282,6 +258,75 @@ public class SecurityController {
             summary.put("needsAttention", dashboard.getCriticalCount() + dashboard.getHighCount() > 0);
             
             return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/severity-counts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Long>> getVulnerabilityCountBySeverity() {
+        try {
+            Map<String, Long> severityCounts = securityService.getVulnerabilityCountBySeverity();
+            return ResponseEntity.ok(severityCounts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/clear")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> clearAllVulnerabilities() {
+        try {
+            String result = securityService.clearAllVulnerabilities();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "SUCCESS");
+            response.put("message", result);
+            response.put("timestamp", System.currentTimeMillis());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Error clearing vulnerabilities: " + e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+
+    @GetMapping("/ecosystem-stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Object[]>> getEcosystemStats() {
+        try {
+            List<Object[]> ecosystemStats = securityService.getEcosystemStats();
+            return ResponseEntity.ok(ecosystemStats);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/vulnerability-stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Object[]>> getVulnerabilityStats() {
+        try {
+            List<Object[]> vulnerabilityStats = securityService.getVulnerabilityStats();
+            return ResponseEntity.ok(vulnerabilityStats);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/nvd-sync-needed")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Boolean>> isNvdSyncNeeded() {
+        try {
+            boolean syncNeeded = securityService.isNvdSyncNeeded();
+            
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("syncNeeded", syncNeeded);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
