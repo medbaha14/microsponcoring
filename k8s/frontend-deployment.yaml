@@ -1,83 +1,145 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: backend-deployment
   namespace: microsponsoring
   labels:
-    app: frontend
+    app: backend
     version: v1
 spec:
-  replicas: 3
+  replicas: 1  # Reduced for single node
+  strategy:
+    type: Recreate  # Added recreate strategy
   selector:
     matchLabels:
-      app: frontend
+      app: backend
   template:
     metadata:
       labels:
-        app: frontend
+        app: backend
         version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
-      - name: frontend
-        image: medbaha/pfefrontend:lastVer
+      - name: backend
+        image: medbaha/microsponsoring-backend:lastVer  # Fixed image name
         ports:
-        - containerPort: 80
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db-url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db-password
+        - name: CHECKOUT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: checkout-secret-key
+        - name: CHECKOUT_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: checkout-public-key
+        - name: MAIL_HOST
+          value: "smtp.gmail.com"
+        - name: MAIL_PORT
+          value: "587"
+        - name: MAIL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: mail-username
+        - name: MAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: mail-password
+        - name: SERVER_PORT
+          value: "8080"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "512Mi"
+            cpu: "250m"
           limits:
-            memory: "256Mi"
-            cpu: "200m"
+            memory: "1Gi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 30
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
           periodSeconds: 30
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 5
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
           periodSeconds: 10
+          timeoutSeconds: 3
+        volumeMounts:
+        - name: images-storage
+          mountPath: /app/images
+        - name: invoices-storage
+          mountPath: /app/invoices
+      volumes:
+      - name: images-storage
+        persistentVolumeClaim:
+          claimName: images-pvc
+      - name: invoices-storage
+        persistentVolumeClaim:
+          claimName: invoices-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: backend-service
   namespace: microsponsoring
 spec:
   selector:
-    app: frontend
+    app: backend
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 80
+    targetPort: 8080
   type: ClusterIP
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: frontend-ingress
+  name: images-pvc
   namespace: microsponsoring
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  tls:
-  - hosts:
-    - your-domain.com
-    secretName: frontend-tls
-  rules:
-  - host: your-domain.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80 
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: invoices-pvc
+  namespace: microsponsoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

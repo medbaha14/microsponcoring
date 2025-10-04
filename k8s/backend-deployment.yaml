@@ -7,7 +7,9 @@ metadata:
     app: backend
     version: v1
 spec:
-  replicas: 3
+  replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: backend
@@ -16,52 +18,49 @@ spec:
       labels:
         app: backend
         version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
       - name: backend
-        image: medbaha14/microsponsoring-backend:latest
+        image: medbaha/microsponsoring-backend:lastVer
         ports:
         - containerPort: 8080
         env:
+        # Database Configuration - Now points to MySQL service in Kubernetes
         - name: DB_URL
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-url
+          value: "jdbc:mysql://mysql:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC"
         - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-username
+          value: "root"
         - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-password
+          value: ""  # Empty password as in your env
+        
+        # Checkout Configuration
         - name: CHECKOUT_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: checkout-secret-key
+          value: "sk_sbox_iithuw4ge2ahksjxeybyp237wyx"
         - name: CHECKOUT_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: checkout-public-key
+          value: "pk_sbox_ilziuiwrfcgbwokgwskduowqemh"
+        
+        # Server Configuration
+        - name: SERVER_PORT
+          value: "8080"
+        
+        # Email Configuration (exactly as in your env)
         - name: MAIL_HOST
           value: "smtp.gmail.com"
         - name: MAIL_PORT
           value: "587"
         - name: MAIL_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: mail-username
+          value: "bousnina.baha14@gmail.com"
         - name: MAIL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: mail-password
+          value: "wasv wstd eibu urzo"  # With spaces as in your env
+        
+        # Spring Profile
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        
         resources:
           requests:
             memory: "512Mi"
@@ -73,14 +72,16 @@ spec:
           httpGet:
             path: /actuator/health
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90  # Increased to wait for DB
           periodSeconds: 30
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8080
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60  # Increased to wait for DB
           periodSeconds: 10
+          timeoutSeconds: 3
         volumeMounts:
         - name: images-storage
           mountPath: /app/images
@@ -130,4 +131,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi 
+      storage: 5Gi
