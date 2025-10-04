@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: medbaha/microsponsoring-backend:lastVer
+        image: medbaha/microsponsoring-backend:latest  
         ports:
         - containerPort: 8080
         env:
