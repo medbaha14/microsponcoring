@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -14,6 +14,7 @@ import { SponsorModalComponent } from './dashboard/admin/sponsor-modal/sponsor-m
 import { OrganisationModalComponent } from './dashboard/admin/organisation-modal/organisation-modal.component';
 import { UserListComponent } from './dashboard/admin/user-list/user-list.component';
 import { AddUserModalComponent } from './dashboard/admin/add-user-modal/add-user-modal.component';
+import { AuthInterceptor } from './services/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,13 @@ import { AddUserModalComponent } from './dashboard/admin/add-user-modal/add-user
     FormsModule
     // Add any other modules here
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { } 

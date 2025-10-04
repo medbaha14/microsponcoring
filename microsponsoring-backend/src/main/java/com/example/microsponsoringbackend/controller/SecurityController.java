@@ -9,10 +9,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/security")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class SecurityController {
 
     @Autowired
@@ -40,6 +42,39 @@ public class SecurityController {
         }
     }
 
+    @GetMapping("/vulnerabilities/package/{packageName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<SecurityVulnerabilityDto>> getVulnerabilitiesByPackage(@PathVariable String packageName) {
+        try {
+            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getVulnerabilitiesForPackage(packageName);
+            return ResponseEntity.ok(vulnerabilities);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/vulnerabilities/severity/{severity}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<SecurityVulnerabilityDto>> getVulnerabilitiesBySeverity(@PathVariable String severity) {
+        try {
+            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getVulnerabilitiesBySeverity(severity);
+            return ResponseEntity.ok(vulnerabilities);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/vulnerabilities/recent")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<SecurityVulnerabilityDto>> getRecentVulnerabilities() {
+        try {
+            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getRecentVulnerabilities();
+            return ResponseEntity.ok(vulnerabilities);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping("/scan")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> runSecurityScan() {
@@ -48,6 +83,17 @@ public class SecurityController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error running security scan: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/quick-scan")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SecurityDashboardDto> quickSecurityScan() {
+        try {
+            SecurityDashboardDto dashboard = securityService.quickSecurityScan();
+            return ResponseEntity.ok(dashboard);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -86,37 +132,40 @@ public class SecurityController {
     
     @GetMapping("/alerts")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<java.util.List<java.util.Map<String, Object>>> getSecurityAlerts() {
+    public ResponseEntity<List<Map<String, Object>>> getSecurityAlerts() {
         try {
-            java.util.List<java.util.Map<String, Object>> alerts = new java.util.ArrayList<>();
+            // Generate dynamic alerts based on current vulnerability data
+            List<SecurityVulnerabilityDto> vulnerabilities = securityService.getVulnerabilities();
+            List<Map<String, Object>> alerts = new java.util.ArrayList<>();
             
-            // Add some sample security alerts
-            java.util.Map<String, Object> alert1 = new java.util.HashMap<>();
-            alert1.put("id", "1");
-            alert1.put("type", "HIGH");
-            alert1.put("title", "Suspicious Login Activity");
-            alert1.put("description", "Multiple failed login attempts detected from IP 192.168.1.100");
-            alert1.put("timestamp", System.currentTimeMillis() - 3600000); // 1 hour ago
-            alert1.put("status", "ACTIVE");
-            alerts.add(alert1);
+            // Create alerts for high and critical vulnerabilities
+            for (SecurityVulnerabilityDto vuln : vulnerabilities) {
+                if ("critical".equalsIgnoreCase(vuln.getSeverity()) || "high".equalsIgnoreCase(vuln.getSeverity())) {
+                    Map<String, Object> alert = new HashMap<>();
+                    alert.put("id", vuln.getCveId());
+                    alert.put("type", vuln.getSeverity().toUpperCase());
+                    alert.put("title", "Security Vulnerability: " + vuln.getPackageName());
+                    alert.put("description", vuln.getDescription());
+                    alert.put("timestamp", System.currentTimeMillis());
+                    alert.put("status", "ACTIVE");
+                    alert.put("cveId", vuln.getCveId());
+                    alert.put("package", vuln.getPackageName());
+                    alert.put("riskScore", vuln.getRiskScore());
+                    alerts.add(alert);
+                }
+            }
             
-            java.util.Map<String, Object> alert2 = new java.util.HashMap<>();
-            alert2.put("id", "2");
-            alert2.put("type", "MEDIUM");
-            alert2.put("title", "Unusual API Usage Pattern");
-            alert2.put("description", "High volume of API requests detected from user 'testuser'");
-            alert2.put("timestamp", System.currentTimeMillis() - 7200000); // 2 hours ago
-            alert2.put("status", "RESOLVED");
-            alerts.add(alert2);
-            
-            java.util.Map<String, Object> alert3 = new java.util.HashMap<>();
-            alert3.put("id", "3");
-            alert3.put("type", "LOW");
-            alert3.put("title", "Password Policy Violation");
-            alert3.put("description", "User 'newuser' created account with weak password");
-            alert3.put("timestamp", System.currentTimeMillis() - 10800000); // 3 hours ago
-            alert3.put("status", "ACTIVE");
-            alerts.add(alert3);
+            // If no high/critical vulnerabilities, create an informational alert
+            if (alerts.isEmpty()) {
+                Map<String, Object> infoAlert = new HashMap<>();
+                infoAlert.put("id", "info-1");
+                infoAlert.put("type", "INFO");
+                infoAlert.put("title", "Security Status: Normal");
+                infoAlert.put("description", "No critical or high severity vulnerabilities detected");
+                infoAlert.put("timestamp", System.currentTimeMillis());
+                infoAlert.put("status", "ACTIVE");
+                alerts.add(infoAlert);
+            }
             
             return ResponseEntity.ok(alerts);
         } catch (Exception e) {
@@ -126,23 +175,113 @@ public class SecurityController {
     
     @PostMapping("/sync-nvd")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> syncNVDVulnerabilities() {
+    public ResponseEntity<Map<String, Object>> syncNVDVulnerabilities() {
         try {
-            String result = securityService.syncVulnerabilitiesFromNVD().get();
-            return ResponseEntity.ok(result);
+            CompletableFuture<String> future = securityService.syncVulnerabilitiesFromNVD();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "SYNC_STARTED");
+            response.put("message", "NVD vulnerability sync initiated in background");
+            response.put("timestamp", System.currentTimeMillis());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error syncing NVD vulnerabilities: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "SYNC_FAILED");
+            errorResponse.put("message", "Error syncing NVD vulnerabilities: " + e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+    
+    @GetMapping("/sync-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getSyncStatus() {
+        try {
+            String syncStatus = securityService.getNvdSyncStatus();
+            boolean syncNeeded = securityService.isNvdSyncNeeded();
+            
+            Map<String, Object> status = new HashMap<>();
+            status.put("syncStatus", syncStatus);
+            status.put("syncNeeded", syncNeeded);
+            status.put("lastChecked", System.currentTimeMillis());
+            
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
     
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<java.util.Map<String, Object>> getSecurityStats() {
+    public ResponseEntity<Map<String, Object>> getSecurityStats() {
         try {
-            java.util.Map<String, Object> stats = new java.util.HashMap<>();
-            stats.put("vulnerabilityStats", securityService.getVulnerabilityStats());
-            stats.put("ecosystemStats", securityService.getEcosystemStats());
+            SecurityDashboardDto dashboard = securityService.getSecurityDashboard();
+            List<Object[]> vulnerabilityStats = securityService.getVulnerabilityStats();
+            List<Object[]> ecosystemStats = securityService.getEcosystemStats();
+            
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("vulnerabilityCounts", Map.of(
+                "critical", dashboard.getCriticalCount(),
+                "high", dashboard.getHighCount(),
+                "moderate", dashboard.getModerateCount(),
+                "low", dashboard.getLowCount(),
+                "total", dashboard.getVulnerabilities().size()
+            ));
+            stats.put("overallStatus", dashboard.getOverallStatus());
+            stats.put("lastUpdate", dashboard.getLastUpdate());
+            stats.put("vulnerabilityStats", vulnerabilityStats);
+            stats.put("ecosystemStats", ecosystemStats);
+            stats.put("syncStatus", securityService.getNvdSyncStatus());
+            
             return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @GetMapping("/health")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        try {
+            String healthStatus = securityService.healthCheck();
+            
+            Map<String, Object> health = new HashMap<>();
+            health.put("status", "HEALTHY");
+            health.put("message", healthStatus);
+            health.put("timestamp", System.currentTimeMillis());
+            health.put("service", "Security Service");
+            
+            return ResponseEntity.ok(health);
+        } catch (Exception e) {
+            Map<String, Object> health = new HashMap<>();
+            health.put("status", "UNHEALTHY");
+            health.put("message", "Security service health check failed: " + e.getMessage());
+            health.put("timestamp", System.currentTimeMillis());
+            health.put("service", "Security Service");
+            return ResponseEntity.internalServerError().body(health);
+        }
+    }
+    
+    @GetMapping("/summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getSecuritySummary() {
+        try {
+            SecurityDashboardDto dashboard = securityService.getSecurityDashboard();
+            
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("totalVulnerabilities", dashboard.getVulnerabilities().size());
+            summary.put("criticalCount", dashboard.getCriticalCount());
+            summary.put("highCount", dashboard.getHighCount());
+            summary.put("moderateCount", dashboard.getModerateCount());
+            summary.put("lowCount", dashboard.getLowCount());
+            summary.put("overallStatus", dashboard.getOverallStatus());
+            summary.put("lastScan", dashboard.getLastUpdate());
+            summary.put("nextScan", dashboard.getNextScan());
+            summary.put("syncStatus", securityService.getNvdSyncStatus());
+            summary.put("needsAttention", dashboard.getCriticalCount() + dashboard.getHighCount() > 0);
+            
+            return ResponseEntity.ok(summary);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

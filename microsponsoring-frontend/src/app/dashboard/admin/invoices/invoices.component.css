@@ -211,7 +211,7 @@ body.dark-mode .filters-section {
 }
 
 .search-input {
-  width: 100%;
+  width: 25%;
   padding: 8px 35px 8px 12px;
   border: 2px solid var(--color-light-teal);
   border-radius: 6px;

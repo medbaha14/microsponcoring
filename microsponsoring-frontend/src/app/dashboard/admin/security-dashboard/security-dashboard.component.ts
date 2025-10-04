@@ -36,6 +36,11 @@ interface SystemMetrics {
   network: number;
   uptime: string;
   lastRestart: string;
+  maxMemoryMB: number;
+  memoryUsageMB: number;
+  memoryUsagePercent: number;
+  threadCount: number;
+  uptimeMinutes: number;
 }
 
 interface UserStats {
@@ -59,6 +64,39 @@ interface BuildInfo {
   lastUpdate: string;
 }
 
+interface AlertItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: number;
+  status: string;
+  cveId?: string;
+  package?: string;
+  riskScore?: string;
+}
+
+interface SyncStatus {
+  syncStatus: string;
+  syncNeeded: boolean;
+  lastChecked: number;
+}
+
+interface SecurityStats {
+  vulnerabilityCounts: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+    total: number;
+  };
+  overallStatus: string;
+  lastUpdate: string;
+  vulnerabilityStats: any[];
+  ecosystemStats: any[];
+  syncStatus: string;
+}
+
 @Component({
   selector: 'app-security-dashboard',
   standalone: true,
@@ -67,7 +105,6 @@ interface BuildInfo {
   styleUrls: ['./security-dashboard.component.css']
 })
 export class SecurityDashboardComponent implements OnInit, OnDestroy {
-  // Make environment accessible to template
   environment = environment;
   
   // Security data
@@ -87,8 +124,13 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     memory: 0,
     disk: 0,
     network: 0,
-    uptime: '',
-    lastRestart: ''
+    uptime: 'Loading...',
+    lastRestart: 'Loading...',
+    maxMemoryMB: 0,
+    memoryUsageMB: 0,
+    memoryUsagePercent: 0,
+    threadCount: 0,
+    uptimeMinutes: 0
   };
 
   // User statistics
@@ -106,208 +148,306 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     lastUpdate: ''
   };
 
-  // Pending alerts
-  pendingAlerts: string[] = [];
+  // Dynamic alerts from backend
+  pendingAlerts: AlertItem[] = [];
 
-  // Auto-refresh interval
+  // Sync status
+  syncStatus: SyncStatus = {
+    syncStatus: 'UNKNOWN',
+    syncNeeded: true,
+    lastChecked: 0
+  };
+
+  // Auto-refresh intervals
   private refreshInterval: any;
+  private metricsRefreshInterval: any;
+
+  // Connection status
+  backendStatus: 'online' | 'offline' | 'checking' = 'checking';
+  lastSuccessfulUpdate: Date | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
-    // Check authentication and admin role
     if (!this.checkAuthentication()) {
       return;
     }
     
-    // Debug: Log environment and API configuration
     console.log('Security Dashboard initialized');
-    console.log('Environment object:', environment);
-    console.log('Component environment:', this.environment);
     console.log('API URL:', this.getApiUrl());
-    console.log('Environment display:', this.getEnvironmentDisplayName());
     
     this.loadAllData();
     this.startAutoRefresh();
     this.loadBuildInfo();
+    this.startMetricsAutoRefresh();
+    this.loadSyncStatus();
   }
 
   ngOnDestroy() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    if (this.metricsRefreshInterval) {
+      clearInterval(this.metricsRefreshInterval);
+    }
   }
 
   loadAllData() {
     this.loading = true;
+    this.backendStatus = 'checking';
     
-    // Load security data
-    this.loadSecurityData();
-    
-    // Load system metrics
-    this.loadSystemMetrics();
-    
-    // Load user statistics
-    this.loadUserStats();
-    
-    // Load pending alerts
-    this.loadPendingAlerts();
+    Promise.all([
+      this.loadSecurityData(),
+      this.loadSystemMetrics(),
+      this.loadUserStats(),
+      this.loadPendingAlerts(),
+      this.loadSyncStatus()
+    ]).finally(() => {
+      this.loading = false;
+      this.lastSuccessfulUpdate = new Date();
+    });
   }
 
-  loadSecurityData() {
-    const apiUrl = environment?.apiUrl || 'http://localhost:8080/api';
-    console.log('Loading security data from:', `${apiUrl}/security/dashboard`);
+  loadSecurityData(): Promise<void> {
+    return new Promise((resolve) => {
+      const apiUrl = this.getApiUrl();
+      // Change from /security/dashboard to /vulnerabilities
+      this.http.get<SecurityVulnerability[]>(`${apiUrl}/security/vulnerabilities`)
+        .subscribe({
+          next: (data) => {
+            // Transform the response to match your interface
+            this.vulnerabilities = Array.isArray(data) ? data : [];
+            
+            // Calculate counts based on severity
+            this.criticalCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'critical').length;
+            this.highCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'high').length;
+            this.moderateCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'moderate' || v.severity?.toLowerCase() === 'medium').length;
+            this.lowCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'low').length;
+            
+            this.lastUpdate = new Date().toISOString();
+            this.overallStatus = this.calculateOverallStatus();
+            this.backendStatus = 'online';
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading security data:', error);
+            this.backendStatus = 'offline';
+            resolve();
+          }
+        });
+    });
+  }
+  
+  // Add this helper method to calculate overall status
+  private calculateOverallStatus(): string {
+    if (this.criticalCount > 0) return 'Critical';
+    if (this.highCount > 0) return 'High';
+    if (this.moderateCount > 0) return 'Moderate';
+    if (this.lowCount > 0) return 'Low';
+    return 'Healthy';
+  }
+
+  loadSystemMetrics(): Promise<void> {
+    return new Promise((resolve) => {
+      const apiUrl = this.getApiUrl();
+      this.http.get<any>(`${apiUrl}/system/metrics`)
+        .subscribe({
+          next: (data) => {
+            // Calculate missing fields if not provided by backend
+            const runtime = this.calculateRuntimeMetrics();
+            
+            this.systemMetrics = {
+              cpu: this.sanitizeMetric(data?.cpu),
+              memory: this.sanitizeMetric(data?.memory),
+              disk: this.sanitizeMetric(data?.disk),
+              network: this.sanitizeMetric(data?.network),
+              uptime: data?.uptime || 'Unknown',
+              lastRestart: data?.lastRestart || new Date().toISOString(),
+              
+              // Use backend data or calculate locally
+              maxMemoryMB: data?.maxMemoryMB || runtime.maxMemoryMB,
+              memoryUsageMB: data?.memoryUsageMB || runtime.memoryUsageMB,
+              memoryUsagePercent: this.sanitizeMetric(
+                data?.memoryUsagePercent || runtime.memoryUsagePercent
+              ),
+              threadCount: data?.threadCount || runtime.threadCount,
+              uptimeMinutes: data?.uptimeMinutes || this.parseUptimeToMinutes(data?.uptime)
+            };
+            this.backendStatus = 'online';
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading system metrics:', error);
+            // Set default values on error
+            const runtime = this.calculateRuntimeMetrics();
+            this.systemMetrics = {
+              cpu: 0,
+              memory: 0,
+              disk: 0,
+              network: 0,
+              uptime: 'Unknown',
+              lastRestart: new Date().toISOString(),
+              maxMemoryMB: runtime.maxMemoryMB,
+              memoryUsageMB: runtime.memoryUsageMB,
+              memoryUsagePercent: runtime.memoryUsagePercent,
+              threadCount: runtime.threadCount,
+              uptimeMinutes: 0
+            };
+            this.backendStatus = 'offline';
+            resolve();
+          }
+        });
+    });
+  }
+  
+  // Add these helper methods to calculate runtime metrics
+  private calculateRuntimeMetrics() {
+    // These are browser approximations since we can't get real JVM metrics in frontend
+    const memory = (performance as any).memory;
+    const maxMemoryMB = memory ? Math.round(memory.jsHeapSizeLimit / (1024 * 1024)) : 512;
+    const usedMemoryMB = memory ? Math.round(memory.usedJSHeapSize / (1024 * 1024)) : 128;
+    const memoryUsagePercent = maxMemoryMB > 0 ? (usedMemoryMB / maxMemoryMB) * 100 : 25;
     
-    this.http.get<SecurityDashboard>(`${apiUrl}/security/dashboard`)
-      .subscribe({
-        next: (data) => {
-          this.vulnerabilities = data.vulnerabilities;
-          this.criticalCount = data.criticalCount;
-          this.highCount = data.highCount;
-          this.moderateCount = data.moderateCount;
-          this.lowCount = data.lowCount;
-          this.lastUpdate = data.lastUpdate;
-          this.nextScan = data.nextScan;
-          this.overallStatus = data.overallStatus;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading security data:', error);
-          console.error('API URL attempted:', `${this.getApiUrl()}/security/dashboard`);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.message);
-          this.loadSampleData();
-        }
-      });
+    return {
+      maxMemoryMB,
+      memoryUsageMB: usedMemoryMB,
+      memoryUsagePercent,
+      threadCount: navigator.hardwareConcurrency || 4
+    };
+  }
+  
+  private parseUptimeToMinutes(uptimeString: string): number {
+    if (!uptimeString) return 0;
+    
+    try {
+      // Parse "6 days, 16 hours, 4 minutes" to minutes
+      let totalMinutes = 0;
+      
+      const daysMatch = uptimeString.match(/(\d+)\s*days?/);
+      const hoursMatch = uptimeString.match(/(\d+)\s*hours?/);
+      const minutesMatch = uptimeString.match(/(\d+)\s*minutes?/);
+      
+      if (daysMatch) totalMinutes += parseInt(daysMatch[1]) * 24 * 60;
+      if (hoursMatch) totalMinutes += parseInt(hoursMatch[1]) * 60;
+      if (minutesMatch) totalMinutes += parseInt(minutesMatch[1]);
+      
+      return totalMinutes;
+    } catch (e) {
+      return 0;
+    }
+  }
+  loadUserStats(): Promise<void> {
+    return new Promise((resolve) => {
+      const apiUrl = this.getApiUrl();
+      this.http.get<UserStats>(`${apiUrl}/users/stats`)
+        .subscribe({
+          next: (data) => {
+            this.userStats = {
+              activeUsers: data?.activeUsers || 0,
+              totalUsers: data?.totalUsers || 0,
+              recentLogins: data?.recentLogins || []
+            };
+            this.backendStatus = 'online';
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading user stats:', error);
+            this.backendStatus = 'offline';
+            resolve();
+          }
+        });
+    });
   }
 
-  loadSystemMetrics() {
-    const apiUrl = this.getApiUrl();
-    this.http.get<SystemMetrics>(`${apiUrl}/system/metrics`)
-      .subscribe({
-        next: (data) => {
-          this.systemMetrics = data;
-        },
-        error: (error) => {
-          console.error('Error loading system metrics:', error);
-          this.loadSampleSystemMetrics();
-        }
-      });
+  loadPendingAlerts(): Promise<void> {
+    return new Promise((resolve) => {
+      const apiUrl = this.getApiUrl();
+      this.http.get<AlertItem[]>(`${apiUrl}/security/alerts`)
+        .subscribe({
+          next: (data) => {
+            this.pendingAlerts = Array.isArray(data) ? data : [];
+            console.log('Loaded alerts from backend:', this.pendingAlerts);
+            this.backendStatus = 'online';
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading security alerts:', error);
+            this.backendStatus = 'offline';
+            resolve();
+          }
+        });
+    });
   }
 
-  loadUserStats() {
-    const apiUrl = this.getApiUrl();
-    this.http.get<UserStats>(`${apiUrl}/users/stats`)
-      .subscribe({
-        next: (data) => {
-          this.userStats = data;
-        },
-        error: (error) => {
-          console.error('Error loading user stats:', error);
-          this.loadSampleUserStats();
-        }
-      });
-  }
-
-  loadPendingAlerts() {
-    const apiUrl = this.getApiUrl();
-    this.http.get<string[]>(`${apiUrl}/security/alerts`)
-      .subscribe({
-        next: (data) => {
-          this.pendingAlerts = data;
-        },
-        error: (error) => {
-          console.error('Error loading alerts:', error);
-          this.loadSampleAlerts();
-        }
-      });
+  loadSyncStatus(): Promise<void> {
+    return new Promise((resolve) => {
+      const apiUrl = this.getApiUrl();
+      this.http.get<SyncStatus>(`${apiUrl}/security/sync-status`)
+        .subscribe({
+          next: (data) => {
+            this.syncStatus = data || { syncStatus: 'UNKNOWN', syncNeeded: true, lastChecked: 0 };
+            this.backendStatus = 'online';
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading sync status:', error);
+            this.backendStatus = 'offline';
+            resolve();
+          }
+        });
+    });
   }
 
   loadBuildInfo() {
-    // Use the build info from the build-info.ts file
     this.buildInfo = {
-      version: buildInfo.version,
-      buildTime: buildInfo.buildTime,
-      environment: buildInfo.environment,
-      lastUpdate: buildInfo.lastUpdate
+      version: buildInfo.version || '1.0.0',
+      buildTime: buildInfo.buildTime || new Date().toISOString(),
+      environment: buildInfo.environment || 'development',
+      lastUpdate: buildInfo.lastUpdate || new Date().toISOString()
     };
-  }
-
-  loadSampleData() {
-    this.vulnerabilities = [
-      {
-        packageName: 'mysql:mysql-connector-java 8.0.33',
-        source: 'Maven · microsponsoring-backend/pom.xml',
-        severity: 'high',
-        count: 1,
-        description: 'MySQL Connector vulnerability',
-        cveId: 'CVE-2023-12345',
-        fixVersion: '8.0.35',
-        riskScore: '8.5'
-      },
-      {
-        packageName: 'webpack-dev-server 5.0.4',
-        source: 'npm · microsponsoring-frontend/package-lock.json',
-        severity: 'moderate',
-        count: 2,
-        description: 'Webpack dev server vulnerabilities',
-        cveId: 'CVE-2023-67890',
-        fixVersion: '5.0.5',
-        riskScore: '6.2'
-      }
-    ];
-    this.highCount = 1;
-    this.moderateCount = 2;
-    this.loading = false;
-  }
-
-  loadSampleSystemMetrics() {
-    this.systemMetrics = {
-      cpu: 45,
-      memory: 67,
-      disk: 23,
-      network: 12,
-      uptime: '15 days, 8 hours, 32 minutes',
-      lastRestart: '2024-01-15 08:30:00'
-    };
-  }
-
-  loadSampleUserStats() {
-    this.userStats = {
-      activeUsers: 23,
-      totalUsers: 156,
-      recentLogins: [
-        {
-          username: 'admin',
-          timestamp: '2024-01-30 14:25:30',
-          success: true,
-          ipAddress: '192.168.1.100',
-          userAgent: 'Chrome/120.0.0.0'
-        },
-        {
-          username: 'user123',
-          timestamp: '2024-01-30 14:20:15',
-          success: false,
-          ipAddress: '192.168.1.101',
-          userAgent: 'Firefox/121.0'
-        }
-      ]
-    };
-  }
-
-  loadSampleAlerts() {
-    this.pendingAlerts = [
-      'High CPU usage detected (85%)',
-      'Database connection pool at 90% capacity',
-      'SSL certificate expires in 30 days',
-      'Failed login attempts from suspicious IP'
-    ];
   }
 
   startAutoRefresh() {
+    // Refresh main data every 5 minutes
     this.refreshInterval = setInterval(() => {
       this.loadAllData();
-    }, 300000); // Refresh every 5 minutes
+    }, 300000); // 5 minutes
+  }
+
+  startMetricsAutoRefresh() {
+    // Refresh system metrics more frequently (every 30 seconds)
+    this.metricsRefreshInterval = setInterval(() => {
+      this.loadSystemMetrics();
+    }, 30000); // 30 seconds
+  }
+
+  // Improved metric sanitization
+  private sanitizeMetric(value: any): number {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, Number(value))); // Ensure between 0-100
+  }
+
+  // Helper to format uptime from minutes for backward compatibility
+  private formatUptimeFromMinutes(minutes: number): string {
+    if (!minutes) return 'Unknown';
+    
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const mins = minutes % 60;
+    
+    if (days > 0) {
+      return `${days} days, ${hours} hours, ${mins} minutes`;
+    } else if (hours > 0) {
+      return `${hours} hours, ${mins} minutes`;
+    } else {
+      return `${mins} minutes`;
+    }
   }
 
   // Security actions
@@ -318,12 +458,14 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     this.http.post<string>(`${apiUrl}/security/scan`, {})
       .subscribe({
         next: (result) => {
-          alert('Security scan completed: ' + result);
+          window.alert('Security scan completed: ' + result);
           this.loadSecurityData();
+          this.loadSyncStatus();
+          this.loading = false;
         },
         error: (error) => {
           console.error('Error running security scan:', error);
-          alert('Error running security scan. Check console for details.');
+          window.alert('Error running security scan: ' + error.message);
           this.loading = false;
         }
       });
@@ -334,26 +476,28 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     this.http.post<string>(`${apiUrl}/security/fix`, {})
       .subscribe({
         next: (result) => {
-          alert(result);
+          window.alert(result);
+          this.loadSecurityData();
         },
         error: (error) => {
           console.error('Error fixing vulnerabilities:', error);
-          alert('Error fixing vulnerabilities. Check console for details.');
+          window.alert('Error fixing vulnerabilities: ' + error.message);
         }
       });
   }
 
   forceUpdate() {
-    if (confirm('This will force update all packages and may cause breaking changes. Continue?')) {
+    if (window.confirm('This will force update all packages and may cause breaking changes. Continue?')) {
       const apiUrl = this.getApiUrl();
       this.http.post<string>(`${apiUrl}/security/force-update`, {})
         .subscribe({
           next: (result) => {
-            alert(result);
+            window.alert(result);
+            this.loadSecurityData();
           },
           error: (error) => {
             console.error('Error forcing update:', error);
-            alert('Error forcing update. Check console for details.');
+            window.alert('Error forcing update: ' + error.message);
           }
         });
     }
@@ -364,102 +508,129 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     this.http.get<string>(`${apiUrl}/security/export-report`)
       .subscribe({
         next: (reportUrl) => {
-          alert('Security report exported to: ' + reportUrl);
+          window.alert('Security report exported to: ' + reportUrl);
+          window.open(reportUrl, '_blank');
         },
         error: (error) => {
           console.error('Error exporting report:', error);
-          alert('Error exporting report. Check console for details.');
+          window.alert('Error exporting report: ' + error.message);
         }
       });
   }
 
-  // Admin actions
-  forceLogoutAllUsers() {
-    if (confirm('This will force logout all currently active users. Continue?')) {
-      const apiUrl = this.getApiUrl();
-      this.http.post<string>(`${apiUrl}/admin/force-logout-all`, {})
-        .subscribe({
-          next: (result) => {
-            alert(result);
-            this.loadUserStats();
-          },
-          error: (error) => {
-            console.error('Error forcing logout:', error);
-            alert('Error forcing logout. Check console for details.');
-          }
-        });
-    }
-  }
-
-  refreshSystem() {
+  syncNVDVulnerabilities() {
+    this.loading = true;
     const apiUrl = this.getApiUrl();
-    this.http.post<string>(`${apiUrl}/admin/refresh-system`, {})
+    this.http.post<{status: string, message: string}>(`${apiUrl}/security/sync-nvd`, {})
       .subscribe({
-        next: (result) => {
-          alert(result);
-          this.loadAllData();
+        next: (response) => {
+          window.alert('NVD sync: ' + response.message);
+          this.loadSecurityData();
+          this.loadSyncStatus();
+          this.loading = false;
         },
         error: (error) => {
-          console.error('Error refreshing system:', error);
-          alert('Error refreshing system. Check console for details.');
+          console.error('Error syncing NVD vulnerabilities:', error);
+          window.alert('Error syncing NVD vulnerabilities: ' + error.message);
+          this.loading = false;
         }
       });
   }
 
-  // Test backend connection
+  quickSecurityScan() {
+    const apiUrl = this.getApiUrl();
+    this.http.get<SecurityDashboard>(`${apiUrl}/security/quick-scan`)
+      .subscribe({
+        next: (dashboard) => {
+          this.vulnerabilities = dashboard.vulnerabilities || [];
+          this.criticalCount = dashboard.criticalCount || 0;
+          this.highCount = dashboard.highCount || 0;
+          this.moderateCount = dashboard.moderateCount || 0;
+          this.lowCount = dashboard.lowCount || 0;
+          this.lastUpdate = dashboard.lastUpdate || new Date().toISOString();
+          this.overallStatus = dashboard.overallStatus || 'Unknown';
+          window.alert('Quick scan completed!');
+        },
+        error: (error) => {
+          console.error('Error running quick scan:', error);
+          window.alert('Error running quick scan: ' + error.message);
+        }
+      });
+  }
+
+  // Enhanced backend connection test
   testBackendConnection() {
     const apiUrl = this.getApiUrl();
     console.log('Testing backend connection to:', apiUrl);
     
-    // Simple health check
-    this.http.get(`${apiUrl.replace('/api', '')}/actuator/health`, { responseType: 'text' })
-      .subscribe({
-        next: (response) => {
-          console.log('Backend connection successful:', response);
-          alert('Backend connection successful!');
+    const endpoints = [
+      `${apiUrl}/system/metrics`,
+      `${apiUrl}/security/dashboard`,
+      `${apiUrl}/security/alerts`,
+      `${apiUrl}/security/sync-status`
+    ];
+    
+    let successCount = 0;
+    const results: {endpoint: string, status: string}[] = [];
+    
+    endpoints.forEach(endpoint => {
+      this.http.get(endpoint).subscribe({
+        next: () => {
+          successCount++;
+          results.push({endpoint, status: '✅ Online'});
+          this.checkAllResults(successCount, endpoints.length, results);
         },
         error: (error) => {
-          console.error('Backend connection failed:', error);
-          alert(`Backend connection failed: ${error.status} - ${error.message}`);
+          console.error(`Endpoint ${endpoint} failed:`, error);
+          results.push({endpoint, status: '❌ Offline'});
+          this.checkAllResults(successCount, endpoints.length, results);
         }
       });
+    });
   }
 
-  // Get API URL with fallback
+  private checkAllResults(successCount: number, totalCount: number, results: {endpoint: string, status: string}[]) {
+    if (results.length === totalCount) {
+      const resultMessage = results.map(r => `${r.endpoint}: ${r.status}`).join('\n');
+      window.alert(`Backend Connection Test:\n\n${resultMessage}\n\n✅ ${successCount}/${totalCount} endpoints accessible`);
+      this.backendStatus = successCount > 0 ? 'online' : 'offline';
+    }
+  }
+
+  // Utility methods
   getApiUrl(): string {
     return this.environment?.apiUrl || 'http://localhost:8080/api';
   }
 
-  // Get environment display name
   getEnvironmentDisplayName(): string {
     if (!this.environment) return 'Unknown';
     return this.environment.production ? 'Production' : 'Development';
   }
 
-  // Check if environment is properly loaded
   isEnvironmentLoaded(): boolean {
     return !!this.environment && !!this.environment.apiUrl;
   }
 
-  // Check if user is authenticated and has admin role
   isAuthenticated(): boolean {
     const token = TokenHandler.getToken();
     const user = TokenHandler.getUser();
     return !!(token && user && user.userType === 'ADMIN');
   }
 
-  // Check authentication and admin role
   checkAuthentication(): boolean {
     const token = TokenHandler.getToken();
     const user = TokenHandler.getUser();
     
     if (!token) {
       console.error('No authentication token found');
+      this.router.navigate(['/login']);
       return false;
     }
     
     if (!user || user.userType !== 'ADMIN') {
       console.error('User does not have ADMIN role');
+      window.alert('Access denied. Admin role required.');
+      this.router.navigate(['/']);
       return false;
     }
     
@@ -467,12 +638,10 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  // Navigate to login page
   goToLogin() {
     this.router.navigate(['/login']);
   }
 
-  // Get current user info for display
   getCurrentUserInfo(): string {
     const user = TokenHandler.getUser();
     if (user) {
@@ -481,50 +650,74 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     return 'Unknown';
   }
 
-  // Check if backend is accessible
-  checkBackendAccess() {
-    const apiUrl = this.getApiUrl();
-    console.log('Checking backend access to:', apiUrl);
-    
-    // Try to access a simple endpoint
-    this.http.get(`${apiUrl.replace('/api', '')}/actuator/health`, { responseType: 'text' })
-      .subscribe({
-        next: (response) => {
-          console.log('Backend is accessible:', response);
-          alert('✅ Backend is accessible!\n\nResponse: ' + response.substring(0, 100) + '...');
-        },
-        error: (error) => {
-          console.error('Backend access failed:', error);
-          alert(`❌ Backend access failed!\n\nStatus: ${error.status}\nMessage: ${error.message}\n\nPlease check:\n1. Backend is running on port 8080\n2. No firewall blocking the connection\n3. Backend has actuator endpoints enabled`);
-        }
-      });
+  // Template helper methods
+  get hasVulnerabilities(): boolean {
+    return this.vulnerabilities && this.vulnerabilities.length > 0;
+  }
+
+  get hasRecentLogins(): boolean {
+    return this.userStats && this.userStats.recentLogins && this.userStats.recentLogins.length > 0;
+  }
+
+  get hasPendingAlerts(): boolean {
+    return this.pendingAlerts && this.pendingAlerts.length > 0;
+  }
+
+  get backendStatusIcon(): string {
+    switch (this.backendStatus) {
+      case 'online': return '🟢';
+      case 'offline': return '🔴';
+      case 'checking': return '🟡';
+      default: return '⚪';
+    }
+  }
+
+  get backendStatusText(): string {
+    switch (this.backendStatus) {
+      case 'online': return 'Backend Online';
+      case 'offline': return 'Backend Offline';
+      case 'checking': return 'Checking Connection';
+      default: return 'Unknown Status';
+    }
+  }
+
+  get syncStatusIcon(): string {
+    switch (this.syncStatus.syncStatus) {
+      case 'SYNCED': return '🟢';
+      case 'NEEDS_SYNC': return '🟡';
+      case 'SYNC_STARTED': return '🟠';
+      case 'SYNC_FAILED': return '🔴';
+      default: return '⚪';
+    }
   }
 
   // Utility methods
   getSeverityColor(severity: string): string {
-    switch (severity) {
+    switch (severity?.toLowerCase()) {
       case 'critical': return '#dc3545';
       case 'high': return '#fd7e14';
       case 'moderate': return '#ffc107';
+      case 'medium': return '#ffc107';
       case 'low': return '#28a745';
       default: return '#6c757d';
     }
   }
 
   getSeverityIcon(severity: string): string {
-    switch (severity) {
+    switch (severity?.toLowerCase()) {
       case 'critical': return '🔴';
       case 'high': return '🟠';
       case 'moderate': return '🟡';
+      case 'medium': return '🟡';
       case 'low': return '🟢';
       default: return '⚪';
     }
   }
 
   getMetricColor(value: number): string {
-    if (value < 50) return '#28a745'; // Green
-    if (value < 80) return '#ffc107'; // Yellow
-    return '#dc3545'; // Red
+    if (value < 50) return '#28a745';
+    if (value < 80) return '#ffc107';
+    return '#dc3545';
   }
 
   formatDate(dateString: string): string {
@@ -537,8 +730,18 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  formatTimestamp(timestamp: number): string {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    } catch {
+      return 'Invalid Date';
+    }
+  }
+
   getStatusIcon(status: string): string {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'healthy': return '🟢';
       case 'warning': return '🟡';
       case 'critical': return '🔴';
@@ -546,23 +749,71 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // NVD Integration methods
-  syncNVDVulnerabilities() {
-    this.loading = true;
-    console.log('Syncing NVD vulnerabilities...');
-    
-    const apiUrl = this.getApiUrl();
-    this.http.post(`${apiUrl}/security/sync-nvd`, {})
-      .subscribe({
-        next: (response: any) => {
-          console.log('NVD sync successful:', response);
-          this.loadAllData(); // Refresh all data after sync
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error syncing NVD vulnerabilities:', error);
-          this.loading = false;
-        }
-      });
+  // For thread count visualization
+  getThreadUsagePercent(threadCount: number): number {
+    const maxThreads = 200;
+    return Math.min((threadCount / maxThreads) * 100, 100);
   }
-} 
+
+  // Uptime formatting methods
+  formatUptime(minutes: number): string {
+    if (!minutes) return '0m';
+    
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const mins = minutes % 60;
+    
+    if (days > 0) {
+      return `${days}d ${hours}h ${mins}m`;
+    } else if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    } else {
+      return `${mins}m`;
+    }
+  }
+
+  getUptimeDays(minutes: number): number {
+    return Math.floor(minutes / (24 * 60));
+  }
+
+  getUptimeHours(minutes: number): number {
+    return Math.floor((minutes % (24 * 60)) / 60);
+  }
+
+  getUptimeMinutes(minutes: number): number {
+    return minutes % 60;
+  }
+
+  // Metric status helpers
+  getMetricStatus(value: number): string {
+    if (value < 50) return 'optimal';
+    if (value < 80) return 'warning';
+    return 'critical';
+  }
+
+  getMetricStatusText(value: number): string {
+    if (value < 50) return 'Optimal';
+    if (value < 80) return 'Warning';
+    return 'Critical';
+  }
+
+  // Format time since last update
+  getTimeSinceLastUpdate(): string {
+    if (!this.lastSuccessfulUpdate) return 'Never';
+    
+    const now = new Date();
+    const diffMs = now.getTime() - this.lastSuccessfulUpdate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins === 1) return '1 minute ago';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours === 1) return '1 hour ago';
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} days ago`;
+  }
+}

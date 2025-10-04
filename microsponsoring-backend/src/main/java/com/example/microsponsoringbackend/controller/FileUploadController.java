@@ -26,7 +26,6 @@ import com.example.microsponsoringbackend.model.PageCustomizations;
 
 @RestController
 @RequestMapping("/api/upload")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class FileUploadController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
