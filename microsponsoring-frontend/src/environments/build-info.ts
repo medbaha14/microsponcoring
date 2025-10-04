@@ -72,7 +72,7 @@ export function getVersionDisplay(): string {
 // Environment-specific configurations
 export const environmentConfigs = {
   development: {
-    apiUrl: 'http://localhost:8080/api',
+    apiUrl: 'http://localhost:80/api',
     production: false,
     enableDebug: true
   },

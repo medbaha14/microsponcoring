@@ -53,7 +53,7 @@ done
 
 # Wait for backend to be ready
 print_status "Waiting for backend to be ready..."
-until curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; do
+until curl -f http://localhost:80/actuator/health > /dev/null 2>&1; do
     sleep 5
 done
 
@@ -69,7 +69,7 @@ echo ""
 echo "🎉 Application successfully deployed!"
 echo ""
 echo "📱 Frontend: http://localhost"
-echo "🔧 Backend API: http://localhost:8080"
+echo "🔧 Backend API: http://localhost:80"
 echo "📊 Grafana Dashboard: http://localhost:3000 (admin/admin123)"
 echo "📈 Prometheus: http://localhost:9090"
 echo "🗄️  MySQL: localhost:3306"
@@ -82,7 +82,7 @@ echo "  - Restart services: docker-compose restart"
 echo "  - View running containers: docker-compose ps"
 echo ""
 echo "🔍 Health checks:"
-echo "  - Backend health: curl http://localhost:8080/actuator/health"
+echo "  - Backend health: curl http://localhost:80/actuator/health"
 echo "  - Frontend health: curl http://localhost/health"
 echo ""
 
@@ -90,7 +90,7 @@ echo ""
 print_status "Performing health checks..."
 
 # Backend health check
-if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+if curl -f http://localhost:80/actuator/health > /dev/null 2>&1; then
     echo -e "✅ Backend: ${GREEN}Healthy${NC}"
 else
     echo -e "❌ Backend: ${RED}Unhealthy${NC}"

@@ -129,7 +129,7 @@ export JWT_SECRET=your_secure_jwt_secret
 After successful database setup:
 1. Your Spring Boot application should start without errors
 2. Liquibase will automatically create all required tables
-3. The application will be available at `http://localhost:8080`
+3. The application will be available at `http://localhost:80`
 4. You can access the admin account:
    - Username: `admin`
    - Password: `password`

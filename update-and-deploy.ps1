@@ -61,7 +61,7 @@ $serviceStatus = kubectl get service $serviceName -n $NAMESPACE
 if ($serviceStatus) {
     Write-Host "Service is running. You can access it using:" -ForegroundColor Green
     Write-Host "kubectl port-forward service/$serviceName 8080:$port -n $NAMESPACE" -ForegroundColor White
-    Write-Host "Then visit: http://localhost:8080" -ForegroundColor White
+    Write-Host "Then visit: http://localhost:80" -ForegroundColor White
 } else {
     Write-Warning "Service not found or not running"
 }

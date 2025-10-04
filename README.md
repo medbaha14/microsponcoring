@@ -196,7 +196,7 @@ npm run build
 
 ### Local Development
 - **Frontend**: http://localhost
-- **Backend API**: http://localhost:8080
+- **Backend API**: http://localhost:80
 - **Grafana**: http://localhost:3000 (admin/admin123)
 - **Prometheus**: http://localhost:9090
 - **MySQL**: localhost:3306

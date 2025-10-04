@@ -12,7 +12,7 @@
 // environment.ts (Development)
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api',  // ✅ Correct backend URL
+  apiUrl: 'http://localhost:80/api',  // ✅ Correct backend URL
   // ... other URLs
 };
 
@@ -29,7 +29,7 @@ export const environment = {
 ### **1. Verify Backend is Running**
 ```bash
 # Check if Spring Boot backend is running on port 8080
-curl http://localhost:8080/actuator/health
+curl http://localhost:80/actuator/health
 # Should return: {"status":"UP"}
 ```
 
@@ -64,9 +64,9 @@ public class SecurityController {
 ```javascript
 // Look for these logs:
 Security Dashboard initialized
-Environment: {production: false, apiUrl: "http://localhost:8080/api"}
-API URL: http://localhost:8080/api
-Loading security data from: http://localhost:8080/api/security/dashboard
+Environment: {production: false, apiUrl: "http://localhost:80/api"}
+API URL: http://localhost:80/api
+Loading security data from: http://localhost:80/api/security/dashboard
 ```
 
 ### **Step 2: Check Network Tab**
@@ -78,13 +78,13 @@ Loading security data from: http://localhost:8080/api/security/dashboard
 ### **Step 3: Test Individual Endpoints**
 ```bash
 # Test security dashboard endpoint
-curl http://localhost:8080/api/security/dashboard
+curl http://localhost:80/api/security/dashboard
 
 # Test system metrics endpoint
-curl http://localhost:8080/api/system/metrics
+curl http://localhost:80/api/system/metrics
 
 # Test user stats endpoint
-curl http://localhost:8080/api/users/stats
+curl http://localhost:80/api/users/stats
 ```
 
 ## 🚀 **Quick Fixes**
@@ -122,7 +122,7 @@ server.port=8080
 
 ### **Issue 1: CORS Error**
 ```
-Access to XMLHttpRequest at 'http://localhost:8080/api/...' 
+Access to XMLHttpRequest at 'http://localhost:80/api/...' 
 from origin 'http://localhost:4200' has been blocked by CORS policy
 ```
 **Solution**: Add CORS configuration to Spring Boot backend
@@ -185,15 +185,15 @@ ls -la dist/microsponsoring-frontend/
 ### **2. Verify Backend Status**
 ```bash
 # Test backend health
-curl http://localhost:8080/actuator/health
+curl http://localhost:80/actuator/health
 ```
 
 ### **3. Test API Endpoints**
 ```bash
 # Test each endpoint individually
-curl http://localhost:8080/api/security/dashboard
-curl http://localhost:8080/api/system/metrics
-curl http://localhost:8080/api/users/stats
+curl http://localhost:80/api/security/dashboard
+curl http://localhost:80/api/system/metrics
+curl http://localhost:80/api/users/stats
 ```
 
 ### **4. Check Environment Configuration**
@@ -208,8 +208,8 @@ When everything is working correctly, you should see:
 1. **Console Logs**:
    ```
    Security Dashboard initialized
-   Environment: {production: false, apiUrl: "http://localhost:8080/api"}
-   Loading security data from: http://localhost:8080/api/security/dashboard
+   Environment: {production: false, apiUrl: "http://localhost:80/api"}
+   Loading security data from: http://localhost:80/api/security/dashboard
    ```
 
 2. **Network Requests**:

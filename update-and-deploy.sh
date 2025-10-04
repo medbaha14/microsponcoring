@@ -63,7 +63,7 @@ SERVICE_STATUS=$(kubectl get service $SERVICE_NAME -n $NAMESPACE)
 if [ -n "$SERVICE_STATUS" ]; then
     echo "Service is running. You can access it using:"
     echo "kubectl port-forward service/$SERVICE_NAME 8080:$PORT -n $NAMESPACE"
-    echo "Then visit: http://localhost:8080"
+    echo "Then visit: http://localhost:80"
 else
     echo "Warning: Service not found or not running"
 fi

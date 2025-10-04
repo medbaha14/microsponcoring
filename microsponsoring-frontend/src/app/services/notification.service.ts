@@ -36,7 +36,7 @@ export class NotificationService {
       this.wsUrl = environment.wsUrl;
     } else {
       // Fallback to constructing from base URL
-      const baseUrl = environment.baseUrl || 'http://localhost:8080';
+      const baseUrl = environment.baseUrl || 'http://localhost:80';
       this.wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws-notifications';
     }
     

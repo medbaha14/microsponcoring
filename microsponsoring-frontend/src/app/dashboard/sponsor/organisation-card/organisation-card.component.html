@@ -1,6 +1,6 @@
 <div class="org-card">
   <div class="org-card-img-wrapper">
-    <img *ngIf="user.profilePicture" [src]="'http://localhost:8080' + user.profilePicture" alt="Organisation Image" class="org-card-img" />
+    <img *ngIf="user.profilePicture" [src]="'http://localhost:80' + user.profilePicture" alt="Organisation Image" class="org-card-img" />
     <div *ngIf="!user.profilePicture" class="org-card-img-placeholder">No Image</div>
   </div>
   <div class="org-card-name">{{ user.fullName || user.username }}</div>

@@ -53,14 +53,14 @@ The `formatCurrency()` function now:
 ### Check Backend API Response
 ```bash
 # Test with valid authentication token
-curl -X GET "http://localhost:8080/api/payment-transactions/sponsor/{sponsorId}" \
+curl -X GET "http://localhost:80/api/payment-transactions/sponsor/{sponsorId}" \
   -H "Authorization: Bearer {valid-token}" \
   -H "Content-Type: application/json"
 ```
 
 ### Check Summary API Response
 ```bash
-curl -X GET "http://localhost:8080/api/payment-transactions/sponsor/{sponsorId}/summary" \
+curl -X GET "http://localhost:80/api/payment-transactions/sponsor/{sponsorId}/summary" \
   -H "Authorization: Bearer {valid-token}" \
   -H "Content-Type: application/json"
 ```

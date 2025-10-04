@@ -42,7 +42,7 @@ if errorlevel 1 (
 REM Wait for backend to be ready
 echo [INFO] Waiting for backend to be ready...
 :wait_backend
-curl -f http://localhost:8080/actuator/health >nul 2>&1
+curl -f http://localhost:80/actuator/health >nul 2>&1
 if errorlevel 1 (
     timeout /t 5 /nobreak >nul
     goto wait_backend
@@ -63,7 +63,7 @@ echo.
 echo 🎉 Application successfully deployed!
 echo.
 echo 📱 Frontend: http://localhost
-echo 🔧 Backend API: http://localhost:8080
+echo 🔧 Backend API: http://localhost:80
 echo 📊 Grafana Dashboard: http://localhost:3000 (admin/admin123)
 echo 📈 Prometheus: http://localhost:9090
 echo 🗄️  MySQL: localhost:3306
@@ -76,7 +76,7 @@ echo   - Restart services: docker-compose restart
 echo   - View running containers: docker-compose ps
 echo.
 echo 🔍 Health checks:
-echo   - Backend health: curl http://localhost:8080/actuator/health
+echo   - Backend health: curl http://localhost:80/actuator/health
 echo   - Frontend health: curl http://localhost/health
 echo.
 
@@ -84,7 +84,7 @@ echo [INFO] Performing health checks...
 echo.
 
 REM Backend health check
-curl -f http://localhost:8080/actuator/health >nul 2>&1
+curl -f http://localhost:80/actuator/health >nul 2>&1
 if errorlevel 1 (
     echo ❌ Backend: Unhealthy
 ) else (
