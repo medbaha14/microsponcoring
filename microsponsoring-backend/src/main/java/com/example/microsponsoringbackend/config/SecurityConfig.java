@@ -77,7 +77,7 @@ public class SecurityConfig {
     // Permit SockJS endpoints
     .requestMatchers("/ws-notifications/**").permitAll()
     .requestMatchers(HttpMethod.GET, "/api/notifications/**").authenticated()
-
+    .requestMatchers(HttpMethod.GET, "/api/system/metrics").authenticated()
     .anyRequest().authenticated()
 )
 

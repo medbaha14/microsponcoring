@@ -4,6 +4,15 @@
     <h1>🔒 Security & Admin Dashboard</h1>
     <p class="subtitle">Comprehensive system overview and security monitoring</p>
     
+    <!-- Backend Status Indicator -->
+    <div class="backend-status" *ngIf="isAuthenticated()" [class]="backendStatus">
+      <span class="status-icon">{{ backendStatusIcon }}</span>
+      <span class="status-text">{{ backendStatusText }}</span>
+      <span class="last-update" *ngIf="lastSuccessfulUpdate">
+        Last update: {{ getTimeSinceLastUpdate() }}
+      </span>
+    </div>
+    
     <!-- Authentication Warning -->
     <div class="auth-warning" *ngIf="!isAuthenticated()">
       <span class="warning-icon">🔒</span>
@@ -38,6 +47,10 @@
       <button class="sync-btn" (click)="syncNVDVulnerabilities()" [disabled]="loading">
         <span class="btn-icon">🛡️</span>
         <span class="btn-text">Sync NVD</span>
+      </button>
+      <button class="quick-scan-btn" (click)="quickSecurityScan()" [disabled]="loading">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-text">Quick Scan</span>
       </button>
       <button class="test-btn" (click)="testBackendConnection()">
         <span class="btn-icon">🔌</span>
@@ -77,11 +90,12 @@
     <div class="info-card system-status">
       <div class="card-header">
         <h3>⚡ System Status</h3>
+        <span class="refresh-badge">Auto-refreshing</span>
       </div>
       <div class="card-content">
         <div class="info-row">
           <span class="label">Uptime:</span>
-          <span class="value">{{ systemMetrics.uptime || 'N/A' }}</span>
+          <span class="value">{{ systemMetrics.uptime || 'Loading...' }}</span>
         </div>
         <div class="info-row">
           <span class="label">Last Restart:</span>
@@ -151,7 +165,7 @@
           {{ getMetricStatusText(systemMetrics.memoryUsagePercent) }}
         </div>
       </div>
-  
+
       <!-- CPU Usage -->
       <div class="metric-card">
         <div class="metric-header">
@@ -171,7 +185,7 @@
           {{ getMetricStatusText(systemMetrics.cpu) }}
         </div>
       </div>
-  
+
       <!-- Thread Count -->
       <div class="metric-card">
         <div class="metric-header">
@@ -189,7 +203,7 @@
           <span class="detail-value">{{ systemMetrics.threadCount }} threads</span>
         </div>
       </div>
-  
+
       <!-- Uptime -->
       <div class="metric-card">
         <div class="metric-header">
@@ -218,6 +232,7 @@
       </div>
     </div>
   </div>
+
   <!-- Recent Login Attempts Section -->
   <div class="login-section" *ngIf="isAuthenticated()">
     <h2>🔐 Recent Login Activity</h2>
@@ -239,57 +254,45 @@
     </div>
   </div>
 
- <!-- Pending Alerts Section - Updated for backend structure -->
- <div class="alert-header">
-  <h1>Alert</h1>
-  <div>
-      <span class="alert-badge">3 pending alerts</span>
-      <a href="#" class="view-history">View History</a>
-  </div>
-</div>
+  <!-- Dynamic Security Alerts Section -->
+  <div class="alerts-section" *ngIf="isAuthenticated()">
+    <div class="alert-header">
+      <h2>⚠️ Security Alerts</h2>
+      <div class="alert-actions">
+        <span class="alert-badge">{{ pendingAlerts.length }} pending alerts</span>
+        <span class="sync-status" [class]="syncStatus.syncStatus.toLowerCase()">
+          {{ syncStatusIcon }} {{ syncStatus.syncStatus }}
+        </span>
+      </div>
+    </div>
 
-<hr style="border: none; border-top: 1px solid #ecf0f1; margin-bottom: 25px;">
+    <div class="alert-container" *ngIf="hasPendingAlerts">
+      <div class="alert-card" *ngFor="let alert of pendingAlerts" [class]="alert.type.toLowerCase()">
+        <div class="alert-title-bar">
+          <h3 class="alert-title">{{ alert.title }}</h3>
+          <span class="alert-type" [class]="'type-' + alert.type">{{ alert.type }}</span>
+        </div>
+        <p class="alert-description">{{ alert.description }}</p>
+        <div class="alert-meta">
+          <span class="alert-timestamp">{{ formatTimestamp(alert.timestamp) }}</span>
+          <span class="alert-status" [class]="'status-' + alert.status">{{ alert.status }}</span>
+        </div>
+        <div class="alert-details" *ngIf="alert.cveId || alert.package">
+          <span class="alert-cve" *ngIf="alert.cveId">CVE: {{ alert.cveId }}</span>
+          <span class="alert-package" *ngIf="alert.package">Package: {{ alert.package }}</span>
+          <span class="alert-risk" *ngIf="alert.riskScore">Risk: {{ alert.riskScore }}</span>
+        </div>
+      </div>
+    </div>
 
-<div class="alert-container">
-  <!-- Alert 1 -->
-  <div class="alert-card HIGH">
-      <div class="alert-title-bar">
-          <h2 class="alert-title">Suspicious Login Activity</h2>
-          <span class="alert-type type-HIGH">HIGH</span>
-      </div>
-      <p class="alert-description">Multiple failed login attempts detected from IP 192.168.1.100</p>
-      <div class="alert-meta">
-          <span class="alert-timestamp">04/10/2025, 02:27:15</span>
-          <span class="alert-status status-ACTIVE">ACTIVE</span>
-      </div>
+    <div class="no-alerts" *ngIf="!hasPendingAlerts">
+      <p>🎉 No pending security alerts!</p>
+      <p class="sync-info" *ngIf="syncStatus.syncNeeded">
+        <button class="sync-btn-small" (click)="syncNVDVulnerabilities()">Sync NVD Data</button>
+      </p>
+    </div>
   </div>
 
-  <!-- Alert 2 -->
-  <div class="alert-card MEDIUM">
-      <div class="alert-title-bar">
-          <h2 class="alert-title">Unusual API Usage Pattern</h2>
-          <span class="alert-type type-MEDIUM">MEDIUM</span>
-      </div>
-      <p class="alert-description">High volume of API requests detected from user 'testuser'</p>
-      <div class="alert-meta">
-          <span class="alert-timestamp">04/10/2025, 01:27:15</span>
-          <span class="alert-status status-RESOLVED">RESOLVED</span>
-      </div>
-  </div>
-
-  <!-- Alert 3 -->
-  <div class="alert-card LOW">
-      <div class="alert-title-bar">
-          <h2 class="alert-title">Password Policy Violation</h2>
-          <span class="alert-type type-LOW">LOW</span>
-      </div>
-      <p class="alert-description">User 'newuser' created account with weak password</p>
-      <div class="alert-meta">
-          <span class="alert-timestamp">04/10/2025, 00:27:15</span>
-          <span class="alert-status status-ACTIVE">ACTIVE</span>
-      </div>
-  </div>
-</div>
   <!-- Security Vulnerabilities Section -->
   <div class="security-section" *ngIf="isAuthenticated()">
     <h2>🛡️ Security Vulnerabilities</h2>
@@ -332,6 +335,9 @@
 
     <div class="no-vulns" *ngIf="!hasVulnerabilities">
       <p>🎉 No security vulnerabilities detected!</p>
+      <p class="sync-info" *ngIf="syncStatus.syncNeeded">
+        <button class="sync-btn-small" (click)="syncNVDVulnerabilities()">Sync NVD Data</button>
+      </p>
     </div>
   </div>
 
@@ -344,27 +350,27 @@
         <span class="btn-text">Run Security Scan</span>
       </button>
       
-      <button class="action-btn secondary" (click)="fixVulnerabilities()">
+      <button class="action-btn secondary" (click)="quickSecurityScan()" [disabled]="loading">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-text">Quick Scan</span>
+      </button>
+      
+      <button class="action-btn warning" (click)="fixVulnerabilities()" [disabled]="loading">
         <span class="btn-icon">🔧</span>
         <span class="btn-text">Fix Vulnerabilities</span>
       </button>
       
-      <button class="action-btn warning" (click)="forceLogoutAllUsers()">
-        <span class="btn-icon">🚪</span>
-        <span class="btn-text">Force Logout All Users</span>
+      <button class="action-btn info" (click)="syncNVDVulnerabilities()" [disabled]="loading">
+        <span class="btn-icon">🛡️</span>
+        <span class="btn-text">Sync NVD</span>
       </button>
       
-      <button class="action-btn info" (click)="refreshSystem()">
-        <span class="btn-icon">🔄</span>
-        <span class="btn-text">Refresh System</span>
-      </button>
-      
-      <button class="action-btn danger" (click)="forceUpdate()">
+      <button class="action-btn danger" (click)="forceUpdate()" [disabled]="loading">
         <span class="btn-icon">⚡</span>
         <span class="btn-text">Force Update</span>
       </button>
       
-      <button class="action-btn success" (click)="exportReport()">
+      <button class="action-btn success" (click)="exportReport()" [disabled]="loading">
         <span class="btn-icon">📄</span>
         <span class="btn-text">Export Report</span>
       </button>
@@ -380,13 +386,19 @@
   <!-- Connection Status -->
   <div class="connection-status" *ngIf="!loading && isAuthenticated()">
     <div class="status-indicator">
-      <span class="status-dot" [class]="'status-' + (overallStatus || 'unknown')"></span>
+      <span class="status-dot" [class]="backendStatus"></span>
       <span class="status-text">
-        Backend: {{ getApiUrl() }}
+        {{ backendStatusText }} - {{ getApiUrl() }}
+      </span>
+    </div>
+    <div class="sync-indicator">
+      <span class="sync-dot" [class]="syncStatus.syncStatus.toLowerCase()"></span>
+      <span class="sync-text">
+        NVD Sync: {{ syncStatus.syncStatus }}
       </span>
     </div>
     <div class="env-status">
-      <small>Env: {{ getEnvironmentDisplayName() }}</small>
+      <small>Env: {{ getEnvironmentDisplayName() }} | Last update: {{ getTimeSinceLastUpdate() }}</small>
     </div>
   </div>
 </div>

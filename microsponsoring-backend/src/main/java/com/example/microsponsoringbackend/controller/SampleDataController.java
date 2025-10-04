@@ -17,7 +17,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/sample-data")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class SampleDataController {
     
     private static final Logger logger = LoggerFactory.getLogger(SampleDataController.class);

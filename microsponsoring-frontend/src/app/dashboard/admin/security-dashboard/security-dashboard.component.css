@@ -9,7 +9,96 @@ body.light-mode .security-dashboard {
   background: #DFD0B8;
   color: var(--color-dark-teal);
 }
+/* Add to your security-dashboard.component.css */
 
+/* Sync status styles */
+.sync-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sync-status.synced {
+  background: #d4edda;
+  color: #155724;
+}
+
+.sync-status.needs_sync {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.sync-status.sync_started {
+  background: #ffeaa7;
+  color: #e17055;
+}
+
+.sync-status.sync_failed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Alert details */
+.alert-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.alert-cve, .alert-package, .alert-risk {
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+/* Sync indicator */
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 20px;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sync-dot.synced { background: #28a745; }
+.sync-dot.needs_sync { background: #ffc107; }
+.sync-dot.sync_started { background: #fd7e14; }
+.sync-dot.sync_failed { background: #dc3545; }
+
+/* Quick scan button */
+.quick-scan-btn {
+  background: #6f42c1;
+  color: white;
+}
+
+.quick-scan-btn:hover:not(:disabled) {
+  background: #5a2d91;
+}
+
+/* Small sync button */
+.sync-btn-small {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sync-btn-small:hover {
+  background: #138496;
+}
 body.dark-mode .security-dashboard {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: #e8e8e8;

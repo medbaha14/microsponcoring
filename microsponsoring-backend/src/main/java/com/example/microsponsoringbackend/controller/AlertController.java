@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/alerts")
-@CrossOrigin(origins = "*")
 public class AlertController {
 
     @Autowired
@@ -68,7 +67,7 @@ public class AlertController {
     @PostMapping("/{alertId}/resolve")
     public ResponseEntity<String> resolveAlert(@PathVariable String alertId) {
         try {
-            alertService.resolveAlert(alertId);
+            alertService.resolveAlert(Long.parseLong(alertId));
             return ResponseEntity.ok("Alert resolved successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -80,7 +79,7 @@ public class AlertController {
     @PostMapping("/{alertId}/acknowledge")
     public ResponseEntity<String> acknowledgeAlert(@PathVariable String alertId) {
         try {
-            alertService.acknowledgeAlert(alertId);
+            alertService.acknowledgeAlert(Long.parseLong(alertId));
             return ResponseEntity.ok("Alert acknowledged");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

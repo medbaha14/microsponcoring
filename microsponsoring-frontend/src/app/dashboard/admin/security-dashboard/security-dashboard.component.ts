@@ -36,7 +36,6 @@ interface SystemMetrics {
   network: number;
   uptime: string;
   lastRestart: string;
-  // Add these new properties from your backend
   maxMemoryMB: number;
   memoryUsageMB: number;
   memoryUsagePercent: number;
@@ -66,17 +65,36 @@ interface BuildInfo {
 }
 
 interface AlertItem {
-  id: number;
+  id: string;
   type: string;
   title: string;
   description: string;
-  message: string;
-  severity: string;
-  timestamp: string;
-  status?: string;
-  category?: string;
-  source?: string;
-  details?: string;
+  timestamp: number;
+  status: string;
+  cveId?: string;
+  package?: string;
+  riskScore?: string;
+}
+
+interface SyncStatus {
+  syncStatus: string;
+  syncNeeded: boolean;
+  lastChecked: number;
+}
+
+interface SecurityStats {
+  vulnerabilityCounts: {
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+    total: number;
+  };
+  overallStatus: string;
+  lastUpdate: string;
+  vulnerabilityStats: any[];
+  ecosystemStats: any[];
+  syncStatus: string;
 }
 
 @Component({
@@ -100,7 +118,7 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
   lowCount = 0;
   overallStatus = '';
 
-  // System metrics - updated with ALL required properties
+  // System metrics
   systemMetrics: SystemMetrics = {
     cpu: 0,
     memory: 0,
@@ -130,7 +148,15 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     lastUpdate: ''
   };
 
+  // Dynamic alerts from backend
   pendingAlerts: AlertItem[] = [];
+
+  // Sync status
+  syncStatus: SyncStatus = {
+    syncStatus: 'UNKNOWN',
+    syncNeeded: true,
+    lastChecked: 0
+  };
 
   // Auto-refresh intervals
   private refreshInterval: any;
@@ -154,6 +180,7 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     this.startAutoRefresh();
     this.loadBuildInfo();
     this.startMetricsAutoRefresh();
+    this.loadSyncStatus();
   }
 
   ngOnDestroy() {
@@ -173,7 +200,8 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       this.loadSecurityData(),
       this.loadSystemMetrics(),
       this.loadUserStats(),
-      this.loadPendingAlerts()
+      this.loadPendingAlerts(),
+      this.loadSyncStatus()
     ]).finally(() => {
       this.loading = false;
       this.lastSuccessfulUpdate = new Date();
@@ -183,64 +211,135 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
   loadSecurityData(): Promise<void> {
     return new Promise((resolve) => {
       const apiUrl = this.getApiUrl();
-      this.http.get<SecurityDashboard>(`${apiUrl}/security/dashboard`)
+      // Change from /security/dashboard to /vulnerabilities
+      this.http.get<SecurityVulnerability[]>(`${apiUrl}/security/vulnerabilities`)
         .subscribe({
           next: (data) => {
-            this.vulnerabilities = data.vulnerabilities || [];
-            this.criticalCount = data.criticalCount || 0;
-            this.highCount = data.highCount || 0;
-            this.moderateCount = data.moderateCount || 0;
-            this.lowCount = data.lowCount || 0;
-            this.lastUpdate = data.lastUpdate || new Date().toISOString();
-            this.nextScan = data.nextScan || '';
-            this.overallStatus = data.overallStatus || 'Unknown';
+            // Transform the response to match your interface
+            this.vulnerabilities = Array.isArray(data) ? data : [];
+            
+            // Calculate counts based on severity
+            this.criticalCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'critical').length;
+            this.highCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'high').length;
+            this.moderateCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'moderate' || v.severity?.toLowerCase() === 'medium').length;
+            this.lowCount = this.vulnerabilities.filter(v => 
+              v.severity?.toLowerCase() === 'low').length;
+            
+            this.lastUpdate = new Date().toISOString();
+            this.overallStatus = this.calculateOverallStatus();
             this.backendStatus = 'online';
             resolve();
           },
           error: (error) => {
             console.error('Error loading security data:', error);
-            this.loadSampleData();
             this.backendStatus = 'offline';
             resolve();
           }
         });
     });
   }
+  
+  // Add this helper method to calculate overall status
+  private calculateOverallStatus(): string {
+    if (this.criticalCount > 0) return 'Critical';
+    if (this.highCount > 0) return 'High';
+    if (this.moderateCount > 0) return 'Moderate';
+    if (this.lowCount > 0) return 'Low';
+    return 'Healthy';
+  }
 
   loadSystemMetrics(): Promise<void> {
     return new Promise((resolve) => {
       const apiUrl = this.getApiUrl();
-      this.http.get<SystemMetrics>(`${apiUrl}/system/metrics`)
+      this.http.get<any>(`${apiUrl}/system/metrics`)
         .subscribe({
           next: (data) => {
-            // Handle both old and new format for backward compatibility
+            // Calculate missing fields if not provided by backend
+            const runtime = this.calculateRuntimeMetrics();
+            
             this.systemMetrics = {
               cpu: this.sanitizeMetric(data?.cpu),
               memory: this.sanitizeMetric(data?.memory),
               disk: this.sanitizeMetric(data?.disk),
               network: this.sanitizeMetric(data?.network),
-              uptime: data?.uptime || this.formatUptimeFromMinutes(data?.uptimeMinutes),
+              uptime: data?.uptime || 'Unknown',
               lastRestart: data?.lastRestart || new Date().toISOString(),
-              // New fields from backend
-              maxMemoryMB: data?.maxMemoryMB || 0,
-              memoryUsageMB: data?.memoryUsageMB || 0,
-              memoryUsagePercent: this.sanitizeMetric(data?.memoryUsagePercent),
-              threadCount: data?.threadCount || 0,
-              uptimeMinutes: data?.uptimeMinutes || 0
+              
+              // Use backend data or calculate locally
+              maxMemoryMB: data?.maxMemoryMB || runtime.maxMemoryMB,
+              memoryUsageMB: data?.memoryUsageMB || runtime.memoryUsageMB,
+              memoryUsagePercent: this.sanitizeMetric(
+                data?.memoryUsagePercent || runtime.memoryUsagePercent
+              ),
+              threadCount: data?.threadCount || runtime.threadCount,
+              uptimeMinutes: data?.uptimeMinutes || this.parseUptimeToMinutes(data?.uptime)
             };
             this.backendStatus = 'online';
             resolve();
           },
           error: (error) => {
             console.error('Error loading system metrics:', error);
-            this.loadSampleSystemMetrics();
+            // Set default values on error
+            const runtime = this.calculateRuntimeMetrics();
+            this.systemMetrics = {
+              cpu: 0,
+              memory: 0,
+              disk: 0,
+              network: 0,
+              uptime: 'Unknown',
+              lastRestart: new Date().toISOString(),
+              maxMemoryMB: runtime.maxMemoryMB,
+              memoryUsageMB: runtime.memoryUsageMB,
+              memoryUsagePercent: runtime.memoryUsagePercent,
+              threadCount: runtime.threadCount,
+              uptimeMinutes: 0
+            };
             this.backendStatus = 'offline';
             resolve();
           }
         });
     });
   }
-
+  
+  // Add these helper methods to calculate runtime metrics
+  private calculateRuntimeMetrics() {
+    // These are browser approximations since we can't get real JVM metrics in frontend
+    const memory = (performance as any).memory;
+    const maxMemoryMB = memory ? Math.round(memory.jsHeapSizeLimit / (1024 * 1024)) : 512;
+    const usedMemoryMB = memory ? Math.round(memory.usedJSHeapSize / (1024 * 1024)) : 128;
+    const memoryUsagePercent = maxMemoryMB > 0 ? (usedMemoryMB / maxMemoryMB) * 100 : 25;
+    
+    return {
+      maxMemoryMB,
+      memoryUsageMB: usedMemoryMB,
+      memoryUsagePercent,
+      threadCount: navigator.hardwareConcurrency || 4
+    };
+  }
+  
+  private parseUptimeToMinutes(uptimeString: string): number {
+    if (!uptimeString) return 0;
+    
+    try {
+      // Parse "6 days, 16 hours, 4 minutes" to minutes
+      let totalMinutes = 0;
+      
+      const daysMatch = uptimeString.match(/(\d+)\s*days?/);
+      const hoursMatch = uptimeString.match(/(\d+)\s*hours?/);
+      const minutesMatch = uptimeString.match(/(\d+)\s*minutes?/);
+      
+      if (daysMatch) totalMinutes += parseInt(daysMatch[1]) * 24 * 60;
+      if (hoursMatch) totalMinutes += parseInt(hoursMatch[1]) * 60;
+      if (minutesMatch) totalMinutes += parseInt(minutesMatch[1]);
+      
+      return totalMinutes;
+    } catch (e) {
+      return 0;
+    }
+  }
   loadUserStats(): Promise<void> {
     return new Promise((resolve) => {
       const apiUrl = this.getApiUrl();
@@ -257,7 +356,6 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error loading user stats:', error);
-            this.loadSampleUserStats();
             this.backendStatus = 'offline';
             resolve();
           }
@@ -268,9 +366,7 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
   loadPendingAlerts(): Promise<void> {
     return new Promise((resolve) => {
       const apiUrl = this.getApiUrl();
-      console.log('Loading pending alerts from:', `${apiUrl}/alerts/pending`);
-      
-      this.http.get<AlertItem[]>(`${apiUrl}/alerts/pending`)
+      this.http.get<AlertItem[]>(`${apiUrl}/security/alerts`)
         .subscribe({
           next: (data) => {
             this.pendingAlerts = Array.isArray(data) ? data : [];
@@ -279,56 +375,30 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
             resolve();
           },
           error: (error) => {
-            console.error('Error loading from /alerts/pending:', error);
+            console.error('Error loading security alerts:', error);
             this.backendStatus = 'offline';
-            this.tryAlternativeAlertEndpoints().finally(() => resolve());
+            resolve();
           }
         });
     });
   }
 
-  private tryAlternativeAlertEndpoints(): Promise<void> {
+  loadSyncStatus(): Promise<void> {
     return new Promise((resolve) => {
       const apiUrl = this.getApiUrl();
-      const endpoints = [
-        `${apiUrl}/alerts/all`,
-        `${apiUrl}/alerts`,
-        `${apiUrl}/security/alerts`
-      ];
-      
-      let attempts = 0;
-      
-      const tryNextEndpoint = () => {
-        if (attempts >= endpoints.length) {
-          resolve();
-          return;
-        }
-        
-        const endpoint = endpoints[attempts];
-        console.log(`Trying alternative endpoint: ${endpoint}`);
-        
-        this.http.get<AlertItem[]>(endpoint).subscribe({
+      this.http.get<SyncStatus>(`${apiUrl}/security/sync-status`)
+        .subscribe({
           next: (data) => {
-            if (endpoint.includes('/all') || endpoint === `${apiUrl}/alerts`) {
-              this.pendingAlerts = Array.isArray(data) 
-                ? data.filter(alert => alert.status === 'pending')
-                : [];
-            } else {
-              this.pendingAlerts = Array.isArray(data) ? data : [];
-            }
-            console.log(`Successfully loaded alerts from ${endpoint}:`, this.pendingAlerts);
+            this.syncStatus = data || { syncStatus: 'UNKNOWN', syncNeeded: true, lastChecked: 0 };
             this.backendStatus = 'online';
             resolve();
           },
           error: (error) => {
-            console.error(`Endpoint ${endpoint} failed:`, error);
-            attempts++;
-            tryNextEndpoint();
+            console.error('Error loading sync status:', error);
+            this.backendStatus = 'offline';
+            resolve();
           }
         });
-      };
-      
-      tryNextEndpoint();
     });
   }
 
@@ -338,80 +408,6 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       buildTime: buildInfo.buildTime || new Date().toISOString(),
       environment: buildInfo.environment || 'development',
       lastUpdate: buildInfo.lastUpdate || new Date().toISOString()
-    };
-  }
-
-  // Improved sample data with more realistic values
-  loadSampleData() {
-    this.vulnerabilities = [
-      {
-        packageName: 'mysql:mysql-connector-java 8.0.33',
-        source: 'Maven · microsponsoring-backend/pom.xml',
-        severity: 'high',
-        count: 1,
-        description: 'MySQL Connector vulnerability',
-        cveId: 'CVE-2023-12345',
-        fixVersion: '8.0.35',
-        riskScore: '8.5'
-      },
-      {
-        packageName: 'log4j:log4j-core 2.14.1',
-        source: 'Maven · microsponsoring-backend/pom.xml',
-        severity: 'critical',
-        count: 1,
-        description: 'Log4Shell vulnerability',
-        cveId: 'CVE-2021-44228',
-        fixVersion: '2.17.0',
-        riskScore: '10.0'
-      }
-    ];
-    this.criticalCount = 1;
-    this.highCount = 1;
-    this.moderateCount = 2;
-    this.lowCount = 3;
-    this.lastUpdate = new Date().toISOString();
-    this.overallStatus = 'Warning';
-  }
-
-  loadSampleSystemMetrics() {
-    // More realistic sample data with ALL properties
-    const now = new Date();
-    this.systemMetrics = {
-      cpu: Math.floor(Math.random() * 80 + 10), // 10-90%
-      memory: Math.floor(Math.random() * 70 + 20), // 20-90%
-      disk: Math.floor(Math.random() * 60 + 15), // 15-75%
-      network: Math.floor(Math.random() * 50), // 0-50%
-      uptime: '5 days, 12 hours, 30 minutes',
-      lastRestart: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-      // New sample data
-      maxMemoryMB: 16312,
-      memoryUsageMB: 64,
-      memoryUsagePercent: 0.4,
-      threadCount: 38,
-      uptimeMinutes: 191
-    };
-  }
-
-  loadSampleUserStats() {
-    this.userStats = {
-      activeUsers: 23,
-      totalUsers: 156,
-      recentLogins: [
-        {
-          username: 'admin',
-          timestamp: new Date().toISOString(),
-          success: true,
-          ipAddress: '192.168.1.100',
-          userAgent: 'Chrome/120.0.0.0'
-        },
-        {
-          username: 'user123',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
-          success: false,
-          ipAddress: '192.168.1.150',
-          userAgent: 'Firefox/119.0'
-        }
-      ]
     };
   }
 
@@ -454,57 +450,7 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  markAlertAsResolved(alert: AlertItem) {
-    const apiUrl = this.getApiUrl();
-    
-    this.http.post(`${apiUrl}/alerts/${alert.id}/resolve`, {})
-      .subscribe({
-        next: (response) => {
-          console.log('Alert marked as resolved:', response);
-          this.pendingAlerts = this.pendingAlerts.filter(a => a.id !== alert.id);
-          window.alert('Alert resolved successfully!');
-        },
-        error: (error) => {
-          console.error('Error resolving alert:', error);
-          this.pendingAlerts = this.pendingAlerts.filter(a => a.id !== alert.id);
-          window.alert('Alert resolved locally. There was an issue communicating with the server.');
-        }
-      });
-  }
-
-  acknowledgeAlert(alert: AlertItem) {
-    const apiUrl = this.getApiUrl();
-    
-    this.http.post(`${apiUrl}/alerts/${alert.id}/acknowledge`, {})
-      .subscribe({
-        next: (response) => {
-          console.log('Alert acknowledged:', response);
-          alert.status = 'acknowledged';
-          window.alert('Alert acknowledged!');
-        },
-        error: (error) => {
-          console.error('Error acknowledging alert:', error);
-          window.alert('Error acknowledging alert. Please try again.');
-        }
-      });
-  }
-
-  loadAlertHistory() {
-    const apiUrl = this.getApiUrl();
-    this.http.get<AlertItem[]>(`${apiUrl}/alerts/history`)
-      .subscribe({
-        next: (history) => {
-          console.log('Alert history:', history);
-          window.alert(`Loaded ${history.length} historical alerts`);
-        },
-        error: (error) => {
-          console.error('Error loading alert history:', error);
-          window.alert('Error loading alert history.');
-        }
-      });
-  }
-
-  // Enhanced security actions with better feedback
+  // Security actions
   runSecurityScan() {
     this.loading = true;
     const apiUrl = this.getApiUrl();
@@ -514,12 +460,12 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
         next: (result) => {
           window.alert('Security scan completed: ' + result);
           this.loadSecurityData();
+          this.loadSyncStatus();
           this.loading = false;
         },
         error: (error) => {
           console.error('Error running security scan:', error);
-          window.alert('Error running security scan. Using sample data instead.');
-          this.loadSampleData();
+          window.alert('Error running security scan: ' + error.message);
           this.loading = false;
         }
       });
@@ -531,11 +477,11 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (result) => {
           window.alert(result);
-          this.loadSecurityData(); // Refresh vulnerabilities after fix
+          this.loadSecurityData();
         },
         error: (error) => {
           console.error('Error fixing vulnerabilities:', error);
-          window.alert('Error fixing vulnerabilities. Check console for details.');
+          window.alert('Error fixing vulnerabilities: ' + error.message);
         }
       });
   }
@@ -547,11 +493,11 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (result) => {
             window.alert(result);
-            this.loadSecurityData(); // Refresh data after update
+            this.loadSecurityData();
           },
           error: (error) => {
             console.error('Error forcing update:', error);
-            window.alert('Error forcing update. Check console for details.');
+            window.alert('Error forcing update: ' + error.message);
           }
         });
     }
@@ -563,45 +509,51 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (reportUrl) => {
           window.alert('Security report exported to: ' + reportUrl);
-          // Optionally open the report in a new window
           window.open(reportUrl, '_blank');
         },
         error: (error) => {
           console.error('Error exporting report:', error);
-          window.alert('Error exporting report. Check console for details.');
+          window.alert('Error exporting report: ' + error.message);
         }
       });
   }
 
-  // Enhanced admin actions
-  forceLogoutAllUsers() {
-    if (window.confirm('This will force logout all currently active users. Continue?')) {
-      const apiUrl = this.getApiUrl();
-      this.http.post<string>(`${apiUrl}/admin/force-logout-all`, {})
-        .subscribe({
-          next: (result) => {
-            window.alert(result);
-            this.loadUserStats();
-          },
-          error: (error) => {
-            console.error('Error forcing logout:', error);
-            window.alert('Error forcing logout. Check console for details.');
-          }
-        });
-    }
-  }
-
-  refreshSystem() {
+  syncNVDVulnerabilities() {
+    this.loading = true;
     const apiUrl = this.getApiUrl();
-    this.http.post<string>(`${apiUrl}/admin/refresh-system`, {})
+    this.http.post<{status: string, message: string}>(`${apiUrl}/security/sync-nvd`, {})
       .subscribe({
-        next: (result) => {
-          window.alert(result);
-          this.loadAllData();
+        next: (response) => {
+          window.alert('NVD sync: ' + response.message);
+          this.loadSecurityData();
+          this.loadSyncStatus();
+          this.loading = false;
         },
         error: (error) => {
-          console.error('Error refreshing system:', error);
-          window.alert('Error refreshing system. Check console for details.');
+          console.error('Error syncing NVD vulnerabilities:', error);
+          window.alert('Error syncing NVD vulnerabilities: ' + error.message);
+          this.loading = false;
+        }
+      });
+  }
+
+  quickSecurityScan() {
+    const apiUrl = this.getApiUrl();
+    this.http.get<SecurityDashboard>(`${apiUrl}/security/quick-scan`)
+      .subscribe({
+        next: (dashboard) => {
+          this.vulnerabilities = dashboard.vulnerabilities || [];
+          this.criticalCount = dashboard.criticalCount || 0;
+          this.highCount = dashboard.highCount || 0;
+          this.moderateCount = dashboard.moderateCount || 0;
+          this.lowCount = dashboard.lowCount || 0;
+          this.lastUpdate = dashboard.lastUpdate || new Date().toISOString();
+          this.overallStatus = dashboard.overallStatus || 'Unknown';
+          window.alert('Quick scan completed!');
+        },
+        error: (error) => {
+          console.error('Error running quick scan:', error);
+          window.alert('Error running quick scan: ' + error.message);
         }
       });
   }
@@ -613,9 +565,9 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     
     const endpoints = [
       `${apiUrl}/system/metrics`,
-      `${apiUrl}/alerts/pending`,
       `${apiUrl}/security/dashboard`,
-      `${apiUrl}/users/stats`
+      `${apiUrl}/security/alerts`,
+      `${apiUrl}/security/sync-status`
     ];
     
     let successCount = 0;
@@ -643,25 +595,6 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
       window.alert(`Backend Connection Test:\n\n${resultMessage}\n\n✅ ${successCount}/${totalCount} endpoints accessible`);
       this.backendStatus = successCount > 0 ? 'online' : 'offline';
     }
-  }
-
-  syncNVDVulnerabilities() {
-    this.loading = true;
-    const apiUrl = this.getApiUrl();
-    this.http.post(`${apiUrl}/security/sync-nvd`, {})
-      .subscribe({
-        next: (response: any) => {
-          console.log('NVD sync successful:', response);
-          window.alert('NVD vulnerabilities synchronized successfully!');
-          this.loadAllData();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error syncing NVD vulnerabilities:', error);
-          window.alert('Error syncing NVD vulnerabilities. Check console for details.');
-          this.loading = false;
-        }
-      });
   }
 
   // Utility methods
@@ -748,6 +681,16 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  get syncStatusIcon(): string {
+    switch (this.syncStatus.syncStatus) {
+      case 'SYNCED': return '🟢';
+      case 'NEEDS_SYNC': return '🟡';
+      case 'SYNC_STARTED': return '🟠';
+      case 'SYNC_FAILED': return '🔴';
+      default: return '⚪';
+    }
+  }
+
   // Utility methods
   getSeverityColor(severity: string): string {
     switch (severity?.toLowerCase()) {
@@ -787,6 +730,16 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  formatTimestamp(timestamp: number): string {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    } catch {
+      return 'Invalid Date';
+    }
+  }
+
   getStatusIcon(status: string): string {
     switch (status?.toLowerCase()) {
       case 'healthy': return '🟢';
@@ -796,9 +749,9 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // For thread count visualization (assuming a reasonable max of 200 threads)
+  // For thread count visualization
   getThreadUsagePercent(threadCount: number): number {
-    const maxThreads = 200; // Adjust this based on your typical maximum
+    const maxThreads = 200;
     return Math.min((threadCount / maxThreads) * 100, 100);
   }
 

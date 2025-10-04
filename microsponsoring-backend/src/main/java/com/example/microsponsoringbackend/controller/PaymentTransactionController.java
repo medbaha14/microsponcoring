@@ -23,7 +23,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/payment-transactions")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class PaymentTransactionController {
     
     private static final Logger logger = LoggerFactory.getLogger(PaymentTransactionController.class);

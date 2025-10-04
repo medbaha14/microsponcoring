@@ -26,7 +26,7 @@ public class NVDService {
     
     private static final Logger logger = LoggerFactory.getLogger(NVDService.class);
     private static final String NVD_API_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0";
-    private static final String NVD_API_KEY = "YOUR_NVD_API_KEY"; // Get from environment variable
+    private static final String NVD_API_KEY = "f1b7575a-df58-4e2b-8643-a1d520a5b2cf"; // Get from environment variable
     
     @Autowired
     private VulnerabilityRepository vulnerabilityRepository;
@@ -78,7 +78,7 @@ public class NVDService {
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Microsponsoring-Security-Scanner/1.0");
-            if (!NVD_API_KEY.equals("YOUR_NVD_API_KEY")) {
+            if (!NVD_API_KEY.equals("f1b7575a-df58-4e2b-8643-a1d520a5b2cf")) {
                 headers.set("apiKey", NVD_API_KEY);
             }
             

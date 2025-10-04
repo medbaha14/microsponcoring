@@ -1,6 +1,5 @@
 package com.example.microsponsoringbackend.controller;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +9,6 @@ import com.example.microsponsoringbackend.service.SystemMetricsService;
 
 @RestController
 @RequestMapping("/api/system")
-@CrossOrigin(origins = "*")
 public class SystemMetricsController {
     
     private final SystemMetricsService systemMetricsService;
