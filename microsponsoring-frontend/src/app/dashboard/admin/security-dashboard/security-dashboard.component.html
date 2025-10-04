@@ -14,13 +14,13 @@
       </button>
     </div>
     
-    <!-- User Info (for debugging) -->
+    <!-- User Info -->
     <div class="user-info" *ngIf="isAuthenticated()">
       <span class="user-icon">👤</span>
       <span class="user-text">Logged in as: {{ getCurrentUserInfo() }}</span>
-      <button class="check-backend-btn" (click)="checkBackendAccess()">
+      <button class="check-backend-btn" (click)="testBackendConnection()">
         <span class="btn-icon">🔍</span>
-        <span class="btn-text">Check Backend</span>
+        <span class="btn-text">Test Backend</span>
       </button>
     </div>
     
@@ -119,15 +119,47 @@
 
   <!-- System Metrics Section -->
   <div class="metrics-section" *ngIf="isAuthenticated()">
-    <h2>📊 System Resource Usage</h2>
+    <div class="metrics-header">
+      <h2>📊 System Resource Usage</h2>
+      <span class="metrics-note">Real-time JVM metrics</span>
+    </div>
     <div class="metrics-grid">
+      <!-- Memory Usage -->
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-icon">💾</span>
+          <span class="metric-label">Memory Usage</span>
+        </div>
+        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.memoryUsagePercent)">
+          {{ systemMetrics.memoryUsagePercent | number:'1.1-1' }}%
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="systemMetrics.memoryUsagePercent"
+               [style.background-color]="getMetricColor(systemMetrics.memoryUsagePercent)">
+          </div>
+        </div>
+        <div class="metric-details">
+          <span class="detail-label">Used:</span>
+          <span class="detail-value">{{ systemMetrics.memoryUsageMB }} MB</span>
+        </div>
+        <div class="metric-details">
+          <span class="detail-label">Total:</span>
+          <span class="detail-value">{{ systemMetrics.maxMemoryMB }} MB</span>
+        </div>
+        <div class="metric-status" [class]="getMetricStatus(systemMetrics.memoryUsagePercent)">
+          {{ getMetricStatusText(systemMetrics.memoryUsagePercent) }}
+        </div>
+      </div>
+  
+      <!-- CPU Usage -->
       <div class="metric-card">
         <div class="metric-header">
           <span class="metric-icon">🖥️</span>
           <span class="metric-label">CPU Usage</span>
         </div>
         <div class="metric-value" [style.color]="getMetricColor(systemMetrics.cpu)">
-          {{ systemMetrics.cpu }}%
+          {{ systemMetrics.cpu | number:'1.1-1' }}%
         </div>
         <div class="progress-bar">
           <div class="progress-fill" 
@@ -135,58 +167,129 @@
                [style.background-color]="getMetricColor(systemMetrics.cpu)">
           </div>
         </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-icon">💾</span>
-          <span class="metric-label">Memory Usage</span>
-        </div>
-        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.memory)">
-          {{ systemMetrics.memory }}%
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" 
-               [style.width.%]="systemMetrics.memory"
-               [style.background-color]="getMetricColor(systemMetrics.memory)">
-          </div>
+        <div class="metric-status" [class]="getMetricStatus(systemMetrics.cpu)">
+          {{ getMetricStatusText(systemMetrics.cpu) }}
         </div>
       </div>
-
+  
+      <!-- Thread Count -->
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-icon">💿</span>
-          <span class="metric-label">Disk Usage</span>
+          <span class="metric-icon">🧵</span>
+          <span class="metric-label">Active Threads</span>
         </div>
-        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.disk)">
-          {{ systemMetrics.disk }}%
+        <div class="metric-value thread-count">
+          {{ systemMetrics.threadCount }}
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" 
-               [style.width.%]="systemMetrics.disk"
-               [style.background-color]="getMetricColor(systemMetrics.disk)">
-          </div>
+        <div class="thread-visual">
+          <div class="thread-bar" [style.width.%]="getThreadUsagePercent(systemMetrics.threadCount)"></div>
+        </div>
+        <div class="metric-details">
+          <span class="detail-label">Active:</span>
+          <span class="detail-value">{{ systemMetrics.threadCount }} threads</span>
         </div>
       </div>
-
+  
+      <!-- Uptime -->
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-icon">🌐</span>
-          <span class="metric-label">Network Usage</span>
+          <span class="metric-icon">⏱️</span>
+          <span class="metric-label">System Uptime</span>
         </div>
-        <div class="metric-value" [style.color]="getMetricColor(systemMetrics.network)">
-          {{ systemMetrics.network }}%
+        <div class="metric-value uptime">
+          {{ formatUptime(systemMetrics.uptimeMinutes) }}
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" 
-               [style.width.%]="systemMetrics.network"
-               [style.background-color]="getMetricColor(systemMetrics.network)">
+        <div class="uptime-details">
+          <div class="uptime-breakdown">
+            <div class="time-unit">
+              <span class="time-value">{{ getUptimeDays(systemMetrics.uptimeMinutes) }}</span>
+              <span class="time-label">days</span>
+            </div>
+            <div class="time-unit">
+              <span class="time-value">{{ getUptimeHours(systemMetrics.uptimeMinutes) }}</span>
+              <span class="time-label">hours</span>
+            </div>
+            <div class="time-unit">
+              <span class="time-value">{{ getUptimeMinutes(systemMetrics.uptimeMinutes) }}</span>
+              <span class="time-label">mins</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <!-- Recent Login Attempts Section -->
+  <div class="login-section" *ngIf="isAuthenticated()">
+    <h2>🔐 Recent Login Activity</h2>
+    <div class="login-list" *ngIf="hasRecentLogins">
+      <div class="login-item" *ngFor="let login of userStats.recentLogins" [class]="login.success ? 'success' : 'failed'">
+        <div class="login-status">
+          <span class="status-icon">{{ login.success ? '✅' : '❌' }}</span>
+        </div>
+        <div class="login-details">
+          <div class="login-user">{{ login.username }}</div>
+          <div class="login-time">{{ formatDate(login.timestamp) }}</div>
+          <div class="login-ip">{{ login.ipAddress }}</div>
+          <div class="login-agent">{{ login.userAgent }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="no-logins" *ngIf="!hasRecentLogins">
+      <p>No recent login activity</p>
+    </div>
+  </div>
 
+ <!-- Pending Alerts Section - Updated for backend structure -->
+ <div class="alert-header">
+  <h1>Alert</h1>
+  <div>
+      <span class="alert-badge">3 pending alerts</span>
+      <a href="#" class="view-history">View History</a>
+  </div>
+</div>
+
+<hr style="border: none; border-top: 1px solid #ecf0f1; margin-bottom: 25px;">
+
+<div class="alert-container">
+  <!-- Alert 1 -->
+  <div class="alert-card HIGH">
+      <div class="alert-title-bar">
+          <h2 class="alert-title">Suspicious Login Activity</h2>
+          <span class="alert-type type-HIGH">HIGH</span>
+      </div>
+      <p class="alert-description">Multiple failed login attempts detected from IP 192.168.1.100</p>
+      <div class="alert-meta">
+          <span class="alert-timestamp">04/10/2025, 02:27:15</span>
+          <span class="alert-status status-ACTIVE">ACTIVE</span>
+      </div>
+  </div>
+
+  <!-- Alert 2 -->
+  <div class="alert-card MEDIUM">
+      <div class="alert-title-bar">
+          <h2 class="alert-title">Unusual API Usage Pattern</h2>
+          <span class="alert-type type-MEDIUM">MEDIUM</span>
+      </div>
+      <p class="alert-description">High volume of API requests detected from user 'testuser'</p>
+      <div class="alert-meta">
+          <span class="alert-timestamp">04/10/2025, 01:27:15</span>
+          <span class="alert-status status-RESOLVED">RESOLVED</span>
+      </div>
+  </div>
+
+  <!-- Alert 3 -->
+  <div class="alert-card LOW">
+      <div class="alert-title-bar">
+          <h2 class="alert-title">Password Policy Violation</h2>
+          <span class="alert-type type-LOW">LOW</span>
+      </div>
+      <p class="alert-description">User 'newuser' created account with weak password</p>
+      <div class="alert-meta">
+          <span class="alert-timestamp">04/10/2025, 00:27:15</span>
+          <span class="alert-status status-ACTIVE">ACTIVE</span>
+      </div>
+  </div>
+</div>
   <!-- Security Vulnerabilities Section -->
   <div class="security-section" *ngIf="isAuthenticated()">
     <h2>🛡️ Security Vulnerabilities</h2>
@@ -209,7 +312,7 @@
       </div>
     </div>
 
-    <div class="vulnerability-list" *ngIf="vulnerabilities.length > 0">
+    <div class="vulnerability-list" *ngIf="hasVulnerabilities">
       <div class="vuln-item" *ngFor="let vuln of vulnerabilities">
         <div class="vuln-severity" [style.background-color]="getSeverityColor(vuln.severity)">
           {{ getSeverityIcon(vuln.severity) }}
@@ -227,43 +330,8 @@
       </div>
     </div>
 
-    <div class="no-vulns" *ngIf="vulnerabilities.length === 0">
+    <div class="no-vulns" *ngIf="!hasVulnerabilities">
       <p>🎉 No security vulnerabilities detected!</p>
-    </div>
-  </div>
-
-  <!-- Recent Login Attempts Section -->
-  <div class="login-section" *ngIf="isAuthenticated()">
-    <h2>🔐 Recent Login Activity</h2>
-    <div class="login-list" *ngIf="userStats.recentLogins.length > 0">
-      <div class="login-item" *ngFor="let login of userStats.recentLogins" [class]="login.success ? 'success' : 'failed'">
-        <div class="login-status">
-          <span class="status-icon">{{ login.success ? '✅' : '❌' }}</span>
-        </div>
-        <div class="login-details">
-          <div class="login-user">{{ login.username }}</div>
-          <div class="login-time">{{ formatDate(login.timestamp) }}</div>
-          <div class="login-ip">{{ login.ipAddress }}</div>
-          <div class="login-agent">{{ login.userAgent }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="no-logins" *ngIf="userStats.recentLogins.length === 0">
-      <p>No recent login activity</p>
-    </div>
-  </div>
-
-  <!-- Pending Alerts Section -->
-  <div class="alerts-section" *ngIf="isAuthenticated()">
-    <h2>⚠️ Pending Alerts</h2>
-    <div class="alerts-list" *ngIf="pendingAlerts.length > 0">
-      <div class="alert-item" *ngFor="let alert of pendingAlerts">
-        <span class="alert-icon">⚠️</span>
-        <span class="alert-text">{{ alert }}</span>
-      </div>
-    </div>
-    <div class="no-alerts" *ngIf="pendingAlerts.length === 0">
-      <p>🎉 No pending alerts!</p>
     </div>
   </div>
 
@@ -321,4 +389,4 @@
       <small>Env: {{ getEnvironmentDisplayName() }}</small>
     </div>
   </div>
-</div> 
+</div>
