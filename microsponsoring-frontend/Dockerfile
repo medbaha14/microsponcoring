@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (removed --only=production and added --legacy-peer-deps)
+# Install dependencies
 RUN npm ci --legacy-peer-deps
 
 # Copy source code
@@ -28,10 +28,13 @@ RUN apk add --no-cache tzdata
 # Set timezone
 ENV TZ=UTC
 
-# Copy built application from build stage
+# DEBUG: List what's in the build output
+RUN ls -la /app/dist/
+
+# Copy built application from build stage - FIX THIS PATH
 COPY --from=build /app/dist/microsponsoring/browser /usr/share/nginx/html
 
-# Copy custom nginx configuration - MAKE SURE THIS FILE EXISTS!
+# Copy custom nginx configuration with proper MIME types
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create nginx user if it doesn't exist
