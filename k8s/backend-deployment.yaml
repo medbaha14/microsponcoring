@@ -36,6 +36,8 @@ spec:
           value: "root"
         - name: DB_PASSWORD
           value: ""  # Empty password as in your env
+        - name: FILE_UPLOAD_DIR
+          value: "/app/images"
         
         # Checkout Configuration
         - name: CHECKOUT_SECRET_KEY

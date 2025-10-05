@@ -12,7 +12,7 @@ export const environment = {
   pageCustomizationsUrl: '/api/page-customizations',
   bankAccountsUrl: '/api/bank-accounts',
   notificationsUrl: '/api/notifications',
-  wsUrl: 'wss://192.168.179.128/ws-notifications',
+  wsUrl: 'ws://microsponsoring.local/ws-notifications',
   baseUrl: '/',
   // Build information for Kubernetes deployment
   buildInfo: {

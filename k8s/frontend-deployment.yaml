@@ -1,145 +1,61 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: frontend-deployment
   namespace: microsponsoring
   labels:
-    app: backend
+    app: frontend
     version: v1
 spec:
-  replicas: 1  # Reduced for single node
+  replicas: 1
   strategy:
-    type: Recreate  # Added recreate strategy
+    type: Recreate
   selector:
     matchLabels:
-      app: backend
+      app: frontend
   template:
     metadata:
       labels:
-        app: backend
+        app: frontend
         version: v1
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
-      - name: backend
-        image: medbaha/microsponsoring-backend:latest    # Fixed image name
+      - name: frontend
+        image: medbaha/microsponsoring-frontend:latest
         ports:
-        - containerPort: 8080
-        env:
-        - name: DB_URL
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-url
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: db-password
-        - name: CHECKOUT_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: checkout-secret-key
-        - name: CHECKOUT_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: checkout-public-key
-        - name: MAIL_HOST
-          value: "smtp.gmail.com"
-        - name: MAIL_PORT
-          value: "587"
-        - name: MAIL_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: mail-username
-        - name: MAIL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: mail-password
-        - name: SERVER_PORT
-          value: "8080"
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
+        - containerPort: 80
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "128Mi"
+            cpu: "100m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "200m"
         livenessProbe:
           httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 60
+            path: /
+            port: 80
+          initialDelaySeconds: 30
           periodSeconds: 30
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 30
+            path: /
+            port: 80
+          initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 3
-        volumeMounts:
-        - name: images-storage
-          mountPath: /app/images
-        - name: invoices-storage
-          mountPath: /app/invoices
-      volumes:
-      - name: images-storage
-        persistentVolumeClaim:
-          claimName: images-pvc
-      - name: invoices-storage
-        persistentVolumeClaim:
-          claimName: invoices-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-service
+  name: frontend-service
   namespace: microsponsoring
 spec:
   selector:
-    app: backend
+    app: frontend
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 8080
+    targetPort: 80
   type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: images-pvc
-  namespace: microsponsoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: invoices-pvc
-  namespace: microsponsoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi

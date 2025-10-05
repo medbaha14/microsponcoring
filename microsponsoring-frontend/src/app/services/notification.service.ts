@@ -21,6 +21,9 @@ export class NotificationService {
   constructor(private http: HttpClient) {
     // Initialize URLs based on environment
     this.initializeUrls();
+    
+    // Auto-connect if user is logged in
+    this.initializeConnection();
   }
 
   private initializeUrls(): void {
@@ -36,7 +39,7 @@ export class NotificationService {
       this.wsUrl = environment.wsUrl;
     } else {
       // Fallback to constructing from base URL
-      const baseUrl = environment.baseUrl || 'http://localhost:80';
+      const baseUrl = environment.baseUrl ;
       this.wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws-notifications';
     }
     
@@ -46,24 +49,52 @@ export class NotificationService {
     console.log('  API URL:', this.apiUrl);
   }
 
+  private initializeConnection(): void {
+    // Check if user is logged in and auto-connect
+    const token = localStorage.getItem('token');
+    if (token) {
+      console.log('User is logged in, attempting to connect WebSocket...');
+      this.connectWebSocket().catch(error => {
+        console.log('Initial WebSocket connection failed, will retry:', error);
+        // Set up auto-reconnect
+        setTimeout(() => this.autoReconnect(), 5000);
+      });
+    } else {
+      console.log('User not logged in, WebSocket connection will be established on login');
+    }
+  }
+
+  // Public method to connect when user logs in
+  connectOnLogin(): Promise<boolean> {
+    console.log('User logged in, connecting WebSocket...');
+    return this.connectWebSocket();
+  }
+
   // WebSocket Connection Methods
   connectWebSocket(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-    // console.log('=== WEB SOCKET DEBUG ===');
+      console.log('=== WEB SOCKET DEBUG ===');
       if (this.isConnected && this.stompClient?.connected) {
+        console.log('WebSocket already connected');
         resolve(true);
         return;
       }
 
-      // console.log('Connecting to WebSocket at:', this.wsUrl);
+      console.log('Connecting to WebSocket at:', this.wsUrl);
 
       const token = localStorage.getItem('token');
       if (!token) {
+        console.error('No JWT token found');
         reject('No JWT token found');
         return;
       }
 
-      // console.log('Using JWT token:', token.substring(0, 20) + '...');
+      console.log('Using JWT token:', token.substring(0, 20) + '...');
+
+      // Disconnect existing connection if any
+      if (this.stompClient) {
+        this.stompClient.deactivate();
+      }
 
       // Use raw WebSocket (no SockJS)
       this.stompClient = new Client({
@@ -77,12 +108,12 @@ export class NotificationService {
         },
         
         debug: (str: string) => {
-          // console.log('STOMP:', str);
+          console.log('STOMP:', str);
         },
         
         onConnect: (frame: any) => {
-          // console.log('Connected to WebSocket successfully');
-          // console.log('Connection frame:', frame);
+          console.log('✅ Connected to WebSocket successfully');
+          console.log('Connection frame:', frame);
           this.isConnected = true;
           this.connectionSubject.next(true);
           this.subscribeToUserNotifications();
@@ -90,21 +121,21 @@ export class NotificationService {
         },
         
         onStompError: (frame: any) => {
-          // console.error('❌ STOMP error frame:', frame);
+          console.error('❌ STOMP error frame:', frame);
           this.isConnected = false;
           this.connectionSubject.next(false);
           reject(frame);
         },
         
         onWebSocketError: (error: any) => {
-          // console.error('❌ WebSocket connection error:', error);
+          console.error('❌ WebSocket connection error:', error);
           this.isConnected = false;
           this.connectionSubject.next(false);
           reject(error);
         },
         
         onDisconnect: () => {
-          // console.log('WebSocket disconnected');
+          console.log('WebSocket disconnected');
           this.isConnected = false;
           this.connectionSubject.next(false);
         }
@@ -116,7 +147,7 @@ export class NotificationService {
 
   private subscribeToUserNotifications(): void {
     if (!this.stompClient) {
-      // console.error('STOMP client not initialized');
+      console.error('STOMP client not initialized');
       return;
     }
 
@@ -126,23 +157,35 @@ export class NotificationService {
     this.stompClient.subscribe(userDestination, (message: any) => {
       try {
         const notification: Notification = JSON.parse(message.body);
-        // console.log('Received user notification:', notification);
+        console.log('📨 Received user notification:', notification);
         this.notificationSubject.next(notification);
       } catch (error) {
-        // console.error('Error parsing user notification:', error);
+        console.error('Error parsing user notification:', error);
       }
     });
 
-    // console.log(`Subscribed to user notifications: ${userDestination}`);
+    console.log(`✅ Subscribed to user notifications: ${userDestination}`);
   }
 
   disconnectWebSocket(): void {
     if (this.stompClient) {
       this.stompClient.deactivate().then(() => {
-        // console.log('WebSocket disconnected');
+        console.log('WebSocket disconnected');
         this.stompClient = null;
         this.isConnected = false;
         this.connectionSubject.next(false);
+      });
+    }
+  }
+
+  // Auto-reconnect method
+  private autoReconnect(): void {
+    if (!this.isConnected) {
+      console.log('Attempting to reconnect WebSocket...');
+      this.connectWebSocket().catch(error => {
+        console.error('Reconnection failed:', error);
+        // Retry after 10 seconds
+        setTimeout(() => this.autoReconnect(), 10000);
       });
     }
   }
