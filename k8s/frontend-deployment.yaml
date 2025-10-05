@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: medbaha/microsponsoring-frontend:latest
+        image: medbaha/pfefrontend:latest
         ports:
         - containerPort: 80
         resources:
