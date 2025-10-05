@@ -19,6 +19,18 @@ RUN sed -i '/"budgets": \[/,/\]/d' angular.json
 # Build the application with pod configuration for Kubernetes
 RUN npm run build -- --configuration pod
 
+# DEBUG: Comprehensive build output check
+RUN echo "=== CHECKING BUILD OUTPUT ===" && \
+    echo "Current directory:" && pwd && \
+    echo "=== Listing /app ===" && \
+    ls -la /app/ && \
+    echo "=== Listing /app/dist ===" && \
+    ls -la /app/dist/ 2>/dev/null || echo "dist directory not found" && \
+    echo "=== Finding all built files ===" && \
+    find /app -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "index.html" 2>/dev/null | head -20 && \
+    echo "=== Checking angular.json outputPath ===" && \
+    cat angular.json | grep -A 5 -B 5 outputPath
+
 # Production stage
 FROM nginx:alpine
 
@@ -28,11 +40,28 @@ RUN apk add --no-cache tzdata
 # Set timezone
 ENV TZ=UTC
 
-# DEBUG: List what's in the build output
-RUN ls -la /app/dist/
+# First, let's see what the build stage actually produced
+COPY --from=build /app/dist /tmp/build-output
 
-# Copy built application from build stage - FIX THIS PATH
-COPY --from=build /app/dist/microsponsoring/browser /usr/share/nginx/html
+# DEBUG: Check what we copied
+RUN echo "=== CHECKING COPIED FILES ===" && \
+    ls -la /tmp/build-output/ && \
+    find /tmp/build-output -name "*.js" -o -name "*.html" -o -name "*.css" | head -10
+
+# Now copy to the correct location based on actual structure
+RUN if [ -d "/tmp/build-output/microsponsoring/browser" ]; then \
+        echo "Copying from /tmp/build-output/microsponsoring/browser" && \
+        cp -r /tmp/build-output/microsponsoring/browser/* /usr/share/nginx/html/; \
+    elif [ -d "/tmp/build-output/browser" ]; then \
+        echo "Copying from /tmp/build-output/browser" && \
+        cp -r /tmp/build-output/browser/* /usr/share/nginx/html/; \
+    elif [ -d "/tmp/build-output/microsponsoring" ]; then \
+        echo "Copying from /tmp/build-output/microsponsoring" && \
+        cp -r /tmp/build-output/microsponsoring/* /usr/share/nginx/html/; \
+    else \
+        echo "Copying directly from /tmp/build-output" && \
+        cp -r /tmp/build-output/* /usr/share/nginx/html/ 2>/dev/null || echo "No files to copy"; \
+    fi
 
 # Copy custom nginx configuration with proper MIME types
 COPY nginx.conf /etc/nginx/nginx.conf
