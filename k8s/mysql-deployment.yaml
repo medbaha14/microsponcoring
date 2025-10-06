@@ -50,6 +50,9 @@ spec:
             - ping
             - -h
             - localhost
+            - -u
+            - root
+            - -p
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
@@ -61,6 +64,7 @@ spec:
             - localhost
             - -u
             - root
+            - -p
             - -e
             - "SELECT 1"
           initialDelaySeconds: 5

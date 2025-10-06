@@ -19,17 +19,13 @@ sleep 10
 echo "Creating namespace..."
 kubectl apply -f namespace.yaml
 
-# Create secrets (use the fixed version)
+# Create secrets
 echo "Creating secrets..."
-kubectl apply -f secrets-fixed.yaml
+kubectl apply -f secrets.yaml
 
 # Deploy storage first
 echo "Deploying storage..."
-kubectl apply -f local-storage-class.yaml
-kubectl apply -f local-pv-mysql.yaml
-kubectl apply -f local-pv-images.yaml
-kubectl apply -f local-pv-invoices.yaml
-kubectl apply -f pvc-local.yaml
+kubectl apply -f storage-class.yaml
 
 # Deploy MySQL first
 echo "Deploying MySQL..."
@@ -39,9 +35,9 @@ kubectl apply -f mysql-deployment.yaml
 echo "Waiting for MySQL to be ready..."
 kubectl wait --for=condition=ready pod -l app=mysql -n microsponsoring --timeout=300s
 
-# Deploy backend (use the host version for localhost MySQL access)
+# Deploy backend
 echo "Deploying Backend..."
-kubectl apply -f backend-deployment-host.yaml
+kubectl apply -f backend-deployment.yaml
 
 # Wait for backend to initialize with database
 echo "Waiting for backend to connect to database..."
@@ -53,11 +49,11 @@ kubectl logs deployment/backend-deployment -n microsponsoring --tail=20
 
 # Deploy frontend
 echo "Deploying Frontend..."
-kubectl apply -f frontend-deployment-fixed.yaml
+kubectl apply -f frontend-deployment.yaml
 
-# Deploy frontend service
-echo "Deploying Frontend Service..."
-kubectl apply -f frontend-service.yaml
+# Deploy ingress
+echo "Deploying Ingress..."
+kubectl apply -f ingress.yaml
 
 # Deploy monitoring (optional)
 echo "Deploying Monitoring..."

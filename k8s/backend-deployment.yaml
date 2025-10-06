@@ -63,6 +63,12 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: "prod"
         
+        # JWT Configuration
+        - name: JWT_SECRET
+          value: "your-super-secret-jwt-key-change-in-production-12345"
+        - name: JWT_EXPIRATION
+          value: "86400000"
+        
         resources:
           requests:
             memory: "512Mi"
