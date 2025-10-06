@@ -1,79 +1,74 @@
 #!/bin/bash
+echo "Starting Microsponsoring deployment from k8s directory..."
 
-# Microsponsoring Kubernetes Deployment Script
-# This script deploys all components in the correct order
+# Pull latest Docker images
+echo "Pulling latest Docker images..."
+docker pull medbaha/pfebackend:latest
+docker pull medbaha/pfefrontend:latest
+docker pull mysql:8.0
 
-set -e
+echo "Docker images pulled successfully!"
 
-echo "🚀 Starting Microsponsoring Kubernetes Deployment..."
+# Clean up existing deployments that might be causing conflicts
+echo "Cleaning up existing deployments..."
+kubectl delete deployment backend-deployment frontend-deployment mysql -n microsponsoring --ignore-not-found=true
+kubectl delete pvc mysql-pvc images-pvc invoices-pvc -n microsponsoring --ignore-not-found=true
+sleep 10
 
-# Create namespace first
-echo "📁 Creating namespace..."
+# Create namespace
+echo "Creating namespace..."
 kubectl apply -f namespace.yaml
 
-# Create storage class and persistent volume
-echo "💾 Creating storage class and persistent volume..."
-kubectl apply -f storage-class.yaml
+# Create secrets (use the fixed version)
+echo "Creating secrets..."
+kubectl apply -f secrets-fixed.yaml
 
-# Wait for storage class to be ready
-echo "⏳ Waiting for storage class to be ready..."
-sleep 5
+# Deploy storage first
+echo "Deploying storage..."
+kubectl apply -f local-storage-class.yaml
+kubectl apply -f local-pv-mysql.yaml
+kubectl apply -f local-pv-images.yaml
+kubectl apply -f local-pv-invoices.yaml
+kubectl apply -f pvc-local.yaml
 
-# Deploy MySQL first (database dependency)
-echo "🗄️ Deploying MySQL..."
+# Deploy MySQL first
+echo "Deploying MySQL..."
 kubectl apply -f mysql-deployment.yaml
 
 # Wait for MySQL to be ready
-echo "⏳ Waiting for MySQL to be ready..."
+echo "Waiting for MySQL to be ready..."
 kubectl wait --for=condition=ready pod -l app=mysql -n microsponsoring --timeout=300s
 
-# Deploy backend (depends on MySQL)
-echo "🔧 Deploying backend..."
-kubectl apply -f backend-deployment.yaml
+# Deploy backend (use the host version for localhost MySQL access)
+echo "Deploying Backend..."
+kubectl apply -f backend-deployment-host.yaml
+
+# Wait for backend to initialize with database
+echo "Waiting for backend to connect to database..."
+sleep 60
+
+# Check backend logs to see if it started successfully
+echo "Checking backend logs..."
+kubectl logs deployment/backend-deployment -n microsponsoring --tail=20
 
 # Deploy frontend
-echo "🎨 Deploying frontend..."
-kubectl apply -f frontend-deployment.yaml
+echo "Deploying Frontend..."
+kubectl apply -f frontend-deployment-fixed.yaml
 
-# Deploy monitoring
-echo "📊 Deploying monitoring..."
+# Deploy frontend service
+echo "Deploying Frontend Service..."
+kubectl apply -f frontend-service.yaml
+
+# Deploy monitoring (optional)
+echo "Deploying Monitoring..."
 kubectl apply -f monitoring.yaml
 
-# Deploy secrets
-echo "🔐 Deploying secrets..."
-kubectl apply -f secrets.yaml
+echo "🎉 Deployment completed!"
+echo "📊 Checking status..."
+kubectl get all -n microsponsoring
 
-# Deploy ingress last (depends on all services)
-echo "🌐 Deploying ingress..."
-kubectl apply -f ingress.yaml
-
-# Wait for all deployments to be ready
-echo "⏳ Waiting for all deployments to be ready..."
-kubectl wait --for=condition=available deployment --all -n microsponsoring --timeout=300s
-
-# Check status
-echo "✅ Deployment completed! Checking status..."
-echo ""
-echo "📋 Pod Status:"
-kubectl get pods -n microsponsoring
-echo ""
-echo "🔗 Services:"
-kubectl get services -n microsponsoring
-echo ""
-echo "💾 PVCs:"
-kubectl get pvc -n microsponsoring
-echo ""
-echo "🌐 Ingress:"
-kubectl get ingress -n microsponsoring
-
-echo ""
-echo "🎉 Deployment completed successfully!"
-echo ""
-echo "📝 To access your application:"
-echo "1. Add 'microsponsoring.local' to your /etc/hosts file pointing to your master node IP"
-echo "2. Access the application at: http://microsponsoring.local"
 echo ""
 echo "🔍 To check logs:"
-echo "kubectl logs -f deployment/backend-deployment -n microsponsoring"
-echo "kubectl logs -f deployment/frontend-deployment -n microsponsoring"
-echo "kubectl logs -f deployment/mysql-deployment -n microsponsoring"
+echo "   Backend: kubectl logs deployment/backend-deployment -n microsponsoring"
+echo "   Frontend: kubectl logs deployment/frontend-deployment -n microsponsoring"
+echo "   MySQL: kubectl logs deployment/mysql -n microsponsoring"
