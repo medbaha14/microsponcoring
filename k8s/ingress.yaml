@@ -19,21 +19,21 @@ spec:
   - host: microsponsoring.local
     http:
       paths:
-      - path: /api(/|$)(.*)
+      - path: /api
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 80
-      - path: /ws-notifications(/|$)(.*)
+      - path: /ws-notifications
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 80
-      - path: /(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
