@@ -26,8 +26,8 @@ spec:
         - containerPort: 3306
         env:
         # MySQL Configuration
-        - name: MYSQL_ROOT_PASSWORD
-          value: ""
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "true"
         - name: MYSQL_DATABASE
           value: "microsponsoring_db"
         - name: MYSQL_USER
@@ -52,7 +52,6 @@ spec:
             - localhost
             - -u
             - root
-            - -p
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
@@ -64,7 +63,6 @@ spec:
             - localhost
             - -u
             - root
-            - -p
             - -e
             - "SELECT 1"
           initialDelaySeconds: 5
