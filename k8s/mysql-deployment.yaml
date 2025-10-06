@@ -77,8 +77,7 @@ spec:
           mountPath: /etc/mysql/conf.d
       volumes:
       - name: mysql-storage
-        persistentVolumeClaim:
-          claimName: mysql-pvc
+        emptyDir: {}
       - name: mysql-config
         configMap:
           name: mysql-config
@@ -98,19 +97,6 @@ spec:
     port: 3306
     targetPort: 3306
   type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-  namespace: microsponsoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
-  storageClassName: local-storage
 ---
 apiVersion: v1
 kind: ConfigMap

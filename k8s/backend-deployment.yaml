@@ -97,11 +97,9 @@ spec:
           mountPath: /app/invoices
       volumes:
       - name: images-storage
-        persistentVolumeClaim:
-          claimName: images-pvc
+        emptyDir: {}
       - name: invoices-storage
-        persistentVolumeClaim:
-          claimName: invoices-pvc
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -116,29 +114,3 @@ spec:
     port: 80
     targetPort: 8080
   type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: images-pvc
-  namespace: microsponsoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: local-storage
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: invoices-pvc
-  namespace: microsponsoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: local-storage
