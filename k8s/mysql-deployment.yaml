@@ -1,10 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql-deployment
   namespace: microsponsoring
+  labels:
+    app: mysql
+    version: v1
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: mysql
@@ -12,22 +17,25 @@ spec:
     metadata:
       labels:
         app: mysql
+        version: v1
     spec:
       containers:
       - name: mysql
         image: mysql:8.0
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: ""  # Empty password as per your env
-        - name: MYSQL_ALLOW_EMPTY_PASSWORD
-          value: "true"
-        - name: MYSQL_DATABASE
-          value: "microsponsoring_db"
         ports:
         - containerPort: 3306
-        volumeMounts:
-        - name: mysql-storage
-          mountPath: /var/lib/mysql
+        env:
+        # MySQL Configuration
+        - name: MYSQL_ROOT_PASSWORD
+          value: ""
+        - name: MYSQL_DATABASE
+          value: "microsponsoring_db"
+        - name: MYSQL_USER
+          value: "microsponsoring_user"
+        - name: MYSQL_PASSWORD
+          value: "microsponsoring_password"
+        - name: MYSQL_ROOT_HOST
+          value: "%"
         resources:
           requests:
             memory: "512Mi"
@@ -37,26 +45,47 @@ spec:
             cpu: "500m"
         livenessProbe:
           exec:
-            command: ["mysqladmin", "ping", "-h", "localhost"]
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           exec:
-            command: ["mysql", "-h", "localhost", "-u", "root", "-e", "SELECT 1"]
+            command:
+            - mysql
+            - -h
+            - localhost
+            - -u
+            - root
+            - -e
+            - "SELECT 1"
           initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
+          periodSeconds: 2
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: mysql-config
+          mountPath: /etc/mysql/conf.d
       volumes:
       - name: mysql-storage
         persistentVolumeClaim:
           claimName: mysql-pvc
+      - name: mysql-config
+        configMap:
+          name: mysql-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql
   namespace: microsponsoring
+  labels:
+    app: mysql
 spec:
   selector:
     app: mysql
@@ -77,3 +106,44 @@ spec:
   resources:
     requests:
       storage: 20Gi
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: microsponsoring
+data:
+  custom.cnf: |
+    [mysqld]
+    # General settings
+    default_authentication_plugin=mysql_native_password
+    character-set-server=utf8mb4
+    collation-server=utf8mb4_unicode_ci
+    
+    # Performance settings
+    innodb_buffer_pool_size=256M
+    innodb_log_file_size=64M
+    innodb_flush_log_at_trx_commit=2
+    innodb_flush_method=O_DIRECT
+    
+    # Connection settings
+    max_connections=200
+    max_connect_errors=1000
+    wait_timeout=28800
+    interactive_timeout=28800
+    
+    # Logging
+    slow_query_log=1
+    slow_query_log_file=/var/lib/mysql/slow.log
+    long_query_time=2
+    
+    # Binary logging
+    log-bin=mysql-bin
+    binlog_format=ROW
+    expire_logs_days=7
+    
+    # Security
+    local_infile=0
+    skip_networking=0
+    bind-address=0.0.0.0

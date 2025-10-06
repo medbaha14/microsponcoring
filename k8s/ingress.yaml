@@ -4,31 +4,34 @@ metadata:
   name: microsponsoring-ingress
   namespace: microsponsoring
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/websocket-services: "backend-service"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    nginx.ingress.kubernetes.io/upstream-hash-by: "$binary_remote_addr"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
 spec:
+  ingressClassName: nginx
   rules:
-  - host: microsponsoring.local  # Change this to your actual domain
+  - host: microsponsoring.local
     http:
       paths:
-      - path: /api
+      - path: /api(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 80
-      - path: /ws-notifications
+      - path: /ws-notifications(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 80
-      - path: /
+      - path: /(.*)
         pathType: Prefix
         backend:
           service:
