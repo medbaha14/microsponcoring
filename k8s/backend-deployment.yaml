@@ -3,13 +3,8 @@ kind: Deployment
 metadata:
   name: backend-deployment
   namespace: microsponsoring
-  labels:
-    app: backend
-    version: v1
 spec:
   replicas: 1
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: backend
@@ -17,88 +12,52 @@ spec:
     metadata:
       labels:
         app: backend
-        version: v1
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/actuator/prometheus"
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
       containers:
       - name: backend
-        image: medbaha/pfebackend:latest  
+        image: medbaha/pfebackend:latest
         ports:
         - containerPort: 8080
         env:
-        # Database Configuration - Points to MySQL service in Kubernetes
         - name: DB_URL
-          value: "jdbc:mysql://mysql:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+          value: "jdbc:mysql://mysql-service:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
         - name: DB_USERNAME
-          value: "root"
+          value: "microsponsoring_user"
         - name: DB_PASSWORD
           value: ""
-        - name: FILE_UPLOAD_DIR
-          value: "/app/images"
-        
-        # Checkout Configuration
-        - name: CHECKOUT_SECRET_KEY
-          value: "sk_sbox_iithuw4ge2ahksjxeybyp237wyx"
-        - name: CHECKOUT_PUBLIC_KEY
-          value: "pk_sbox_ilziuiwrfcgbwokgwskduowqemh"
-        
-        # Server Configuration
-        - name: SERVER_PORT
-          value: "8080"
-        
-        # Email Configuration
-        - name: MAIL_HOST
-          value: "smtp.gmail.com"
-        - name: MAIL_PORT
-          value: "587"
-        - name: MAIL_USERNAME
-          value: "bousnina.baha14@gmail.com"
-        - name: MAIL_PASSWORD
-          value: "wasv wstd eibu urzo"
-        
-        # Spring Profile
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
-        
-        # JWT Configuration
         - name: JWT_SECRET
-          value: "your-super-secret-jwt-key-change-in-production-12345"
+          value: "your-secret-key-here-change-in-production"
         - name: JWT_EXPIRATION
           value: "86400000"
-        
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
+        - name: FILE_UPLOAD_DIR
+          value: "/app/images"
+        - name: MAIL_USERNAME
+          value: "your-email@example.com"
+        - name: MAIL_PASSWORD
+          value: "your-email-password"
+        - name: CHECKOUT_SECRET_KEY
+          value: "your-checkout-secret-key"
+        - name: CHECKOUT_PUBLIC_KEY
+          value: "your-checkout-public-key"
+        volumeMounts:
+        - name: images-storage
+          mountPath: /app/images
         livenessProbe:
           httpGet:
             path: /actuator/health
             port: 8080
-          initialDelaySeconds: 90  # Increased to wait for DB
+          initialDelaySeconds: 60
           periodSeconds: 30
-          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8080
-          initialDelaySeconds: 60  # Increased to wait for DB
+          initialDelaySeconds: 30
           periodSeconds: 10
-          timeoutSeconds: 3
-        volumeMounts:
-        - name: images-storage
-          mountPath: /app/images
-        - name: invoices-storage
-          mountPath: /app/invoices
       volumes:
       - name: images-storage
-        emptyDir: {}
-      - name: invoices-storage
         emptyDir: {}
 ---
 apiVersion: v1
@@ -110,7 +69,6 @@ spec:
   selector:
     app: backend
   ports:
-  - protocol: TCP
-    port: 80
+  - port: 80
     targetPort: 8080
   type: ClusterIP
