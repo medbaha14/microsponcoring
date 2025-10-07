@@ -33,7 +33,7 @@ spec:
         - name: MYSQL_USER
           value: "microsponsoring_user"
         - name: MYSQL_PASSWORD
-          value: "microsponsoring_password"
+          value: ""
         - name: MYSQL_ROOT_HOST
           value: "%"
         resources:
@@ -83,7 +83,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mysql-service
   namespace: microsponsoring
   labels:
     app: mysql
