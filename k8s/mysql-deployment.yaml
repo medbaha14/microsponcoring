@@ -19,6 +19,8 @@ spec:
         app: mysql
         version: v1
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
       containers:
       - name: mysql
         image: mysql:8.0
