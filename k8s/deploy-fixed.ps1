@@ -19,6 +19,10 @@ kubectl apply -f namespace.yaml
 Write-Host "🔐 Creating secrets..." -ForegroundColor Yellow
 kubectl apply -f secrets.yaml
 
+# Create WebSocket headers ConfigMap
+Write-Host "🔌 Creating WebSocket headers ConfigMap..." -ForegroundColor Yellow
+kubectl apply -f websocket-headers.yaml
+
 # Deploy storage first
 Write-Host "💾 Deploying storage..." -ForegroundColor Yellow
 kubectl apply -f storage-class.yaml

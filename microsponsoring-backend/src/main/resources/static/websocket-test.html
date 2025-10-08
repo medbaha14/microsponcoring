@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Test Page</h1>
+    <div id="status">Disconnected</div>
+    <div id="messages"></div>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <button onclick="sendPing()">Send Ping</button>
+    <button onclick="sendNotification()">Send Notification</button>
+
+    <script>
+        let stompClient = null;
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        function connect() {
+            const socket = new SockJS('/ws-notifications');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function (frame) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.style.color = 'green';
+                
+                // Subscribe to notifications
+                stompClient.subscribe('/topic/notifications', function (message) {
+                    const notification = JSON.parse(message.body);
+                    addMessage('Notification: ' + notification.message);
+                });
+                
+                // Subscribe to pong responses
+                stompClient.subscribe('/topic/pong', function (message) {
+                    addMessage('Pong: ' + message.body);
+                });
+                
+                // Subscribe to user-specific notifications
+                stompClient.subscribe('/user/queue/notifications', function (message) {
+                    const notification = JSON.parse(message.body);
+                    addMessage('Personal: ' + notification.message);
+                });
+                
+                addMessage('Connected to WebSocket');
+            }, function (error) {
+                statusDiv.textContent = 'Connection failed: ' + error;
+                statusDiv.style.color = 'red';
+                addMessage('Connection failed: ' + error);
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.style.color = 'red';
+                addMessage('Disconnected from WebSocket');
+            }
+        }
+
+        function sendPing() {
+            if (stompClient !== null) {
+                stompClient.send("/app/notification.ping", {}, "Hello WebSocket!");
+                addMessage('Sent ping');
+            } else {
+                addMessage('Not connected');
+            }
+        }
+
+        function sendNotification() {
+            if (stompClient !== null) {
+                const notification = {
+                    message: "Test notification from client",
+                    type: "INCOMING"
+                };
+                stompClient.send("/app/notification.send", {}, JSON.stringify(notification));
+                addMessage('Sent notification');
+            } else {
+                addMessage('Not connected');
+            }
+        }
+
+        function addMessage(message) {
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            messagesDiv.appendChild(p);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

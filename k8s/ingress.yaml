@@ -14,20 +14,11 @@ metadata:
     # WebSocket specific annotations
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
     nginx.ingress.kubernetes.io/upstream-hash-by: "$binary_remote_addr"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      location /ws-notifications {
-        proxy_pass http://backend-service:80;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        proxy_read_timeout 86400;
-      }
+    # Enable WebSocket support
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "microsponsoring/websocket-headers"
 spec:
   ingressClassName: nginx
   rules:
@@ -45,7 +36,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: websocket-service
+            name: backend-service
             port:
               number: 8080
       - path: /images

@@ -22,7 +22,7 @@ spec:
         - containerPort: 8080
         env:
         - name: DB_URL
-          value: "jdbc:mysql://mysql:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+          value: "jdbc:mysql://mysql-service:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
         - name: DB_USERNAME
           value: "microsponsoring_user"
         - name: DB_PASSWORD
@@ -44,6 +44,8 @@ spec:
         volumeMounts:
         - name: images-storage
           mountPath: /app/images
+        - name: static-storage
+          mountPath: /app/static/uploads
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -58,6 +60,8 @@ spec:
           periodSeconds: 10
       volumes:
       - name: images-storage
+        emptyDir: {}
+      - name: static-storage
         emptyDir: {}
 ---
 apiVersion: v1

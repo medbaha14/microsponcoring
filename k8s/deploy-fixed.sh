@@ -23,6 +23,10 @@ kubectl apply -f namespace.yaml
 echo "🔐 Creating secrets..."
 kubectl apply -f secrets.yaml
 
+# Create WebSocket headers ConfigMap
+echo "🔌 Creating WebSocket headers ConfigMap..."
+kubectl apply -f websocket-headers.yaml
+
 # Deploy storage first
 echo "💾 Deploying storage..."
 kubectl apply -f storage-class.yaml
