@@ -1,0 +1,62 @@
+# Optimized WebSocket LoadBalancer configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-loadbalancer
+  namespace: microsponsoring
+  labels:
+    app: backend
+  annotations:
+    # Enable session affinity for WebSocket connections
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+    # Enable sticky sessions for WebSocket
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+spec:
+  type: LoadBalancer
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: websocket
+  # Enable session affinity for WebSocket connections
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+---
+# Alternative: Dedicated WebSocket LoadBalancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-dedicated
+  namespace: microsponsoring
+  labels:
+    app: backend
+  annotations:
+    # WebSocket-specific annotations
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+    # Enable WebSocket support
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  type: LoadBalancer
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 8081
+    protocol: TCP
+    name: websocket
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600

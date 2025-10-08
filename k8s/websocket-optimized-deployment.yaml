@@ -1,10 +1,13 @@
+# Optimized backend deployment for WebSocket with LoadBalancer
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
   namespace: microsponsoring
+  labels:
+    app: backend
 spec:
-  replicas: 1
+  replicas: 2  # Multiple replicas for WebSocket load balancing
   selector:
     matchLabels:
       app: backend
@@ -29,7 +32,7 @@ spec:
         - name: DB_USERNAME
           value: "root"
         - name: DB_PASSWORD
-          value: ""
+          value: "rootpassword"
         - name: JWT_SECRET
           value: "microsponsoring-jwt-secret-key-2024-production-ready"
         - name: JWT_EXPIRATION
@@ -49,7 +52,7 @@ spec:
         - name: SECURITY_PUBLIC_ENDPOINTS
           value: "/actuator/health,/actuator/info,/images/**,/uploads/**,/ws-notifications/**,/api/auth/**"
         - name: SPRING_WEB_CORS_ALLOWED_ORIGINS
-          value: "http://microsponsoring.local:32403,http://localhost:32403"
+          value: "*"  # Allow all origins for WebSocket
         - name: SPRING_WEB_CORS_ALLOWED_METHODS
           value: "GET,POST,PUT,DELETE,OPTIONS"
         - name: SPRING_WEB_CORS_ALLOWED_HEADERS
@@ -58,11 +61,22 @@ spec:
           value: "true"
         - name: WEBSOCKET_PORT
           value: "8081"
-        volumeMounts:
-        - name: images-storage
-          mountPath: /app/images
-        - name: static-storage
-          mountPath: /app/static/uploads
+        - name: WEBSOCKET_ALLOWED_ORIGINS
+          value: "*"
+        # WebSocket-specific optimizations
+        - name: SPRING_WEBSOCKET_SOCKJS_ALLOWED_ORIGINS
+          value: "*"
+        - name: SPRING_WEBSOCKET_STOMP_RELAY_HOST
+          value: "localhost"
+        - name: SPRING_WEBSOCKET_STOMP_RELAY_PORT
+          value: "61613"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /api/actuator/health
@@ -79,12 +93,50 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 5
           failureThreshold: 3
+        volumeMounts:
+        - name: images-storage
+          mountPath: /app/images
+        - name: static-storage
+          mountPath: /app/static/uploads
       volumes:
       - name: images-storage
         emptyDir: {}
       - name: static-storage
         emptyDir: {}
 ---
+# LoadBalancer service for WebSocket
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-loadbalancer
+  namespace: microsponsoring
+  labels:
+    app: backend
+  annotations:
+    # WebSocket optimizations
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+spec:
+  type: LoadBalancer
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: websocket
+  # Enable session affinity for WebSocket connections
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+---
+# Regular ClusterIP service for internal communication
 apiVersion: v1
 kind: Service
 metadata:
@@ -98,10 +150,6 @@ spec:
     targetPort: 8080
     protocol: TCP
     name: http
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: api
   - port: 8081
     targetPort: 8081
     protocol: TCP
