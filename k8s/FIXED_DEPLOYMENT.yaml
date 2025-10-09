@@ -1,0 +1,401 @@
+# FIXED DEPLOYMENT - Resolves health check and permission issues
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microsponsoring
+---
+# MySQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: microsponsoring
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+        version: v1
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpassword"
+        - name: MYSQL_DATABASE
+          value: "microsponsoring_db"
+        - name: MYSQL_USER
+          value: "microsponsoring_user"
+        - name: MYSQL_PASSWORD
+          value: "microsponsoring_password"
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: mysql-storage
+        emptyDir: {}
+---
+# MySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: microsponsoring
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+  type: ClusterIP
+---
+# Backend Deployment - FIXED
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: microsponsoring
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
+      containers:
+      - name: backend
+        image: medbaha/pfebackend:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: websocket
+        env:
+        - name: DB_URL
+          value: "jdbc:mysql://mysql-service:3306/microsponsoring_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+        - name: DB_USERNAME
+          value: "root"
+        - name: DB_PASSWORD
+          value: "rootpassword"
+        - name: JWT_SECRET
+          value: "microsponsoring-jwt-secret-key-2024-production-ready"
+        - name: JWT_EXPIRATION
+          value: "86400000"
+        - name: FILE_UPLOAD_DIR
+          value: "/app/images"
+        - name: MAIL_USERNAME
+          value: "bousnina.baha14@gmail.com"
+        - name: MAIL_PASSWORD
+          value: "wasv wstd eibu urzo"
+        - name: CHECKOUT_SECRET_KEY
+          value: "sk_sbox_iithuw4ge2ahksjxeybyp237wyx"
+        - name: CHECKOUT_PUBLIC_KEY
+          value: "pk_sbox_ilziuiwrfcgbwokgwskduowqemh"
+        - name: SPRING_SECURITY_CSRF_ENABLED
+          value: "false"
+        # FIXED: Use proper Spring Boot actuator path
+        - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+          value: "health,info"
+        - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+          value: "always"
+        - name: SPRING_WEB_CORS_ALLOWED_ORIGINS
+          value: "*"
+        - name: SPRING_WEB_CORS_ALLOWED_METHODS
+          value: "GET,POST,PUT,DELETE,OPTIONS"
+        - name: SPRING_WEB_CORS_ALLOWED_HEADERS
+          value: "*"
+        - name: SPRING_WEB_CORS_ALLOW_CREDENTIALS
+          value: "true"
+        - name: WEBSOCKET_PORT
+          value: "8081"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        # FIXED: Use correct health check path
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: images-storage
+          mountPath: /app/images
+        - name: static-storage
+          mountPath: /app/static/uploads
+      volumes:
+      - name: images-storage
+        emptyDir: {}
+      - name: static-storage
+        emptyDir: {}
+---
+# Backend NodePort Service (since LoadBalancer is pending)
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-nodeport
+  namespace: microsponsoring
+  labels:
+    app: backend
+spec:
+  type: NodePort
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: api
+    nodePort: 30080
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: websocket
+    nodePort: 30081
+---
+# Backend Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: microsponsoring
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: websocket
+  type: ClusterIP
+---
+# Frontend Deployment - FIXED
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: microsponsoring
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
+      containers:
+      - name: frontend
+        image: medbaha/pfefrontend:latest
+        ports:
+        - containerPort: 80
+        # FIXED: Add security context for nginx
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+# Frontend NodePort Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-nodeport
+  namespace: microsponsoring
+  labels:
+    app: frontend
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+    nodePort: 30082
+---
+# Frontend Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: microsponsoring
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  type: ClusterIP
+---
+# Image Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-service
+  namespace: microsponsoring
+  labels:
+    app: image-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service
+  template:
+    metadata:
+      labels:
+        app: image-service
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "workernode1-vmware-virtual-platform"
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        - name: images-storage
+          mountPath: /usr/share/nginx/html/images
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: images-storage
+        emptyDir: {}
+---
+# Image Service NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-nodeport
+  namespace: microsponsoring
+  labels:
+    app: image-service
+spec:
+  type: NodePort
+  selector:
+    app: image-service
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+    nodePort: 30083
+---
+# Image Service Internal
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-service
+  namespace: microsponsoring
+spec:
+  selector:
+    app: image-service
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  type: ClusterIP
+---
+# Nginx ConfigMap for Image Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: microsponsoring
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+        
+        location /images/ {
+            alias /usr/share/nginx/html/images/;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+        
+        location / {
+            return 404;
+        }
+    }
