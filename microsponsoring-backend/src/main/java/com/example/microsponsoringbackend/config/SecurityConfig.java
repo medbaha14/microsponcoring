@@ -39,6 +39,9 @@ public class SecurityConfig {
     .requestMatchers(publicEndpoints).permitAll()
     // Additional specific endpoints
     .requestMatchers("/api/health/**", "/api/public/**").permitAll()
+    // Explicit upload endpoints
+    .requestMatchers(HttpMethod.POST, "/api/upload/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
     // --- RECOGNITION BENEFITS (ordre important) ---
  .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/company/**").permitAll()
 // puis seulement après :
