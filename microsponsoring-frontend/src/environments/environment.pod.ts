@@ -14,6 +14,6 @@ export const environment = {
   bankAccountsUrl: 'http://192.168.179.129:30080/api/bank-accounts',
   notificationsUrl: 'http://192.168.179.129:30080/api/notifications',
   wsUrl: 'ws://192.168.179.129:30081/ws-notifications',
-  imageUrl: 'http://192.168.179.129:30083',
-  baseUrl: 'http://192.168.179.129:30082'
+  imageUrl: 'http://192.168.179.129:30080',
+  baseUrl: 'http://192.168.179.129:30080'
 };

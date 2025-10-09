@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Autowired
     private DatabaseDrivenSecurityService databaseDrivenSecurityService;
 
-    @Value("${security.public.endpoints:/actuator/health,/actuator/info,/images/**,/uploads/**,/ws-notifications/**,/api/auth/**}")
+    @Value("${security.public.endpoints:/actuator/health,/actuator/info,/images/**,/uploads/**,/ws-notifications/**,/api/auth/**,/api/upload/**,/api/images/**}")
     private String[] publicEndpoints;
 
     @Bean
@@ -39,9 +39,6 @@ public class SecurityConfig {
     .requestMatchers(publicEndpoints).permitAll()
     // Additional specific endpoints
     .requestMatchers("/api/health/**", "/api/public/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
-    .requestMatchers(HttpMethod.POST, "/api/upload/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
     // --- RECOGNITION BENEFITS (ordre important) ---
  .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/company/**").permitAll()
 // puis seulement après :
