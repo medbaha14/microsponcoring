@@ -3,6 +3,7 @@ package com.example.microsponsoringbackend.config;
 import com.example.microsponsoringbackend.security.JwtAuthenticationFilter;
 import com.example.microsponsoringbackend.service.DatabaseDrivenSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 public class SecurityConfig {
 
@@ -24,17 +26,22 @@ public class SecurityConfig {
     @Autowired
     private DatabaseDrivenSecurityService databaseDrivenSecurityService;
 
+    @Value("${security.public.endpoints:/actuator/health,/actuator/info,/images/**,/uploads/**,/ws-notifications/**,/api/auth/**}")
+    private String[] publicEndpoints;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-    .requestMatchers("/actuator/**", "/api/health/**", "/api/auth/**", "/api/public/**").permitAll()
+    // Dynamic public endpoints from environment variable
+    .requestMatchers(publicEndpoints).permitAll()
+    // Additional specific endpoints
+    .requestMatchers("/api/health/**", "/api/public/**").permitAll()
     .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
-    .requestMatchers(HttpMethod.POST, "/api/upload/profile-picture").permitAll()
-    .requestMatchers("/ws-notifications/**").permitAll()
+    .requestMatchers(HttpMethod.POST, "/api/upload/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
     // --- RECOGNITION BENEFITS (ordre important) ---
  .requestMatchers(HttpMethod.GET, "/api/recognition-benefits/company/**").permitAll()
 // puis seulement après :
