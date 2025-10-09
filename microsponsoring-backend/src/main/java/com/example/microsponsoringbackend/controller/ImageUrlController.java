@@ -8,13 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.microsponsoringbackend.model.User;
 import com.example.microsponsoringbackend.model.PageCustomizations;
+import com.example.microsponsoringbackend.model.companyNonProfits;
 import com.example.microsponsoringbackend.repository.UserRepository;
 import com.example.microsponsoringbackend.repository.PageCustomizationsRepository;
+import com.example.microsponsoringbackend.repository.companyNonProfitsRepository;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/image-url")
@@ -28,16 +31,20 @@ public class ImageUrlController {
     @Autowired
     private PageCustomizationsRepository pageCustomizationsRepository;
 
+    @Autowired
+    private companyNonProfitsRepository companyNonProfitsRepository;
+
     @PostMapping("/profile-picture")
     public ResponseEntity<?> updateProfilePicture(@RequestBody Map<String, String> request) {
         try {
-            String userId = request.get("userId");
+            String userIdStr = request.get("userId");
             String imageUrl = request.get("imageUrl");
 
-            if (userId == null || imageUrl == null) {
+            if (userIdStr == null || imageUrl == null) {
                 return ResponseEntity.badRequest().body("userId and imageUrl are required");
             }
 
+            UUID userId = UUID.fromString(userIdStr);
             Optional<User> userOpt = userRepository.findById(userId);
             if (userOpt.isEmpty()) {
                 return ResponseEntity.badRequest().body("User not found");
@@ -79,19 +86,29 @@ public class ImageUrlController {
 
     private ResponseEntity<?> updatePageCustomizationImage(Map<String, String> request, String imageType) {
         try {
-            String userId = request.get("userId");
+            String userIdStr = request.get("userId");
             String imageUrl = request.get("imageUrl");
 
-            if (userId == null || imageUrl == null) {
+            if (userIdStr == null || imageUrl == null) {
                 return ResponseEntity.badRequest().body("userId and imageUrl are required");
             }
 
-            // Find or create PageCustomizations for the user
-            PageCustomizations customizations = pageCustomizationsRepository.findByUserId(userId)
+            UUID userId = UUID.fromString(userIdStr);
+            
+            // Find the company for this user
+            Optional<companyNonProfits> companyOpt = companyNonProfitsRepository.findByUser_UserId(userId);
+            if (companyOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Company not found for user");
+            }
+
+            companyNonProfits company = companyOpt.get();
+
+            // Find or create PageCustomizations for the company
+            PageCustomizations customizations = pageCustomizationsRepository.findByCompany(company)
                     .orElse(new PageCustomizations());
             
-            if (customizations.getUserId() == null) {
-                customizations.setUserId(userId);
+            if (customizations.getCompany() == null) {
+                customizations.setCompany(company);
                 customizations.setCreatedAt(new Date());
             }
 
