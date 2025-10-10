@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  // Local development URLs
   apiUrl: 'http://localhost:8080/api',
   authUrl: 'http://localhost:8080/api/auth',
   usersUrl: 'http://localhost:8080/api/users',
@@ -13,5 +14,6 @@ export const environment = {
   bankAccountsUrl: 'http://localhost:8080/api/bank-accounts',
   notificationsUrl: 'http://localhost:8080/api/notifications',
   wsUrl: 'ws://localhost:8080/ws-notifications',
+  imageUrl: 'http://localhost:8080',
   baseUrl: 'http://localhost:8080'
 };

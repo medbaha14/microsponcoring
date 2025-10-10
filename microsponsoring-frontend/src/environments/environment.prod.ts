@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  // NodePort URLs - Updated with actual working IPs
+  // Production URLs - Updated with actual working IPs
   apiUrl: 'http://192.168.179.129:30080/api',
   authUrl: 'http://192.168.179.129:30080/api/auth',
   usersUrl: 'http://192.168.179.129:30080/api/users',
