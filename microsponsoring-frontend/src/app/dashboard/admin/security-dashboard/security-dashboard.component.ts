@@ -599,7 +599,7 @@ export class SecurityDashboardComponent implements OnInit, OnDestroy {
 
   // Utility methods
   getApiUrl(): string {
-    return this.environment?.apiUrl || 'http://localhost:80/api';
+    return this.environment?.apiUrl || 'http://localhost:8080/api';
   }
 
   getEnvironmentDisplayName(): string {

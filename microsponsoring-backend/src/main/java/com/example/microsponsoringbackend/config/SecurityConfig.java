@@ -80,6 +80,7 @@ public class SecurityConfig {
     .requestMatchers("/api/payment-transactions/**").hasAnyRole("ADMIN","SPONSOR")
     .requestMatchers("/api/sample-data/**").hasRole("ADMIN")
     .requestMatchers(HttpMethod.GET, "/api/invoices/*/pdf").permitAll()
+    .requestMatchers(HttpMethod.POST, "/api/invoices/*/regenerate-pdf").hasAnyRole("ADMIN","SPONSOR","ORGANISATION_NONPROFIT")
     .requestMatchers(HttpMethod.GET, "/api/invoices/**").authenticated()
     // Permit SockJS endpoints
     .requestMatchers("/ws-notifications/**").permitAll()

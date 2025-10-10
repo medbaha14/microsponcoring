@@ -3,6 +3,7 @@ import { User } from '../../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TokenHandler } from '../../../services/token-handler';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-organisation-card',
@@ -18,6 +19,14 @@ export class OrganisationCardComponent {
   constructor(private router: Router) {
     const currentUser = TokenHandler.getUser();
     this.currentUserType = currentUser?.userType || null;
+  }
+
+  resolveImageUrl(url: string | undefined): string {
+    if (!url) return '';
+    if (url.startsWith('http') || url.startsWith('data:image')) {
+      return url;
+    }
+    return `${environment.baseUrl}${url}`;
   }
 
   @HostListener('click')
