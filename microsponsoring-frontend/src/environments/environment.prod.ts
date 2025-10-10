@@ -13,7 +13,7 @@ export const environment = {
   pageCustomizationsUrl: 'http://192.168.179.129:30080/api/page-customizations',
   bankAccountsUrl: 'http://192.168.179.129:30080/api/bank-accounts',
   notificationsUrl: 'http://192.168.179.129:30080/api/notifications',
-  wsUrl: 'ws://192.168.179.129:30081/ws-notifications',
+  wsUrl: 'ws://192.168.179.129:30080/ws-notifications',
   imageUrl: 'http://192.168.179.129:30080',
   baseUrl: 'http://192.168.179.129:30080'
 };
