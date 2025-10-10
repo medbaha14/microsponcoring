@@ -53,6 +53,7 @@ public class SecurityConfig {
 
 
     // --- USERS ---
+    .requestMatchers(HttpMethod.POST, "/api/users").permitAll()  // Allow user creation/registration
     .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
     .requestMatchers(HttpMethod.PUT, "/api/users/{id}").authenticated()
     .requestMatchers(HttpMethod.PATCH, "/api/users/{id}").authenticated()
