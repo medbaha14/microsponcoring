@@ -74,7 +74,8 @@ public class InvoiceController {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<Resource> downloadInvoicePdf(@PathVariable UUID id) {
-        String pdfPath = "src/main/resources/invoices/" + id + ".pdf";
+        // Use absolute path for deployed environment
+        String pdfPath = "/app/invoices/" + id + ".pdf";
         try {
             Resource file = new UrlResource(new java.io.File(pdfPath).toURI());
             if (!file.exists()) {

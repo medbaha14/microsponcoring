@@ -91,7 +91,12 @@ public class PaymentService {
 
         // Generate PDF
         try {
-            String pdfDir = "src/main/resources/invoices/";
+            String pdfDir = "/app/invoices/";
+            // Create directory if it doesn't exist
+            java.io.File dir = new java.io.File(pdfDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             String pdfFile = invoice.getInvoiceId() + ".pdf";
             String pdfPath = pdfDir + pdfFile;
             com.example.microsponsoringbackend.util.InvoicePdfGenerator.generateInvoicePdf(invoice, pdfPath);

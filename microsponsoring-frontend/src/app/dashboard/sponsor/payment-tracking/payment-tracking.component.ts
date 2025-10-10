@@ -208,8 +208,19 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
     // Helper function to convert date to string
     const dateToString = (date: string | Date | undefined): string => {
       if (!date) return new Date().toISOString();
-      if (typeof date === 'string') return date;
-      return date.toISOString();
+      if (typeof date === 'string') {
+        // If it's already a string, try to parse it to ensure it's valid
+        try {
+          return new Date(date).toISOString();
+        } catch {
+          return new Date().toISOString();
+        }
+      }
+      if (date instanceof Date) {
+        return date.toISOString();
+      }
+      // Fallback for any other type
+      return new Date().toISOString();
     };
 
     return {
