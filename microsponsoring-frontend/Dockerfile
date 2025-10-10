@@ -16,8 +16,8 @@ COPY . .
 # Remove Angular budgets for Docker build
 RUN sed -i '/"budgets": \[/,/\]/d' angular.json
 
-# Build the application with pod configuration for Kubernetes
-RUN npm run build -- --configuration pod
+# Build the application with production configuration for Kubernetes
+RUN npm run build -- --configuration production
 
 # DEBUG: Comprehensive build output check
 RUN echo "=== CHECKING BUILD OUTPUT ===" && \
