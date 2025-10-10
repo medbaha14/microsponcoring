@@ -74,8 +74,18 @@ public class InvoiceController {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<Resource> downloadInvoicePdf(@PathVariable UUID id) {
-        // Use absolute path for deployed environment
-        String pdfPath = "/app/invoices/" + id + ".pdf";
+        // Use different paths for local vs deployed environment
+        String pdfPath;
+        
+        // Check if we're running in a container (Kubernetes) or locally
+        if (System.getProperty("user.dir").contains("/app")) {
+            // Running in Kubernetes container
+            pdfPath = "/app/invoices/" + id + ".pdf";
+        } else {
+            // Running locally
+            pdfPath = "src/main/resources/invoices/" + id + ".pdf";
+        }
+        
         try {
             Resource file = new UrlResource(new java.io.File(pdfPath).toURI());
             if (!file.exists()) {
@@ -87,6 +97,52 @@ public class InvoiceController {
                 .body(file);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/{id}/regenerate-pdf")
+    public ResponseEntity<String> regeneratePdf(@PathVariable UUID id) {
+        try {
+            Optional<Invoice> invoiceOpt = invoiceService.findById(id);
+            if (invoiceOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Invoice invoice = invoiceOpt.get();
+            
+            // Use different paths for local vs deployed environment
+            String pdfDir;
+            String pdfUrlPrefix;
+            
+            // Check if we're running in a container (Kubernetes) or locally
+            if (System.getProperty("user.dir").contains("/app")) {
+                // Running in Kubernetes container
+                pdfDir = "/app/invoices/";
+                pdfUrlPrefix = "/invoices/";
+            } else {
+                // Running locally
+                pdfDir = "src/main/resources/invoices/";
+                pdfUrlPrefix = "/invoices/";
+            }
+            
+            // Create directory if it doesn't exist
+            java.io.File dir = new java.io.File(pdfDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            
+            // Generate PDF
+            String pdfFile = invoice.getInvoiceId() + ".pdf";
+            String pdfPath = pdfDir + pdfFile;
+            com.example.microsponsoringbackend.util.InvoicePdfGenerator.generateInvoicePdf(invoice, pdfPath);
+            
+            // Update invoice with PDF URL
+            invoice.setGeneratedPdfUrl(pdfUrlPrefix + pdfFile);
+            invoiceService.save(invoice);
+            
+            return ResponseEntity.ok("PDF regenerated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to regenerate PDF: " + e.getMessage());
         }
     }
 }

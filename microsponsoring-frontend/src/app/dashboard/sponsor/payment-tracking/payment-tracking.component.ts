@@ -189,8 +189,34 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
         
         console.log('Payment Tracking: Sponsor invoices:', sponsorInvoices);
         
-        // Convert invoices to payment transactions
-        this.transactions = sponsorInvoices.map(invoice => this.convertInvoiceToTransaction(invoice));
+        // Convert invoices to payment transactions with safe error handling
+        this.transactions = sponsorInvoices.map(invoice => {
+          try {
+            return this.convertInvoiceToTransaction(invoice);
+          } catch (error) {
+            console.warn('Failed to convert invoice:', invoice, error);
+            // Return a safe default transaction
+            return {
+              transactionId: invoice.invoiceId || 'unknown',
+              sponsorId: invoice.sponsor?.sponsorId || '',
+              companyId: invoice.company?.companyId || '',
+              amount: invoice.amount || 0,
+              currency: 'EUR',
+              paymentMethod: 'CREDIT_CARD',
+              transactionReference: invoice.invoiceId || '',
+              description: `Sponsorship payment for ${invoice.company?.user?.fullName || 'Organization'}`,
+              status: TransactionStatus.PENDING,
+              type: TransactionType.SPONSORSHIP,
+              transactionDate: new Date().toISOString(),
+              processedDate: undefined,
+              uploadedFileName: undefined,
+              uploadedFilePath: undefined,
+              notes: `Invoice ${invoice.invoiceId}`,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+          }
+        }).filter(transaction => transaction !== null); // Remove any null values
         
         console.log('Payment Tracking: Converted transactions:', this.transactions);
         
@@ -205,43 +231,75 @@ export class PaymentTrackingComponent implements OnInit, OnDestroy {
   }
 
   convertInvoiceToTransaction(invoice: Invoice): PaymentTransaction {
-    // Helper function to convert date to string
-    const dateToString = (date: string | Date | undefined): string => {
-      if (!date) return new Date().toISOString();
-      if (typeof date === 'string') {
-        // If it's already a string, try to parse it to ensure it's valid
-        try {
-          return new Date(date).toISOString();
-        } catch {
-          return new Date().toISOString();
-        }
+    // Safe date conversion utility function
+    const safeToISOString = (dateValue: any): string => {
+      if (!dateValue) return new Date().toISOString();
+      
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        return !isNaN(dateValue.getTime()) ? dateValue.toISOString() : new Date().toISOString();
       }
-      if (date instanceof Date) {
-        return date.toISOString();
+      
+      // If it's a string that can be parsed as date
+      if (typeof dateValue === 'string') {
+        const date = new Date(dateValue);
+        return !isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
       }
+      
+      // If it's a timestamp (number)
+      if (typeof dateValue === 'number') {
+        const date = new Date(dateValue);
+        return !isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
+      }
+      
       // Fallback for any other type
       return new Date().toISOString();
     };
 
-    return {
-      transactionId: invoice.invoiceId || '',
-      sponsorId: invoice.sponsor?.sponsorId || '',
-      companyId: invoice.company?.companyId || '',
-      amount: invoice.amount || 0,
-      currency: 'EUR',
-      paymentMethod: 'CREDIT_CARD', // Default since we don't have this in invoice
-      transactionReference: invoice.invoiceId || '',
-      description: `Sponsorship payment for ${invoice.company?.user?.fullName || 'Organization'}`,
-      status: this.convertInvoiceStatusToTransactionStatus(invoice.status || 'PENDING'),
-      type: TransactionType.SPONSORSHIP,
-      transactionDate: dateToString(invoice.createdAt || invoice.invoiceDate),
-      processedDate: invoice.status === 'PAID' ? dateToString(invoice.updatedAt) : undefined,
-      uploadedFileName: invoice.generatedPdfUrl ? 'invoice.pdf' : undefined,
-      uploadedFilePath: invoice.generatedPdfUrl ? `${environment.baseUrl}${invoice.generatedPdfUrl}` : undefined,
-      notes: `Invoice ${invoice.invoiceId}`,
-      createdAt: dateToString(invoice.createdAt),
-      updatedAt: dateToString(invoice.updatedAt)
-    };
+    // Safe conversion with error handling
+    try {
+      return {
+        transactionId: invoice.invoiceId || '',
+        sponsorId: invoice.sponsor?.sponsorId || '',
+        companyId: invoice.company?.companyId || '',
+        amount: invoice.amount || 0,
+        currency: 'EUR',
+        paymentMethod: 'CREDIT_CARD', // Default since we don't have this in invoice
+        transactionReference: invoice.invoiceId || '',
+        description: `Sponsorship payment for ${invoice.company?.user?.fullName || 'Organization'}`,
+        status: this.convertInvoiceStatusToTransactionStatus(invoice.status || 'PENDING'),
+        type: TransactionType.SPONSORSHIP,
+        transactionDate: safeToISOString(invoice.createdAt || invoice.invoiceDate),
+        processedDate: invoice.status === 'PAID' ? safeToISOString(invoice.updatedAt) : undefined,
+        uploadedFileName: invoice.generatedPdfUrl ? 'invoice.pdf' : undefined,
+        uploadedFilePath: invoice.generatedPdfUrl ? `${environment.baseUrl}${invoice.generatedPdfUrl}` : undefined,
+        notes: `Invoice ${invoice.invoiceId}`,
+        createdAt: safeToISOString(invoice.createdAt),
+        updatedAt: safeToISOString(invoice.updatedAt)
+      };
+    } catch (error) {
+      console.warn('Failed to convert invoice to transaction:', invoice, error);
+      // Return a safe default transaction
+      return {
+        transactionId: invoice.invoiceId || 'unknown',
+        sponsorId: invoice.sponsor?.sponsorId || '',
+        companyId: invoice.company?.companyId || '',
+        amount: invoice.amount || 0,
+        currency: 'EUR',
+        paymentMethod: 'CREDIT_CARD',
+        transactionReference: invoice.invoiceId || '',
+        description: `Sponsorship payment for ${invoice.company?.user?.fullName || 'Organization'}`,
+        status: TransactionStatus.PENDING,
+        type: TransactionType.SPONSORSHIP,
+        transactionDate: new Date().toISOString(),
+        processedDate: undefined,
+        uploadedFileName: undefined,
+        uploadedFilePath: undefined,
+        notes: `Invoice ${invoice.invoiceId}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
   }
 
   convertInvoiceStatusToTransactionStatus(invoiceStatus: string): TransactionStatus {

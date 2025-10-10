@@ -91,7 +91,21 @@ public class PaymentService {
 
         // Generate PDF
         try {
-            String pdfDir = "/app/invoices/";
+            // Use different paths for local vs deployed environment
+            String pdfDir;
+            String pdfUrlPrefix;
+            
+            // Check if we're running in a container (Kubernetes) or locally
+            if (System.getProperty("user.dir").contains("/app")) {
+                // Running in Kubernetes container
+                pdfDir = "/app/invoices/";
+                pdfUrlPrefix = "/invoices/";
+            } else {
+                // Running locally
+                pdfDir = "src/main/resources/invoices/";
+                pdfUrlPrefix = "/invoices/";
+            }
+            
             // Create directory if it doesn't exist
             java.io.File dir = new java.io.File(pdfDir);
             if (!dir.exists()) {
@@ -100,10 +114,11 @@ public class PaymentService {
             String pdfFile = invoice.getInvoiceId() + ".pdf";
             String pdfPath = pdfDir + pdfFile;
             com.example.microsponsoringbackend.util.InvoicePdfGenerator.generateInvoicePdf(invoice, pdfPath);
-            invoice.setGeneratedPdfUrl("/invoices/" + pdfFile);
+            invoice.setGeneratedPdfUrl(pdfUrlPrefix + pdfFile);
             invoice = invoiceService.save(invoice); // update with PDF URL
         } catch (Exception e) {
             System.err.println("Failed to generate invoice PDF: " + e.getMessage());
+            e.printStackTrace(); // Add stack trace for debugging
         }
 
         // Insert notifications for both parties in the transaction
